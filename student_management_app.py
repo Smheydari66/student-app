@@ -483,9 +483,9 @@ elif menu_choice == "📱 شرکت در آزمون (دانش‌آموز)":
         if existing:
             st.success(f"شما قبلاً در این آزمون شرکت کرده‌اید. درصد کسب‌شده: {existing['percentage']:.1f}٪")
         else:
-            
-     st.info(f"زمان پیشنهادی آزمون: {quizzes_df[quizzes_df['id'] == q_id]['duration_minutes'].values[0]} دقیقه")
-            
+                   st.info(f"زمان پیشنهادی آزمون: {quizzes_df[quizzes_df['id'] 
+                    == q_id]['duration_minutes'].values[0]} دقیقه")                               
+     
             # Fetch Questions
             with get_connection() as conn:
                 questions = conn.execute("SELECT * FROM questions WHERE quiz_id = ?", (q_id,)).fetchall()
