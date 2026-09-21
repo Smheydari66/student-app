@@ -483,4 +483,106 @@ elif menu_choice == "📱 شرکت در آزمون (دانش‌آموز)":
         if existing:
             st.success(f"شما قبلاً در این آزمون شرکت کرده‌اید. درصد کسب‌شده: {existing['percentage']:.1f}٪")
         else:
-            st.info(f"زمان پیشنهاد
+            
+     st.info(f"زمان پیشنهادی آزمون: {quizzes_df[quizzes_df['id'] == q_id]['duration_minutes'].values[0]} دقیقه")
+            
+            # Fetch Questions
+            with get_connection() as conn:
+                questions = conn.execute("SELECT * FROM questions WHERE quiz_id = ?", (q_id,)).fetchall()
+                
+            student_answers = {}
+            st.markdown("---")
+            with st.form("student_quiz_form"):
+                for idx, q in enumerate(questions):
+                    st.markdown(f"**سوال {idx+1}: {q['question_text']}**")
+                    options = [q['option_1'], q['option_2'], q['option_3'], q['option_4']]
+                    user_ans = st.radio(
+                        f"پاسخ سوال {idx+1}:",
+                        options=[1, 2, 3, 4],
+                        format_func=lambda x: f"گزینه {x}: {options[x-1]}",
+                        key=f"sq_{q['id']}"
+                    )
+                    student_answers[q['id']] = (user_ans, q['correct_option'])
+                    st.markdown("---")
+                    
+                submit_quiz = st.form_submit_button("پایان آزمون و دریافت نتیجه آنی")
+                
+                if submit_quiz:
+                    correct_count = 0
+                    total = len(questions)
+                    for q_id_key, (ans, correct) in student_answers.items():
+                        if ans == correct:
+                            correct_count += 1
+                            
+                    pct = (correct_count / total) * 100 if total > 0 else 0
+                    
+                    with get_connection() as conn:
+                        conn.execute(
+                            "INSERT INTO quiz_results (quiz_id, student_id, score, total_questions, percentage) VALUES (?, ?, ?, ?, ?)",
+                            (q_id, s_id, correct_count, total, pct)
+                        )
+                        conn.commit()
+                        
+                    st.balloons()
+                    st.success(f"🎉 آزمون با موفقیت پایان یافت! نمره شما: {correct_count} از {total} (معادل {pct:.1f} درصد)")
+
+# ---------------------------------------------------------
+# 6. Dashboard and Analytical Report
+# ---------------------------------------------------------
+elif menu_choice == "📊 داشبورد و کارنامه":
+    st.header("📊 داشبورد تحلیلی و کارنامه جامع کلاس پنجم")
+    
+    students_df = load_students()
+    if students_df.empty:
+        st.warning("اطلاعاتی برای نمایش وجود ندارد.")
+    else:
+        selected_student = st.selectbox("انتخاب دانش‌آموز جهت مشاهده کارنامه جامع:", students_df['full_name'].tolist())
+        s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
+        
+        st.markdown(f"### 📄 کارنامه جامع و توصیفی: {selected_student}")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with get_connection() as conn:
+            eval_count = conn.execute("SELECT COUNT(*) FROM evaluations WHERE student_id = ?", (s_id,)).fetchone()[0]
+            beh_count = conn.execute("SELECT COUNT(*) FROM behaviors WHERE student_id = ?", (s_id,)).fetchone()[0]
+            quiz_avg = conn.execute("SELECT AVG(percentage) FROM quiz_results WHERE student_id = ?", (s_id,)).fetchone()[0]
+            
+        with col1:
+            st.metric("تعداد ارزشیابی‌های درسی:", eval_count)
+        with col2:
+            st.metric("تعداد موارد رفتاری ثبت‌شده:", beh_count)
+        with col3:
+            st.metric("میانگین درصد آزمون‌های آنلاین:", f"{quiz_avg:.1f}٪" if quiz_avg else "بدون آزمون")
+            
+        st.markdown("---")
+        
+        # Tabs for details
+        tab_d1, tab_d2, tab_d3 = st.tabs(["📝 ارزشیابی‌های درسی", "🌟 سوابق رفتاری", "📊 کارنامه آزمون‌ها"])
+        
+        with tab_d1:
+            with get_connection() as conn:
+                df_e = pd.read_sql_query("SELECT subject AS 'درس', level AS 'سطح توصیفی', feedback AS 'توصیف عملکرد', eval_date AS 'تاریخ' FROM evaluations WHERE student_id = ?", conn, params=(s_id,))
+            if not df_e.empty:
+                st.dataframe(df_e, use_container_width=True)
+            else:
+                st.info("ارزشیابی درسی ثبت نشده است.")
+                
+        with tab_d2:
+            with get_connection() as conn:
+                df_b = pd.read_sql_query("SELECT behavior_type AS 'نوع', title AS 'عنوان', description AS 'شرح', log_date AS 'تاریخ' FROM behaviors WHERE student_id = ?", conn, params=(s_id,))
+            if not df_b.empty:
+                st.dataframe(df_b, use_container_width=True)
+            else:
+                st.info("مورد رفتاری ثبت نشده است.")
+                
+        with tab_d3:
+            with get_connection() as conn:
+                df_q = pd.read_sql_query("""
+                    SELECT q.title AS 'عنوان آزمون', q.subject AS 'درس', r.score AS 'نمره', r.total_questions AS 'کل سوالات', r.percentage AS 'درصد ٪', r.submitted_at AS 'زمان'
+                    FROM quiz_results r JOIN quizzes q ON r.quiz_id = q.id WHERE r.student_id = ?
+                """, conn, params=(s_id,))
+            if not df_q.empty:
+                st.dataframe(df_q, use_container_width=True)
+            else:
+                st.info("نتیجه آزمونی برای این دانش‌آموز ثبت نشده است.")
