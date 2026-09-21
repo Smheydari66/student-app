@@ -4,16 +4,16 @@ import pandas as pd
 import datetime
 
 # ---------------------------------------------------------
-# Page Configuration & RTL Styling
+# Page Configuration & Advanced RTL UI Styling
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="سامانه هوشمند مدیریت کلاس پنجم ابتدایی",
-    page_icon="🎓",
+    page_title="سامانه هوشمند کلاس پنجم | دبستان شهید مطهری مهران",
+    page_icon="🎨",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Persian / RTL CSS
+# Custom Enhanced Persian / Student-Friendly CSS
 st.markdown("""
 <style>
     @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
@@ -25,52 +25,127 @@ st.markdown("""
     }
     
     .stApp {
-        background-color: #f8f9fa;
+        background: linear-gradient(180deg, #F0FDF4 0%, #F8FAFC 100%);
     }
     
-    .main-header {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    /* Top Main Banner */
+    .hero-header {
+        background: linear-gradient(135deg, #0284C7 0%, #0D9488 50%, #16A34A 100%);
         color: white;
-        padding: 25px;
-        border-radius: 12px;
+        padding: 30px 20px;
+        border-radius: 20px;
         text-align: center !important;
         margin-bottom: 25px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 25px rgba(13, 148, 136, 0.25);
     }
     
-    .author-card {
-        background-color: #ffffff;
-        border: 2px solid #2a5298;
-        border-radius: 12px;
-        padding: 20px;
-        text-align: center;
-        margin-top: 15px;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    .hero-header h1 {
+        font-size: 2.2rem !important;
+        font-weight: 800 !important;
+        margin-bottom: 10px !important;
+        color: #FFFFFF !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    
+    .hero-header p {
+        font-size: 1.15rem !important;
+        opacity: 0.95;
+        margin-bottom: 0 !important;
     }
 
-    .feature-box {
-        background-color: #ffffff;
-        padding: 18px;
-        border-radius: 10px;
-        border-right: 5px solid #2a5298;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    /* Author Branding Card */
+    .author-badge {
+        background: #FFFFFF;
+        border: 2px dashed #0D9488;
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     }
     
+    .author-badge h3 {
+        color: #0284C7 !important;
+        font-size: 1.4rem !important;
+        font-weight: 700 !important;
+        margin-bottom: 5px !important;
+    }
+    
+    .author-badge p {
+        color: #334155 !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        margin: 0 !important;
+    }
+
+    /* Feature Cards */
+    .feature-card {
+        background-color: #FFFFFF;
+        padding: 22px;
+        border-radius: 16px;
+        border-right: 6px solid #0D9488;
+        margin-bottom: 18px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .feature-card h4 {
+        color: #0F766E !important;
+        font-size: 1.25rem !important;
+        font-weight: 700 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .feature-card p {
+        color: #475569 !important;
+        font-size: 1rem !important;
+        line-height: 1.7 !important;
+        margin: 0 !important;
+    }
+
+    /* Metric Cards */
+    .stat-card {
+        background: #FFFFFF;
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 1px solid #E2E8F0;
+    }
+
+    /* Primary Buttons Styling */
     .stButton>button {
         width: 100%;
-        background-color: #2a5298;
-        color: white;
-        border-radius: 8px;
-        padding: 8px 16px;
-        font-weight: bold;
-        border: none;
+        background: linear-gradient(135deg, #0284C7 0%, #0D9488 100%) !important;
+        color: white !important;
+        border-radius: 12px !important;
+        padding: 10px 20px !important;
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3) !important;
+        transition: all 0.3s ease !important;
     }
     
     .stButton>button:hover {
-        background-color: #1e3c72;
-        color: white;
+        background: linear-gradient(135deg, #0369A1 0%, #0F766E 100%) !important;
+        box-shadow: 0 6px 18px rgba(13, 148, 136, 0.45) !important;
+    }
+
+    /* Custom Form Labels and Headers */
+    .section-title {
+        color: #1E293B;
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+        border-bottom: 3px solid #0D9488;
+        padding-bottom: 8px;
+        display: inline-block;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -198,18 +273,27 @@ def load_students():
     return df
 
 # ---------------------------------------------------------
-# Header & Navigation
+# Main UI Hero Banner
 # ---------------------------------------------------------
 st.markdown("""
-<div class="main-header">
-    <h2>🎓 سامانه هوشمند مدیریت کلاس و آزمون آنلاین پایه پنجم ابتدایی</h2>
-    <p>ابزار جامع آموزگار جهت ارزشیابی کیفی-توصیفی، مدیریت انضباطی و برگزاری آزمون‌های آنلاین</p>
+<div class="hero-header">
+    <h1>🎓 سامانه هوشمند مدیریت کلاس و آزمون آنلاین</h1>
+    <p>پایه پنجم ابتدایی | یادگیری تعاملی، ارزشیابی توصیفی و آزمون‌های آنلاین</p>
 </div>
 """, unsafe_allow_html=True)
 
-st.sidebar.title("📌 منوی اصلی سامانه")
+# ---------------------------------------------------------
+# Navigation - Modern Styled Sidebar
+# ---------------------------------------------------------
+st.sidebar.markdown("""
+<div style="text-align: center; padding: 10px 0;">
+    <h2 style="color: #0F766E; font-size: 1.4rem; font-weight: 800; margin-bottom: 5px;">📌 منوی اصلی سامانه</h2>
+    <p style="color: #64748B; font-size: 0.9rem;">بخش مورد نظر خود را انتخاب کنید</p>
+</div>
+""", unsafe_allow_html=True)
+
 menu_choice = st.sidebar.radio(
-    "بخش مورد نظر را انتخاب کنید:",
+    "",
     [
         "🏠 صفحه اصلی و معرفی برنامه",
         "👨‍🎓 پرونده دانش‌آموزان",
@@ -218,54 +302,61 @@ menu_choice = st.sidebar.radio(
         "✏️ آزمون‌ساز آنلاین (معلم)",
         "📱 شرکت در آزمون (دانش‌آموز)",
         "📊 داشبورد و کارنامه"
-    ]
+    ],
+    index=0
 )
 
 # ---------------------------------------------------------
-# 0. Landing Page / About
+# 0. Landing Page / About & Introduction
 # ---------------------------------------------------------
 if menu_choice == "🏠 صفحه اصلی و معرفی برنامه":
-    st.subheader("👋 به سامانه مدیریت هوشمند کلاس پنجم خوش آمدید")
+    st.markdown('<div class="section-title">👋 به سامانه مدیریت هوشمند کلاس پنجم خوش آمدید</div>', unsafe_allow_html=True)
     
     st.markdown("""
-    <div class="author-card">
+    <div class="author-badge">
         <h3>🌱 طراح و توسعه‌دهنده سامانه</h3>
-        <h4 style="color: #2a5298;">سید موسی حیدری</h4>
-        <p style="font-size: 1.1em; font-weight: bold;">آموزگار کلاس پنجم ابتدایی دبستان شهید مطهری مهران</p>
+        <p style="font-size: 1.25rem !important; color: #0F766E !important; margin-bottom: 6px !important;">سید موسی حیدری</p>
+        <p>آموزگار کلاس پنجم ابتدایی دبستان شهید مطهری مهران</p>
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("### 🎯 اهداف و ویژگی‌های برنامه:")
+    st.markdown("<h3 style='color: #1E293B; font-size: 1.3rem; margin-bottom: 15px;'>🎯 اهداف و امکانات برجسته برنامه:</h3>", unsafe_allow_html=True)
     
-    st.markdown("""
-    <div class="feature-box">
-        <h4>1️⃣ تسهیل فرآیند ارزشیابی کیفی-توصیفی</h4>
-        <p>ثبت دقیق سطح عملکرد دانش‌آموزان در تمامی ۷ عنوان درسی پایه پنجم (ریاضی، علوم، فارسی، نگارش، مطالعات، هدیه‌ها و قرآن) همراه با بازخوردهای توصیفی سازنده.</p>
-    </div>
+    col_a, col_b = st.columns(2)
     
-    <div class="feature-box">
-        <h4>2️⃣ آزمون‌ساز هوشمند و تصحیح خودکار</h4>
-        <p>طراحی آزمون‌های ۴ گزینه‌ای آنلاین با زمان‌بندی مشخص، تصحیح آنی پاسخ‌ها و محاسبه نمره و درصد عملکرد دانش‌آموزان بدون نیاز به تصحیح دستی.</p>
-    </div>
+    with col_a:
+        st.markdown("""
+        <div class="feature-card">
+            <h4>1️⃣ ارزشیابی کیفی-توصیفی دقیق</h4>
+            <p>ثبت و دسته‌بندی سطح عملکرد دانش‌آموزان در تمامی ۷ عنوان درسی پایه پنجم به همراه توصیف عملکرد و ارائه راهکارهای بهبود تحصیلی.</p>
+        </div>
+        
+        <div class="feature-card">
+            <h4>2️⃣ آزمون‌ساز آنلاین با تصحیح آنی</h4>
+            <p>طراحی آزمون‌های ۴ گزینه‌ای آنلاین با قابلیت تعیین زمان‌بندی، محاسبه خودکار درصد نمره و نمایش آنی کارنامه به دانش‌آموز.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col_b:
+        st.markdown("""
+        <div class="feature-card">
+            <h4>3️⃣ پایش رفتاری و انضباطی کلاسی</h4>
+            <p>ثبت مشاهدات رفتاری مثبت و تشویق‌ها یا موارد نیاز به پیگیری، جهت ارتقای شایستگی‌های اخلاقی و تعامل موثر با اولیا.</p>
+        </div>
+        
+        <div class="feature-card">
+            <h4>4️⃣ داشبورد و کارنامه جامع آنلاین</h4>
+            <p>نمایش یکپارچه سوابق درسی، رفتاری و نمرات آزمون‌ها در قالب کارنامه تحلیلی جهت ارائه به اولیا و مدیریت مدرسه.</p>
+        </div>
+        """, unsafe_allow_html=True)
     
-    <div class="feature-box">
-        <h4>3️⃣ پایش رفتاری و انضباطی کلاس</h4>
-        <p>ثبت و پیگیری مشاهدات رفتاری، تشویق‌ها و موارد انضباطی جهت ارتقای تعامل با اولیا و رشد اجتماعی دانش‌آموزان.</p>
-    </div>
-    
-    <div class="feature-box">
-        <h4>4️⃣ کارنامه جامع و تحلیل عملکرد</h4>
-        <p>ارائه داشبورد تحلیلی یکپارچه برای هر دانش‌آموز شامل سوابق درسی، رفتاری و نمرات آزمون‌های آنلاین جهت ارائه به اولیا و مدیر مدرسه.</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.info("💡 جهت شروع کار با سامانه، از منوی سمت راست بخش مورد نظر خود را انتخاب کنید.")
+    st.info("💡 برای شروع استفاده از امکانات، از منوی سمت راست بخش مورد نظر خود را انتخاب نمایید.")
 
 # ---------------------------------------------------------
 # 1. Student Profile Management
 # ---------------------------------------------------------
 elif menu_choice == "👨‍🎓 پرونده دانش‌آموزان":
-    st.header("👨‍🎓 پرونده و اطلاعات شخصی دانش‌آموزان")
+    st.markdown('<div class="section-title">👨‍🎓 پرونده و اطلاعات شخصی دانش‌آموزان</div>', unsafe_allow_html=True)
     
     tab1, tab2 = st.tabs(["📋 لیست دانش‌آموزان", "➕ ثبت دانش‌آموز جدید"])
     
@@ -280,7 +371,7 @@ elif menu_choice == "👨‍🎓 پرونده دانش‌آموزان":
                 'notes': 'توضیحات'
             }), use_container_width=True)
             
-            st.subheader("🗑️ حذف پرونده دانش‌آموز")
+            st.markdown("<h4 style='color: #DC2626; margin-top: 20px;'>🗑️ حذف پرونده دانش‌آموز</h4>", unsafe_allow_html=True)
             student_to_delete = st.selectbox("انتخاب دانش‌آموز جهت حذف:", students_df['full_name'].tolist(), key="del_student")
             if st.button("حذف پرونده دانش‌آموز"):
                 s_id = int(students_df[students_df['full_name'] == student_to_delete]['id'].values[0])
@@ -326,7 +417,7 @@ elif menu_choice == "👨‍🎓 پرونده دانش‌آموزان":
 # 2. Qualitative Evaluation (7 Subjects)
 # ---------------------------------------------------------
 elif menu_choice == "📝 ارزشیابی کیفی-توصیفی":
-    st.header("📝 ثبت ارزشیابی کیفی-توصیفی (پایه پنجم)")
+    st.markdown('<div class="section-title">📝 ثبت ارزشیابی کیفی-توصیفی (پایه پنجم)</div>', unsafe_allow_html=True)
     
     students_df = load_students()
     if students_df.empty:
@@ -371,7 +462,7 @@ elif menu_choice == "📝 ارزشیابی کیفی-توصیفی":
 # 3. Behavior and Discipline Tracking
 # ---------------------------------------------------------
 elif menu_choice == "🌟 ثبت رفتار و انضباط":
-    st.header("🌟 مدیریت رفتار و مشاهدات انضباطی")
+    st.markdown('<div class="section-title">🌟 مدیریت رفتار و مشاهدات انضباطی</div>', unsafe_allow_html=True)
     
     students_df = load_students()
     if students_df.empty:
@@ -415,7 +506,7 @@ elif menu_choice == "🌟 ثبت رفتار و انضباط":
 # 4. Online Quiz Creator (Teacher Side)
 # ---------------------------------------------------------
 elif menu_choice == "✏️ آزمون‌ساز آنلاین (معلم)":
-    st.header("✏️ آزمون‌ساز آنلاین (طراحی و مدیریت آزمون)")
+    st.markdown('<div class="section-title">✏️ آزمون‌ساز آنلاین (طراحی و مدیریت آزمون)</div>', unsafe_allow_html=True)
     
     tab_q1, tab_q2 = st.tabs(["➕ ساخت آزمون جدید و طراحی سوالات", "📊 لیست آزمون‌ها و نتایج"])
     
@@ -506,7 +597,7 @@ elif menu_choice == "✏️ آزمون‌ساز آنلاین (معلم)":
 # 5. Student Online Quiz Interface
 # ---------------------------------------------------------
 elif menu_choice == "📱 شرکت در آزمون (دانش‌آموز)":
-    st.header("📱 سامانه شرکت در آزمون آنلاین دانش‌آموزان")
+    st.markdown('<div class="section-title">📱 سامانه شرکت در آزمون آنلاین دانش‌آموزان</div>', unsafe_allow_html=True)
     
     students_df = load_students()
     with get_connection() as conn:
@@ -578,7 +669,7 @@ elif menu_choice == "📱 شرکت در آزمون (دانش‌آموز)":
 # 6. Dashboard and Analytical Report
 # ---------------------------------------------------------
 elif menu_choice == "📊 داشبورد و کارنامه":
-    st.header("📊 داشبورد تحلیلی و کارنامه جامع کلاس پنجم")
+    st.markdown('<div class="section-title">📊 داشبورد تحلیلی و کارنامه جامع کلاس پنجم</div>', unsafe_allow_html=True)
     
     students_df = load_students()
     if students_df.empty:
