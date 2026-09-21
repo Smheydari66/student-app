@@ -4,10 +4,10 @@ import pandas as pd
 import datetime
 
 # ---------------------------------------------------------
-# Page Configuration & RTL CSS Styling
+# Page Configuration & RTL Styling
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="سامانه مدیریت کلاس پنجم و آزمون آنلاین",
+    page_title="سامانه هوشمند مدیریت کلاس پنجم ابتدایی",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -31,20 +31,31 @@ st.markdown("""
     .main-header {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         color: white;
-        padding: 20px;
+        padding: 25px;
         border-radius: 12px;
         text-align: center !important;
         margin-bottom: 25px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
     
-    .card {
-        background-color: white;
+    .author-card {
+        background-color: #ffffff;
+        border: 2px solid #2a5298;
+        border-radius: 12px;
         padding: 20px;
+        text-align: center;
+        margin-top: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .feature-box {
+        background-color: #ffffff;
+        padding: 18px;
         border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        margin-bottom: 15px;
         border-right: 5px solid #2a5298;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
     
     .stButton>button {
@@ -100,7 +111,7 @@ def init_db():
             level TEXT NOT NULL,
             feedback TEXT,
             eval_date DATE,
-            FOREIGN KEY (student_id) REFERENCES students (id)
+            FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE CASCADE
         )
         """)
         
@@ -113,7 +124,7 @@ def init_db():
             title TEXT NOT NULL,
             description TEXT,
             log_date DATE,
-            FOREIGN KEY (student_id) REFERENCES students (id)
+            FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE CASCADE
         )
         """)
         
@@ -139,7 +150,7 @@ def init_db():
             option_3 TEXT NOT NULL,
             option_4 TEXT NOT NULL,
             correct_option INTEGER NOT NULL,
-            FOREIGN KEY (quiz_id) REFERENCES quizzes (id)
+            FOREIGN KEY (quiz_id) REFERENCES quizzes (id) ON DELETE CASCADE
         )
         """)
         
@@ -153,8 +164,8 @@ def init_db():
             total_questions INTEGER,
             percentage REAL,
             submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (quiz_id) REFERENCES quizzes (id),
-            FOREIGN KEY (student_id) REFERENCES students (id)
+            FOREIGN KEY (quiz_id) REFERENCES quizzes (id) ON DELETE CASCADE,
+            FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE CASCADE
         )
         """)
         conn.commit()
@@ -162,7 +173,7 @@ def init_db():
 init_db()
 
 # ---------------------------------------------------------
-# Helper Functions
+# Helper Functions & Constants
 # ---------------------------------------------------------
 FIFTH_GRADE_SUBJECTS = [
     "ریاضی",
@@ -187,36 +198,73 @@ def load_students():
     return df
 
 # ---------------------------------------------------------
-# Main UI Header
+# Header & Navigation
 # ---------------------------------------------------------
 st.markdown("""
 <div class="main-header">
-    <h2>🎓 سامانه هوشمند مدیریت کلاس و آزمون آنلاین - پایه پنجم ابتدایی</h2>
-    <p>ثبت اطلاعات دانش‌آموزان، ارزشیابی کیفی-توصیفی، مدیریت رفتار و آزمون‌ساز آنلاین با تصحیح خودکار</p>
+    <h2>🎓 سامانه هوشمند مدیریت کلاس و آزمون آنلاین پایه پنجم ابتدایی</h2>
+    <p>ابزار جامع آموزگار جهت ارزشیابی کیفی-توصیفی، مدیریت انضباطی و برگزاری آزمون‌های آنلاین</p>
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# Sidebar Menu
-# ---------------------------------------------------------
-st.sidebar.image("https://img.icons8.com/illustrations/100/teacher.png", width=80)
-st.sidebar.title("منوی مدیریت کلاس")
+st.sidebar.title("📌 منوی اصلی سامانه")
 menu_choice = st.sidebar.radio(
     "بخش مورد نظر را انتخاب کنید:",
     [
+        "🏠 صفحه اصلی و معرفی برنامه",
         "👨‍🎓 پرونده دانش‌آموزان",
         "📝 ارزشیابی کیفی-توصیفی",
         "🌟 ثبت رفتار و انضباط",
-        "✏️ آزمون‌ساز آنلاین",
+        "✏️ آزمون‌ساز آنلاین (معلم)",
         "📱 شرکت در آزمون (دانش‌آموز)",
         "📊 داشبورد و کارنامه"
     ]
 )
 
 # ---------------------------------------------------------
+# 0. Landing Page / About
+# ---------------------------------------------------------
+if menu_choice == "🏠 صفحه اصلی و معرفی برنامه":
+    st.subheader("👋 به سامانه مدیریت هوشمند کلاس پنجم خوش آمدید")
+    
+    st.markdown("""
+    <div class="author-card">
+        <h3>🌱 طراح و توسعه‌دهنده سامانه</h3>
+        <h4 style="color: #2a5298;">سید موسی حیدری</h4>
+        <p style="font-size: 1.1em; font-weight: bold;">آموزگار کلاس پنجم ابتدایی دبستان شهید مطهری مهران</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("### 🎯 اهداف و ویژگی‌های برنامه:")
+    
+    st.markdown("""
+    <div class="feature-box">
+        <h4>1️⃣ تسهیل فرآیند ارزشیابی کیفی-توصیفی</h4>
+        <p>ثبت دقیق سطح عملکرد دانش‌آموزان در تمامی ۷ عنوان درسی پایه پنجم (ریاضی، علوم، فارسی، نگارش، مطالعات، هدیه‌ها و قرآن) همراه با بازخوردهای توصیفی سازنده.</p>
+    </div>
+    
+    <div class="feature-box">
+        <h4>2️⃣ آزمون‌ساز هوشمند و تصحیح خودکار</h4>
+        <p>طراحی آزمون‌های ۴ گزینه‌ای آنلاین با زمان‌بندی مشخص، تصحیح آنی پاسخ‌ها و محاسبه نمره و درصد عملکرد دانش‌آموزان بدون نیاز به تصحیح دستی.</p>
+    </div>
+    
+    <div class="feature-box">
+        <h4>3️⃣ پایش رفتاری و انضباطی کلاس</h4>
+        <p>ثبت و پیگیری مشاهدات رفتاری، تشویق‌ها و موارد انضباطی جهت ارتقای تعامل با اولیا و رشد اجتماعی دانش‌آموزان.</p>
+    </div>
+    
+    <div class="feature-box">
+        <h4>4️⃣ کارنامه جامع و تحلیل عملکرد</h4>
+        <p>ارائه داشبورد تحلیلی یکپارچه برای هر دانش‌آموز شامل سوابق درسی، رفتاری و نمرات آزمون‌های آنلاین جهت ارائه به اولیا و مدیر مدرسه.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.info("💡 جهت شروع کار با سامانه، از منوی سمت راست بخش مورد نظر خود را انتخاب کنید.")
+
+# ---------------------------------------------------------
 # 1. Student Profile Management
 # ---------------------------------------------------------
-if menu_choice == "👨‍🎓 پرونده دانش‌آموزان":
+elif menu_choice == "👨‍🎓 پرونده دانش‌آموزان":
     st.header("👨‍🎓 پرونده و اطلاعات شخصی دانش‌آموزان")
     
     tab1, tab2 = st.tabs(["📋 لیست دانش‌آموزان", "➕ ثبت دانش‌آموز جدید"])
@@ -232,7 +280,7 @@ if menu_choice == "👨‍🎓 پرونده دانش‌آموزان":
                 'notes': 'توضیحات'
             }), use_container_width=True)
             
-            st.subheader("🗑️ مدیریت یا حذف دانش‌آموز")
+            st.subheader("🗑️ حذف پرونده دانش‌آموز")
             student_to_delete = st.selectbox("انتخاب دانش‌آموز جهت حذف:", students_df['full_name'].tolist(), key="del_student")
             if st.button("حذف پرونده دانش‌آموز"):
                 s_id = int(students_df[students_df['full_name'] == student_to_delete]['id'].values[0])
@@ -254,7 +302,7 @@ if menu_choice == "👨‍🎓 پرونده دانش‌آموزان":
                 last_name = st.text_input("نام خانوادگی:")
                 parent_phone = st.text_input("شماره همراه اولیا (جهت اطلاع‌رسانی):")
             
-            notes = st.text_area("توضیحات ویژه یا ملاحظات پزشکی/آموزشی:")
+            notes = st.text_area("توضیحات ویژه یا ملاحظات آموزشی/پزشکی:")
             
             submit_btn = st.form_submit_button("ثبت دانش‌آموز")
             
@@ -334,7 +382,7 @@ elif menu_choice == "🌟 ثبت رفتار و انضباط":
             selected_student = st.selectbox("انتخاب دانش‌آموز:", students_df['full_name'].tolist())
             b_type = st.selectbox("نوع مشاهده:", ["تشویق / رفتار مثبت 🟢", "پیگیری / نیاز به توجه 🔴"])
         with col2:
-            title = st.text_input("عنوان عنوان رفتار (مثلاً: همکاری در گروه، تاخیر ورود، دقت در تکالیف):")
+            title = st.text_input("عنوان رفتار (مثلاً: همکاری در گروه، تاخیر ورود، دقت در تکالیف):")
             log_date = st.date_input("تاریخ ثبت:", datetime.date.today())
             
         desc = st.text_area("شرح جزییات و اقدام انجام‌شده:")
@@ -366,7 +414,7 @@ elif menu_choice == "🌟 ثبت رفتار و انضباط":
 # ---------------------------------------------------------
 # 4. Online Quiz Creator (Teacher Side)
 # ---------------------------------------------------------
-elif menu_choice == "✏️ آزمون‌ساز آنلاین":
+elif menu_choice == "✏️ آزمون‌ساز آنلاین (معلم)":
     st.header("✏️ آزمون‌ساز آنلاین (طراحی و مدیریت آزمون)")
     
     tab_q1, tab_q2 = st.tabs(["➕ ساخت آزمون جدید و طراحی سوالات", "📊 لیست آزمون‌ها و نتایج"])
@@ -392,13 +440,13 @@ elif menu_choice == "✏️ آزمون‌ساز آنلاین":
             q_text = st.text_input(f"متن سوال {i+1}:", key=f"q_{i}")
             c1, c2, c3, c4 = st.columns(4)
             with c1:
-                opt1 = st.text_input(f"گزینه ۱:", key=f"opt1_{i}")
+                opt1 = st.text_input(f"گزینه ۱ (سوال {i+1}):", key=f"opt1_{i}")
             with c2:
-                opt2 = st.text_input(f"گزینه ۲:", key=f"opt2_{i}")
+                opt2 = st.text_input(f"گزینه ۲ (سوال {i+1}):", key=f"opt2_{i}")
             with c3:
-                opt3 = st.text_input(f"گزینه ۳:", key=f"opt3_{i}")
+                opt3 = st.text_input(f"گزینه ۳ (سوال {i+1}):", key=f"opt3_{i}")
             with c4:
-                opt4 = st.text_input(f"گزینه ۴:", key=f"opt4_{i}")
+                opt4 = st.text_input(f"گزینه ۴ (سوال {i+1}):", key=f"opt4_{i}")
             
             correct_opt = st.selectbox(f"گزینه صحیح برای سوال {i+1}:", [1, 2, 3, 4], key=f"corr_{i}")
             questions_data.append((q_text, opt1, opt2, opt3, opt4, correct_opt))
@@ -455,7 +503,7 @@ elif menu_choice == "✏️ آزمون‌ساز آنلاین":
             st.info("هنوز آزمونی ساخته نشده است.")
 
 # ---------------------------------------------------------
-# 5. Student Online Quiz Interface (Mobile Friendly)
+# 5. Student Online Quiz Interface
 # ---------------------------------------------------------
 elif menu_choice == "📱 شرکت در آزمون (دانش‌آموز)":
     st.header("📱 سامانه شرکت در آزمون آنلاین دانش‌آموزان")
@@ -483,9 +531,9 @@ elif menu_choice == "📱 شرکت در آزمون (دانش‌آموز)":
         if existing:
             st.success(f"شما قبلاً در این آزمون شرکت کرده‌اید. درصد کسب‌شده: {existing['percentage']:.1f}٪")
         else:
-                   st.info(f"زمان پیشنهادی آزمون: {quizzes_df[quizzes_df['id'] 
-                    == q_id]['duration_minutes'].values[0]} دقیقه")                               
-     
+            quiz_duration = int(quizzes_df[quizzes_df['id'] == q_id]['duration_minutes'].values[0])
+            st.info(f"زمان پیشنهادی آزمون: {quiz_duration} دقیقه")
+            
             # Fetch Questions
             with get_connection() as conn:
                 questions = conn.execute("SELECT * FROM questions WHERE quiz_id = ?", (q_id,)).fetchall()
@@ -586,3 +634,4 @@ elif menu_choice == "📊 داشبورد و کارنامه":
                 st.dataframe(df_q, use_container_width=True)
             else:
                 st.info("نتیجه آزمونی برای این دانش‌آموز ثبت نشده است.")
+
