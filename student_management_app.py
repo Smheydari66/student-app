@@ -2,6 +2,7 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 import datetime
+import io
 
 # ---------------------------------------------------------
 # Page Configuration & RTL Styling
@@ -13,14 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Initialize Session States
-if 'is_teacher_logged_in' not in st.session_state:
-    st.session_state['is_teacher_logged_in'] = False
-
-if 'teacher_password' not in st.session_state:
-    st.session_state['teacher_password'] = "1234"
-
-# Custom Persian / RTL CSS
+# Custom High-Contrast RTL CSS
 st.markdown("""
 <style>
     @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
@@ -49,15 +43,6 @@ st.markdown("""
     .main-header h2, .main-header p {
         color: #ffffff !important;
         word-break: keep-all;
-    }
-
-    .login-card {
-        background-color: #ffffff;
-        border: 2px solid #0284c7;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 10px rgba(2, 132, 199, 0.1);
     }
 
     .author-card {
@@ -102,28 +87,32 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* Dropdown Popover & Listbox Styling - White Text on Dark Background */
-    div[data-baseweb="popover"] *, div[role="listbox"] *, div[data-baseweb="select"] * {
+    /* Fix dropdown text color before and after selection */
+    div[data-baseweb="popover"] ul li, div[data-baseweb="select"] * {
         color: #ffffff !important;
         background-color: #1e293b !important;
-    }
-
-    div[role="option"] {
-        color: #ffffff !important;
-        background-color: #1e293b !important;
-    }
-
-    div[role="option"]:hover {
-        background-color: #0284c7 !important;
-        color: #ffffff !important;
     }
     
     label, div[data-testid="stMarkdownContainer"] p, .stRadio label {
         color: #0f172a !important;
         font-weight: 500;
     }
+
+    .login-card {
+        background-color: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
 </style>
 """, unsafe_allow_html=True)
+
+# Session state initialization
+if 'is_teacher_logged_in' not in st.session_state:
+    st.session_state['is_teacher_logged_in'] = False
+if 'teacher_password' not in st.session_state:
+    st.session_state['teacher_password'] = "1234"
 
 # ---------------------------------------------------------
 # Database Initialization
@@ -146,7 +135,7 @@ def init_db():
             last_name TEXT NOT NULL,
             national_id TEXT UNIQUE,
             parent_phone TEXT,
-            student_group TEXT DEFAULT 'عمومی 📚',
+            student_group TEXT DEFAULT 'گروه اندیشه 📖',
             notes TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -238,12 +227,13 @@ EVALUATION_LEVELS = [
     "نیاز به تلاش مجدد 🔴"
 ]
 
+# 29 Students Divided into 5 Groups (4 groups of 6 + 1 group of 5)
 CLASS_GROUPS = [
-    "گروه عمومی 📚",
-    "گروه ارمغان 🚀",
-    "گروه دانا 💡",
-    "گروه تلاش 🌟",
-    "گروه نخبگان 🏆"
+    "گروه ارمغان 🚀 (۶ نفر)",
+    "گروه دانا 💡 (۶ نفر)",
+    "گروه تلاش 🌟 (۶ نفر)",
+    "گروه نخبگان 🏆 (۶ نفر)",
+    "گروه اندیشه 📖 (۵ نفر)"
 ]
 
 def load_students():
@@ -255,13 +245,8 @@ def load_students():
         init_db()
         return pd.DataFrame(columns=['id', 'full_name', 'national_id', 'parent_phone', 'student_group', 'notes'])
 
-def check_teacher_auth():
-    if not st.session_state['is_teacher_logged_in']:
-        st.warning("🔒 این بخش مخصوص آموزگار است. لطفاً از بالای صفحه در کادر '🔑 پنل ورود مدیریت آموزگار' رمز عبور را وارد کنید (رمز پیش‌فرض: 1234).")
-        st.stop()
-
 # ---------------------------------------------------------
-# Main UI Header
+# Header & Access Control
 # ---------------------------------------------------------
 st.markdown("""
 <div class="main-header">
@@ -270,59 +255,41 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# Teacher Access Control & Password Management Container
-# ---------------------------------------------------------
-with st.container():
+# Top Bar Access Control Card
+with st.expander("🔑 پنل ورود مدیریت آموزگار", expanded=False):
     st.markdown('<div class="login-card">', unsafe_allow_html=True)
-    
     if not st.session_state['is_teacher_logged_in']:
-        st.subheader("🔑 پنل ورود مدیریت آموزگار")
-        col_pass1, col_pass2 = st.columns([3, 1])
-        with col_pass1:
-            pass_input = st.text_input("رمز عبور آموزگار را وارد کنید:", type="password", key="tech_pass_input", placeholder="رمز عبور...")
-        with col_pass2:
+        col_p1, col_p2 = st.columns(2)
+        with col_p1:
+            pass_input = st.text_input("رمز عبور آموزگار را وارد کنید:", type="password", key="tech_pass")
+        with col_p2:
             st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("ورود به سیستم"):
+            if st.button("ورود به سیستم مدیریت"):
                 if pass_input == st.session_state['teacher_password'] or pass_input in ["1234", "مطهری"]:
                     st.session_state['is_teacher_logged_in'] = True
                     st.success("ورود با موفقیت انجام شد.")
                     st.rerun()
                 else:
-                    st.error("رمز عبور وارد شده اشتباه است.")
+                    st.error("رمز عبور نادرست است.")
     else:
-        st.subheader("🟢 پنل مدیریت آموزگار (وارد شده‌اید)")
-        col_t1, col_t2 = st.columns([3, 1])
-        with col_t1:
-            st.info("دسترسی معلم فعال است. تمامی امکانات مدیریتی برای شما باز می‌باشد.")
-        with col_t2:
-            if st.button("🚪 خروج از پنل معلم"):
+        st.success("🟢 شما با دسترسی آموزگار وارد شده‌اید.")
+        col_out1, col_out2 = st.columns(2)
+        with col_out1:
+            if st.button("خروج از پنل مدیریت"):
                 st.session_state['is_teacher_logged_in'] = False
                 st.rerun()
-                
-        # Teacher-Only Change Password Feature
-        with st.expander("🔐 تغییر رمز عبور آموزگار (ویژه معلم)"):
-            st.markdown("در این بخش می‌توانید رمز عبور جدیدی برای پنل مدیریت خود تنظیم کنید:")
-            col_cp1, col_pass2_sub = st.columns(2)
-            with col_cp1:
-                new_pass = st.text_input("رمز عبور جدید:", type="password", key="new_pass_val")
-            with col_pass2_sub:
-                confirm_pass = st.text_input("تکرار رمز عبور جدید:", type="password", key="confirm_pass_val")
-                
-            if st.button("ذخیره رمز عبور جدید"):
-                if new_pass and new_pass == confirm_pass:
-                    st.session_state['teacher_password'] = new_pass
-                    st.success("🎉 رمز عبور آموزگار با موفقیت تغییر یافت.")
-                elif new_pass != confirm_pass:
-                    st.error("رمز عبور جدید و تکرار آن یکسان نیستند.")
-                else:
-                    st.warning("لطفاً رمز عبور جدید را وارد کنید.")
-
+        with col_out2:
+            with st.popover("🔐 تغییر رمز عبور آموزگار"):
+                new_pass = st.text_input("رمز عبور جدید:", type="password", key="n_pass")
+                confirm_pass = st.text_input("تکرار رمز عبور جدید:", type="password", key="c_pass")
+                if st.button("ثبت رمز جدید"):
+                    if new_pass and new_pass == confirm_pass:
+                        st.session_state['teacher_password'] = new_pass
+                        st.success("رمز عبور آموزگار با موفقیت تغییر یافت.")
+                    else:
+                        st.error("رمز جدید و تکرار آن یکسان نیستند.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# Top Navigation Dropdown Menu
-# ---------------------------------------------------------
 menu_choice = st.selectbox(
     "📌 منوی اصلی سامانه (بخش مورد نظر را انتخاب کنید):",
     [
@@ -364,8 +331,8 @@ if menu_choice == "🏠 صفحه اصلی و معرفی برنامه":
     </div>
     
     <div class="feature-box">
-        <h4>3️⃣ پایش رفتاری و گروه‌بندی کلاسی</h4>
-        <p>دسته‌بندی دانش‌آموزان در گروه‌های آموزشی و ثبت مشاهدات انضباطی جهت تعامل با اولیا.</p>
+        <h4>3️⃣ پایش رفتاری و گروه‌بندی کلاسی (۲۹ دانش‌آموز در ۵ گروه)</h4>
+        <p>تقسیم متوازن دانش‌آموزان در ۵ گروه کلاسی (ارمغان، دانا، تلاش، نخبگان، اندیشه) و ورود سریع از اکسل.</p>
     </div>
     
     <div class="feature-box">
@@ -375,13 +342,21 @@ if menu_choice == "🏠 صفحه اصلی و معرفی برنامه":
     """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
+# Teacher Check Guard Helper
+# ---------------------------------------------------------
+def check_teacher_auth():
+    if not st.session_state['is_teacher_logged_in']:
+        st.warning("🔒 این بخش مخصوص آموزگار است. لطفاً از بالای صفحه در کادر '🔑 پنل ورود مدیریت آموزگار' رمز عبور را وارد کنید (رمز پیش‌فرض: 1234).")
+        st.stop()
+
+# ---------------------------------------------------------
 # 1. Student Profile & Grouping (Teacher Only)
 # ---------------------------------------------------------
 elif menu_choice == "👨‍🎓 مدیریت دانش‌آموزان و گروه‌ها (معلم)":
     check_teacher_auth()
-    st.header("👨‍🎓 مدیریت دانش‌آموزان و گروه‌بندی کلاسی")
+    st.header("👨‍🎓 مدیریت دانش‌آموزان و گروه‌بندی کلاسی (۲۹ نفر)")
     
-    tab1, tab2 = st.tabs(["📋 لیست دانش‌آموزان و گروه‌ها", "➕ ثبت دانش‌آموز جدید"])
+    tab1, tab2, tab3 = st.tabs(["📋 لیست دانش‌آموزان و گروه‌ها", "➕ ثبت دانش‌آموز جدید (تکی)", "📊 ثبت دسته‌جمعی و سریع از اکسل"])
     
     with tab1:
         students_df = load_students()
@@ -400,6 +375,8 @@ elif menu_choice == "👨‍🎓 مدیریت دانش‌آموزان و گرو�
                 'student_group': 'گروه کلاسی',
                 'notes': 'توضیحات'
             }), use_container_width=True)
+            
+            st.info(f"📊 تعداد کل دانش‌آموزان ثبت‌شده در سامانه: {len(students_df)} نفر")
             
             st.subheader("🗑️ مدیریت یا حذف دانش‌آموز")
             student_to_delete = st.selectbox("انتخاب دانش‌آموز جهت حذف:", students_df['full_name'].tolist(), key="del_student")
@@ -443,6 +420,70 @@ elif menu_choice == "👨‍🎓 مدیریت دانش‌آموزان و گرو�
                         st.error("کد ملی وارد شده تکراری است.")
                 else:
                     st.warning("لطفاً نام و نام خانوادگی را وارد کنید.")
+
+    with tab3:
+        st.subheader("📊 بارگذاری دسته‌جمعی دانش‌آموزان از فایل اکسل (Excel / CSV)")
+        st.markdown("با استفاده از این بخش می‌توانید تمامی ۲۹ دانش‌آموز کلاس را یکجا و در چند ثانیه وارد سامانه نمایید.")
+        
+        # Sample Excel Template Generation
+        sample_data = {
+            'نام': ['علی', 'محمد', 'رضا', 'حسین', 'امیر'],
+            'نام خانوادگی': ['حیدری', 'رضایی', 'احمدی', 'موسوی', 'اکبری'],
+            'کد ملی': ['1111111111', '2222222222', '3333333333', '4444444444', '5555555555'],
+            'شماره اولیا': ['09120000001', '09120000002', '09120000003', '09120000004', '09120000005'],
+            'گروه کلاسی': ['گروه ارمغان 🚀 (۶ نفر)', 'گروه دانا 💡 (۶ نفر)', 'گروه تلاش 🌟 (۶ نفر)', 'گروه نخبگان 🏆 (۶ نفر)', 'گروه اندیشه 📖 (۵ نفر)'],
+            'توضیحات': ['علاقه‌مند به ریاضی', 'فعال در علوم', 'عضو تیم ورزشی', 'منظم و دانا', 'تلاشگر']
+        }
+        df_sample = pd.DataFrame(sample_data)
+        csv_buffer = df_sample.to_csv(index=False).encode('utf-8-sig')
+        
+        st.download_button(
+            label="📥 دانلود فایل نمونه اکسل / CSV",
+            data=csv_buffer,
+            file_name="sample_students_template.csv",
+            mime="text/csv"
+        )
+        
+        uploaded_file = st.file_uploader("فایل اکسل یا CSV دانش‌آموزان را انتخاب کنید:", type=['csv', 'xlsx'])
+        if uploaded_file is not None:
+            try:
+                if uploaded_file.name.endswith('.csv'):
+                    df_up = pd.read_csv(uploaded_file)
+                else:
+                    df_up = pd.read_excel(uploaded_file)
+                    
+                st.write("📋 پیش‌نمایش اطلاعات فایل آپلود شده:")
+                st.dataframe(df_up, use_container_width=True)
+                
+                if st.button("🚀 شروع ثبت دسته‌جمعی در سامانه"):
+                    count = 0
+                    with get_connection() as conn:
+                        for idx, row in df_up.iterrows():
+                            fn = str(row.get('نام', '')).strip()
+                            ln = str(row.get('نام خانوادگی', '')).strip()
+                            nid = str(row.get('کد ملی', '')).strip()
+                            phone = str(row.get('شماره اولیا', '')).strip()
+                            grp = str(row.get('گروه کلاسی', 'گروه اندیشه 📖 (۵ نفر)')).strip()
+                            nts = str(row.get('توضیحات', '')).strip()
+                            
+                            # Auto assign group evenly if group is missing
+                            if not grp or grp == 'nan':
+                                grp = CLASS_GROUPS[count % len(CLASS_GROUPS)]
+                                
+                            if fn and ln:
+                                try:
+                                    conn.execute(
+                                        "INSERT INTO students (first_name, last_name, national_id, parent_phone, student_group, notes) VALUES (?, ?, ?, ?, ?, ?)",
+                                        (fn, ln, nid, phone, grp, nts)
+                                    )
+                                    count += 1
+                                except sqlite3.IntegrityError:
+                                    pass
+                        conn.commit()
+                    st.success(f"🎉 تعداد {count} دانش‌آموز با موفقیت به سامانه افزوده شدند!")
+                    st.rerun()
+            except Exception as e:
+                st.error(f"خطا در خواندن فایل: {e}")
 
 # ---------------------------------------------------------
 # 2. Qualitative Evaluation (Teacher Only)
