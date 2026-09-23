@@ -2,27 +2,30 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 import datetime
-import io
 
 # ---------------------------------------------------------
-# Page Configuration & High-Contrast RTL CSS Styling
+# Page Configuration & Modern RTL CSS Styling
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="سامانه مدیریت کلاس پنجم و آزمون آنلاین",
     page_icon="🎓",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# Custom Persian / RTL CSS with Explicit Colors Before & After Selection
+# Custom Persian / RTL CSS
 st.markdown("""
 <style>
     @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
     
-    html, body, [class*="css"], div, span, button, input, select, textarea, label {
+    html, body, [class*="css"], div, span, button, input, select, textarea {
         font-family: 'Vazirmatn', Tahoma, sans-serif !important;
         direction: rtl !important;
         text-align: right !important;
+    }
+
+    /* Primary text colors */
+    body, p, label, .stMarkdown, h1, h2, h3, h4, h5, h6 {
         color: #0f172a !important;
     }
     
@@ -36,7 +39,7 @@ st.markdown("""
         padding: 22px;
         border-radius: 14px;
         text-align: center !important;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     
@@ -45,27 +48,21 @@ st.markdown("""
         word-break: keep-all;
     }
 
-    .login-card {
+    .role-card {
         background-color: #ffffff;
         border: 2px solid #0284c7;
         border-radius: 12px;
-        padding: 16px;
+        padding: 18px 22px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.06);
     }
 
-    .author-card {
-        background-color: #ffffff;
-        border: 2px solid #0284c7;
-        border-radius: 12px;
-        padding: 18px;
-        text-align: center;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }
-    
-    .author-card h3, .author-card h4, .author-card p {
-        color: #0f172a !important;
+    .login-box {
+        background-color: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 10px;
     }
 
     .feature-box {
@@ -77,14 +74,9 @@ st.markdown("""
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
-    .feature-box h4, .feature-box p {
-        color: #0f172a !important;
-    }
-    
-    /* Buttons Styling */
     .stButton>button {
         width: 100%;
-        background-color: #0284c7 !important;
+        background-color: #0284c7;
         color: #ffffff !important;
         border-radius: 8px;
         padding: 8px 16px;
@@ -93,55 +85,34 @@ st.markdown("""
     }
     
     .stButton>button:hover {
-        background-color: #0369a1 !important;
+        background-color: #0369a1;
         color: #ffffff !important;
     }
 
-    /* Dropdown / Selectbox Popover Options Styling (Before & After Selection) */
-    div[data-baseweb="select"] {
-        background-color: #ffffff !important;
-        border-radius: 8px !important;
-        border: 1px solid #0284c7 !important;
-    }
-    
-    div[data-baseweb="select"] * {
-        color: #0f172a !important;
-        font-weight: 600 !important;
-    }
-
-    div[data-baseweb="popover"] ul, div[data-baseweb="menu"] {
-        background-color: #1e293b !important;
-        border-radius: 8px !important;
-    }
-    
-    div[data-baseweb="popover"] li, div[data-baseweb="popover"] div[role="option"] {
+    /* ---------------------------------------------------------
+       CRITICAL FIX: Dropdown / Popover Menu Font Color -> Pure White (#ffffff)
+       --------------------------------------------------------- */
+    div[data-baseweb="popover"] *, 
+    div[data-baseweb="select"] span, 
+    div[data-baseweb="select"] div,
+    li[role="option"],
+    div[role="option"] {
         color: #ffffff !important;
         background-color: #1e293b !important;
-        font-size: 1rem !important;
-        font-weight: 500 !important;
     }
-    
-    div[data-baseweb="popover"] li:hover, div[data-baseweb="popover"] div[role="option"]:hover,
-    div[data-baseweb="popover"] [aria-selected="true"] {
+
+    /* Highlight hovered / selected options in dropdown */
+    li[role="option"]:hover, div[role="option"]:hover {
         background-color: #0284c7 !important;
         color: #ffffff !important;
     }
-
-    /* Tabs Styling */
-    button[data-baseweb="tab"] {
-        font-weight: bold !important;
-        color: #0f172a !important;
-    }
     
-    button[aria-selected="true"][data-baseweb="tab"] {
-        color: #0284c7 !important;
-        border-bottom-color: #0284c7 !important;
-    }
-
-    /* Input & Textarea Labels */
-    label, div[data-testid="stMarkdownContainer"] p, .stRadio label {
+    /* Input Labels with Spacing */
+    .input-label {
+        font-weight: bold;
         color: #0f172a !important;
-        font-weight: 600;
+        margin-bottom: 8px !important;
+        display: block;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -179,12 +150,6 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         """)
-        
-        # Ensure student_group column exists if using existing DB
-        cursor.execute("PRAGMA table_info(students)")
-        cols = [column[1] for column in cursor.fetchall()]
-        if 'student_group' not in cols:
-            cursor.execute("ALTER TABLE students ADD COLUMN student_group TEXT DEFAULT 'گروه اندیشه 📖'")
         
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS evaluations (
@@ -272,13 +237,13 @@ EVALUATION_LEVELS = [
     "نیاز به تلاش مجدد 🔴"
 ]
 
-# 5 Equal Groups for 29 students (4 groups of 6 + 1 group of 5 = 29)
+# 29 Students divided into 5 groups (4 groups of 6 + 1 group of 5)
 CLASS_GROUPS = [
-    "گروه ارمغان 🚀",
-    "گروه دانا 💡",
-    "گروه تلاش 🌟",
-    "گروه نخبگان 🏆",
-    "گروه اندیشه 📖"
+    "گروه ارمغان 🚀 (۶ نفر)",
+    "گروه دانا 💡 (۶ نفر)",
+    "گروه تلاش 🌟 (۶ نفر)",
+    "گروه نخبگان 🏆 (۶ نفر)",
+    "گروه اندیشه 📖 (۵ نفر)"
 ]
 
 def load_students():
@@ -290,11 +255,6 @@ def load_students():
         init_db()
         return pd.DataFrame(columns=['id', 'full_name', 'national_id', 'parent_phone', 'student_group', 'notes'])
 
-def check_teacher_auth():
-    if not st.session_state['is_teacher_logged_in']:
-        st.warning("🔒 این بخش مخصوص آموزگار است. لطفاً از بالای صفحه در کادر '🔑 پنل ورود مدیریت آموزگار' رمز عبور را وارد کنید (رمز پیش‌فرض: 1234).")
-        st.stop()
-
 # ---------------------------------------------------------
 # Header & Navigation
 # ---------------------------------------------------------
@@ -305,68 +265,116 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Top Bar Teacher Auth Control
-with st.expander("🔑 پنل ورود مدیریت آموزگار", expanded=False):
-    st.markdown('<div class="login-card">', unsafe_allow_html=True)
-    if not st.session_state['is_teacher_logged_in']:
-        col_p1, col_p2 = st.columns([3, 1])
-        with col_p1:
-            pass_input = st.text_input("رمز عبور معلم را وارد کنید:", type="password", key="tech_pass")
-        with col_p2:
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("ورود به پنل"):
-                if pass_input in [st.session_state['teacher_password'], "1234", "مطهری"]:
-                    st.session_state['is_teacher_logged_in'] = True
-                    st.success("ورود موفقیت‌آمیز بود.")
-                    st.rerun()
-                else:
-                    st.error("رمز عبور اشتباه است.")
+# ---------------------------------------------------------
+# Top Page Role & Login Control Panel
+# ---------------------------------------------------------
+st.markdown("<div class='role-card'>", unsafe_allow_html=True)
+
+col_r1, col_r2 = st.columns([1, 1])
+
+with col_r1:
+    st.markdown("<span class='input-label'>🎭 نوع کاربری و ورود به سامانه را انتخاب کنید:</span>", unsafe_allow_html=True)
+    user_mode = st.radio(
+        "انتخاب حالت کاربری:",
+        ["👤 ورود دانش‌آموز (دسترسی عمومی)", "🔑 ورود آموزگار (نیازمند رمز عبور)"],
+        key="user_mode_radio",
+        label_visibility="collapsed"
+    )
+
+with col_r2:
+    if user_mode == "👤 ورود دانش‌آموز (دسترسی عمومی)":
+        st.info("🟢 شما در حالت دانش‌آموزی هستید. تنها بخش شرکت در آزمون و مشاهده کارنامه فعال است.")
     else:
-        st.success("🟢 شما به عنوان آموزگار وارد شده‌اید.")
-        col_out1, col_out2 = st.columns(2)
-        with col_out1:
-            if st.button("خروج از حالت معلم"):
-                st.session_state['is_teacher_logged_in'] = False
-                st.rerun()
-        
-        with col_out2:
-            with st.popover("🔐 تغییر رمز عبور آموزگار"):
-                new_pass = st.text_input("رمز عبور جدید:", type="password", key="new_p")
-                confirm_pass = st.text_input("تکرار رمز عبور جدید:", type="password", key="conf_p")
-                if st.button("ذخیره رمز جدید"):
-                    if new_pass and new_pass == confirm_pass:
-                        st.session_state['teacher_password'] = new_pass
-                        st.success("رمز عبور جدید با موفقیت ذخیره شد.")
+        if not st.session_state['is_teacher_logged_in']:
+            st.markdown("<div class='login-box'>", unsafe_allow_html=True)
+            st.markdown("<span class='input-label'>🔑 رمز عبور آموزگار را وارد کنید:</span>", unsafe_allow_html=True)
+            
+            # Proper spacing between text and input box
+            col_p1, col_p2 = st.columns([2.5, 1])
+            with col_p1:
+                pass_input = st.text_input(
+                    "رمز عبور معلم:",
+                    type="password",
+                    key="tech_pass_top",
+                    label_visibility="collapsed",
+                    placeholder="رمز عبور را اینجا بنویسید..."
+                )
+            with col_p2:
+                if st.button("🔓 ورود آموزگار"):
+                    if pass_input in [st.session_state['teacher_password'], "1234", "مطهری"]:
+                        st.session_state['is_teacher_logged_in'] = True
+                        st.success("ورود با موفقیت انجام شد.")
+                        st.rerun()
                     else:
-                        st.error("رمز عبور و تکرار آن یکسان نیستند.")
-    st.markdown('</div>', unsafe_allow_html=True)
+                        st.error("❌ رمز عبور نادرست است.")
+            st.markdown("</div>", unsafe_allow_html=True)
+        else:
+            st.success("🟢 آموزگار محترم، شما با موفقیت وارد شده‌اید و به تمامی امکانات دسترسی دارید.")
+            col_b1, col_b2 = st.columns(2)
+            with col_b1:
+                if st.button("🚪 خروج از حالت آموزگار"):
+                    st.session_state['is_teacher_logged_in'] = False
+                    st.rerun()
+            with col_b2:
+                with st.expander("🔐 تغییر رمز عبور آموزگار"):
+                    old_p = st.text_input("رمز فعلی:", type="password", key="old_p")
+                    new_p = st.text_input("رمز جدید:", type="password", key="new_p")
+                    if st.button("ذخیره رمز جدید"):
+                        if old_p == st.session_state['teacher_password'] or old_p in ["1234", "مطهری"]:
+                            if new_p:
+                                st.session_state['teacher_password'] = new_p
+                                st.success("رمز عبور با موفقیت تغییر یافت.")
+                            else:
+                                st.warning("لطفاً رمز جدید را وارد کنید.")
+                        else:
+                            st.error("رمز فعلی اشتباه است.")
 
-MENU_OPTIONS = [
-    "1. 🏠 صفحه اصلی و معرفی برنامه",
-    "2. 👨‍🎓 مدیریت دانش‌آموزان و گروه‌ها (معلم)",
-    "3. 📝 ارزشیابی کیفی-توصیفی (معلم)",
-    "4. 🌟 ثبت رفتار و انضباط (معلم)",
-    "5. ✏️ آزمون‌ساز آنلاین (معلم)",
-    "6. 📱 شرکت در آزمون (دانش‌آموز)",
-    "7. 📊 داشبورد و کارنامه جامع"
-]
+st.markdown("</div>", unsafe_allow_html=True)
 
+# ---------------------------------------------------------
+# Dynamic Navigation Menu Filtered by Role
+# ---------------------------------------------------------
+if user_mode == "👤 ورود دانش‌آموز (دسترسی عمومی)":
+    menu_options = [
+        "1️⃣ 🏠 صفحه اصلی و معرفی برنامه",
+        "2️⃣ 📱 شرکت در آزمون (دانش‌آموز)",
+        "3️⃣ 📊 کارنامه و نتایج آزمون"
+    ]
+else:
+    if st.session_state['is_teacher_logged_in']:
+        menu_options = [
+            "1️⃣ 🏠 صفحه اصلی و معرفی برنامه",
+            "2️⃣ 👨‍🎓 مدیریت دانش‌آموزان و گروه‌ها (۲۹ نفر)",
+            "3️⃣ 📝 ارزشیابی کیفی-توصیفی (۷ درس)",
+            "4️⃣ 🌟 ثبت رفتار و انضباط کلاسی",
+            "5️⃣ ✏️ آزمون‌ساز آنلاین (طراحی سوال)",
+            "6️⃣ 📱 شرکت در آزمون (دانش‌آموز)",
+            "7️⃣ 📊 داشبورد و کارنامه جامع"
+        ]
+    else:
+        menu_options = [
+            "1️⃣ 🏠 صفحه اصلی و معرفی برنامه",
+            "🔒 سایر بخش‌ها (برای دسترسی، ابتدا رمز عبور آموزگار را وارد کنید)"
+        ]
+
+st.markdown("<span class='input-label'>📌 منوی اصلی سامانه (بخش مورد نظر را انتخاب کنید):</span>", unsafe_allow_html=True)
 menu_choice = st.selectbox(
-    "📌 منوی اصلی سامانه (بخش مورد نظر را انتخاب کنید):",
-    MENU_OPTIONS
+    "انتخاب بخش منو:",
+    menu_options,
+    label_visibility="collapsed"
 )
 
 # ---------------------------------------------------------
-# 0. Landing Page / About
+# 1. Landing Page / About
 # ---------------------------------------------------------
 if menu_choice.startswith("1"):
     st.subheader("👋 به سامانه مدیریت هوشمند کلاس پنجم خوش آمدید")
     
     st.markdown("""
-    <div class="author-card">
+    <div class="feature-box">
         <h3>🌱 طراح و توسعه‌دهنده سامانه</h3>
         <h4 style="color: #0284c7;">سید موسی حیدری</h4>
-        <p style="font-size: 1.1em; font-weight: bold;">آموزگار پایه پنجم ابتدایی - مدرسه شهید مطهری مهران</p>
+        <p style="font-size: 1.1em; font-weight: bold;">آموزگار پایه پنجم ابتدایی — دبستان شهید مطهری مهران</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -395,10 +403,15 @@ if menu_choice.startswith("1"):
     """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 1. Student Profile & Bulk Excel Upload (Teacher Only)
+# Locked Section Message
 # ---------------------------------------------------------
-elif menu_choice.startswith("2"):
-    check_teacher_auth()
+elif menu_choice.startswith("🔒"):
+    st.warning("🔒 این بخش مخصوص آموزگار است. لطفاً از کادر بالای صفحه، رمز عبور آموزگار را وارد کنید تا تمامی منوها فعال شوند.")
+
+# ---------------------------------------------------------
+# 2. Student Profile & Bulk Excel Upload (Teacher Only)
+# ---------------------------------------------------------
+elif menu_choice.startswith("2") and st.session_state['is_teacher_logged_in']:
     st.header("👨‍🎓 مدیریت دانش‌آموزان و گروه‌بندی کلاسی (۲۹ نفر)")
     
     tab1, tab2, tab3 = st.tabs(["📋 لیست دانش‌آموزان و گروه‌ها", "📊 ثبت دسته‌جمعی و سریع از اکسل", "➕ ثبت دانش‌آموز جدید (تکی)"])
@@ -410,13 +423,14 @@ elif menu_choice.startswith("2"):
             with col_s1:
                 search_query = st.text_input("🔍 جستجوی سریع دانش‌آموز (نام یا کد ملی):")
             with col_s2:
-                selected_group_filter = st.selectbox("فیلتر بر اساس گروه:", ["همه گروه‌ها"] + CLASS_GROUPS)
-            
-            filtered_df = students_df.copy()
+                st.write("")
+                st.write("")
+                st.caption(f"تعداد کل دانش‌آموزان ثبت‌شده: {len(students_df)} نفر")
+                
             if search_query:
-                filtered_df = filtered_df[filtered_df['full_name'].str.contains(search_query) | filtered_df['national_id'].str.contains(search_query)]
-            if selected_group_filter != "همه گروه‌ها":
-                filtered_df = filtered_df[filtered_df['student_group'] == selected_group_filter]
+                filtered_df = students_df[students_df['full_name'].str.contains(search_query) | students_df['national_id'].str.contains(search_query)]
+            else:
+                filtered_df = students_df
                 
             st.dataframe(filtered_df.rename(columns={
                 'id': 'شناسه',
@@ -437,73 +451,63 @@ elif menu_choice.startswith("2"):
                 st.success(f"پرونده {student_to_delete} با موفقیت حذف شد.")
                 st.rerun()
         else:
-            st.info("هنوز هیچ دانش‌آموزی ثبت نشده است. از زبانه 'ثبت دسته‌جمعی از اکسل' یا 'ثبت تکی' استفاده کنید.")
+            st.info("هنوز هیچ دانش‌آموزی ثبت نشده است. می‌توانید از زبانه 'ثبت دسته‌جمعی از اکسل' استفاده کنید.")
 
     with tab2:
-        st.subheader("⚡ بارگذاری یکجای ۲۹ دانش‌آموز از فایل Excel / CSV")
-        st.markdown("""
-        جهت ثبت سریع اسامی تمامی ۲۹ دانش‌آموز کلاس، فایل اکسل شامل ستون‌های زیر را آپلود کنید:
-        * **first_name** (نام)
-        * **last_name** (نام خانوادگی)
-        * **national_id** (کد ملی)
-        * **parent_phone** (شماره همراه اولیا)
-        * **student_group** (نام گروه - اختیاری)
-        """)
+        st.subheader("📊 ثبت یکجای اسامی ۲۹ دانش‌آموز از طریق فایل اکسل / CSV")
+        st.write("با بارگذاری فایل اکسل، اسامی تمامی دانش‌آموزان کلاس به یکباره و در کمتر از یک ثانیه وارد سامانه می‌شوند.")
         
-        # Download Sample Template
-        sample_df = pd.DataFrame({
+        # Download Excel Template Button
+        sample_data = pd.DataFrame({
             'first_name': ['علی', 'محمد', 'رضا', 'حسین', 'امیر'],
-            'last_name': ['حیدری', 'احمدی', 'مطهری', 'رضایی', 'کریمی'],
-            'national_id': ['1111111111', '2222222222', '3333333333', '4444444444', '5555555555'],
+            'last_name': ['حیدری', 'محمدی', 'احمدی', 'رضایی', 'کریمی'],
+            'national_id': ['1234567890', '1234567891', '1234567892', '1234567893', '1234567894'],
             'parent_phone': ['09121111111', '09122222222', '09123333333', '09124444444', '09125555555'],
-            'student_group': ['گروه ارمغان 🚀', 'گروه دانا 💡', 'گروه تلاش 🌟', 'گروه نخبگان 🏆', 'گروه اندیشه 📖'],
+            'student_group': ['گروه ارمغان 🚀 (۶ نفر)', 'گروه دانا 💡 (۶ نفر)', 'گروه تلاش 🌟 (۶ نفر)', 'گروه نخبگان 🏆 (۶ نفر)', 'گروه اندیشه 📖 (۵ نفر)'],
             'notes': ['نمونه ۱', 'نمونه ۲', 'نمونه ۳', 'نمونه ۴', 'نمونه ۵']
         })
         
-        csv_buffer = sample_df.to_csv(index=False).encode('utf-8-sig')
-        st.download_button("📥 دانلود فایل الگوی نمونه (CSV/Excel)", data=csv_buffer, file_name="sample_students_template.csv", mime="text/csv")
+        csv_sample = sample_data.to_csv(index=False).encode('utf-8-sig')
+        st.download_button(
+            label="📥 دانلود فایل نمونه اکسل / CSV جهت الگو",
+            data=csv_sample,
+            file_name="sample_students_template_29.csv",
+            mime="text/csv"
+        )
         
-        st.markdown("---")
-        uploaded_file = st.file_uploader("انتخاب فایل اکسل یا CSV دانش‌آموزان:", type=['csv', 'xlsx', 'xls'])
-        
+        uploaded_file = st.file_uploader("فایل اکسل (xlsx) یا CSV دانش‌آموزان را انتخاب یا اینجا رها کنید:", type=['xlsx', 'csv'])
         if uploaded_file is not None:
             try:
                 if uploaded_file.name.endswith('.csv'):
-                    df_upload = pd.read_csv(uploaded_file)
+                    df_up = pd.read_csv(uploaded_file)
                 else:
-                    df_upload = pd.read_excel(uploaded_file)
+                    df_up = pd.read_excel(uploaded_file)
                     
-                st.write("👀 پیش‌نمایش اطلاعات بارگذاری‌شده:")
-                st.dataframe(df_upload.head(10), use_container_width=True)
+                st.write("📋 پیش‌نمایش اطلاعات فایل بارگذاری‌شده:")
+                st.dataframe(df_up.head(10), use_container_width=True)
                 
-                if st.button("🚀 ثبت نهایی تمام دانش‌آموزان در دیتابیس"):
-                    count_added = 0
-                    count_error = 0
-                    
+                if st.button("🚀 شروع بارگذاری و ثبت یکجای دانش‌آموزان در دیتابیس"):
+                    inserted_count = 0
                     with get_connection() as conn:
-                        for idx, row in df_upload.iterrows():
-                            fn = str(row.get('first_name', '')).strip()
-                            ln = str(row.get('last_name', '')).strip()
-                            nid = str(row.get('national_id', '')).strip()
-                            phone = str(row.get('parent_phone', '')).strip()
-                            grp = str(row.get('student_group', '')).strip()
-                            notes_val = str(row.get('notes', '')).strip() if 'notes' in row else ''
+                        for idx, row in df_up.iterrows():
+                            f_name = str(row.get('first_name', '')).strip()
+                            l_name = str(row.get('last_name', '')).strip()
+                            n_id = str(row.get('national_id', '')).strip() if pd.notna(row.get('national_id')) else f"100000{idx}"
+                            p_phone = str(row.get('parent_phone', '')).strip() if pd.notna(row.get('parent_phone')) else ""
+                            s_grp = str(row.get('student_group', CLASS_GROUPS[idx % 5])).strip() if pd.notna(row.get('student_group')) else CLASS_GROUPS[idx % 5]
+                            s_notes = str(row.get('notes', '')).strip() if pd.notna(row.get('notes')) else ""
                             
-                            # Auto-assign group if missing
-                            if not grp or grp == 'nan' or grp not in CLASS_GROUPS:
-                                grp = CLASS_GROUPS[idx % len(CLASS_GROUPS)]
-                                
-                            if fn and ln and fn != 'nan' and ln != 'nan':
+                            if f_name and l_name:
                                 try:
                                     conn.execute(
                                         "INSERT INTO students (first_name, last_name, national_id, parent_phone, student_group, notes) VALUES (?, ?, ?, ?, ?, ?)",
-                                        (fn, ln, nid if nid != 'nan' else None, phone if phone != 'nan' else '', grp, notes_val)
+                                        (f_name, l_name, n_id, p_phone, s_grp, s_notes)
                                     )
-                                    count_added += 1
+                                    inserted_count += 1
                                 except sqlite3.IntegrityError:
-                                    count_error += 1
+                                    pass
                         conn.commit()
-                    st.success(f"✅ تعداد {count_added} دانش‌آموز با موفقیت وارد سامانه شدند. (موارد تکراری: {count_error})")
+                    st.success(f"🎉 تعداد {inserted_count} دانش‌آموز با موفقیت وارد دیتابیس شدند.")
                     st.rerun()
             except Exception as e:
                 st.error(f"خطا در خواندن فایل: {e}")
@@ -540,10 +544,9 @@ elif menu_choice.startswith("2"):
                     st.warning("لطفاً نام و نام خانوادگی را وارد کنید.")
 
 # ---------------------------------------------------------
-# 2. Qualitative Evaluation (Teacher Only)
+# 3. Qualitative Evaluation (Teacher Only)
 # ---------------------------------------------------------
-elif menu_choice.startswith("3"):
-    check_teacher_auth()
+elif menu_choice.startswith("3") and st.session_state['is_teacher_logged_in']:
     st.header("📝 ثبت ارزشیابی کیفی-توصیفی (پایه پنجم)")
     
     students_df = load_students()
@@ -571,26 +574,32 @@ elif menu_choice.startswith("3"):
             st.success(f"ارزشیابی {selected_subject} برای {selected_student} ثبت شد.")
 
         st.markdown("---")
-        st.subheader(f"📋 گزارش و خروجی ارزشیابی‌های {selected_student}")
+        st.subheader("🔍 سوابق ارزشیابی دانش‌آموز انتخاب‌شده")
         s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
         with get_connection() as conn:
             eval_history = pd.read_sql_query("""
                 SELECT subject AS 'درس', level AS 'سطح توصیفی', feedback AS 'بازخورد معلم', eval_date AS 'تاریخ'
                 FROM evaluations WHERE student_id = ? ORDER BY eval_date DESC
             """, conn, params=(s_id,))
-            
+        
         if not eval_history.empty:
             st.dataframe(eval_history, use_container_width=True)
+            
+            # Export CSV
             csv_eval = eval_history.to_csv(index=False).encode('utf-8-sig')
-            st.download_button("📥 دانلود گزارش ارزشیابی توصیفی (CSV/Excel)", data=csv_eval, file_name=f"evaluations_{selected_student}.csv", mime="text/csv")
+            st.download_button(
+                label="📥 دانلود خروجی سوابق توصیفی دانش‌آموز (جهت پوشه کار)",
+                data=csv_eval,
+                file_name=f"evaluations_{selected_student}.csv",
+                mime="text/csv"
+            )
         else:
             st.info("هنوز ارزشیابی برای این دانش‌آموز ثبت نشده است.")
 
 # ---------------------------------------------------------
-# 3. Behavior and Discipline Tracking (Teacher Only)
+# 4. Behavior and Discipline Tracking (Teacher Only)
 # ---------------------------------------------------------
-elif menu_choice.startswith("4"):
-    check_teacher_auth()
+elif menu_choice.startswith("4") and st.session_state['is_teacher_logged_in']:
     st.header("🌟 مدیریت رفتار و مشاهدات انضباطی")
     
     students_df = load_students()
@@ -618,10 +627,9 @@ elif menu_choice.startswith("4"):
             st.success("مشاهده رفتاری ثبت شد.")
 
 # ---------------------------------------------------------
-# 4. Online Quiz Creator (Teacher Side)
+# 5. Online Quiz Creator (Teacher Side)
 # ---------------------------------------------------------
-elif menu_choice.startswith("5"):
-    check_teacher_auth()
+elif menu_choice.startswith("5") and st.session_state['is_teacher_logged_in']:
     st.header("✏️ آزمون‌ساز آنلاین (طراحی و مدیریت آزمون)")
     
     tab_q1, tab_q2 = st.tabs(["➕ ساخت آزمون جدید و طراحی سوالات", "📊 لیست آزمون‌ها و نتایج"])
@@ -693,7 +701,6 @@ elif menu_choice.startswith("5"):
             with get_connection() as conn:
                 results_df = pd.read_sql_query("""
                     SELECT s.first_name || ' ' || s.last_name AS 'دانش‌آموز',
-                           s.student_group AS 'گروه کلاسی',
                            r.score AS 'نمره (تعداد درست)',
                            r.total_questions AS 'کل سوالات',
                            r.percentage AS 'درصد ٪',
@@ -711,9 +718,9 @@ elif menu_choice.startswith("5"):
             st.info("هنوز آزمونی ساخته نشده است.")
 
 # ---------------------------------------------------------
-# 5. Student Online Quiz Interface (Mobile Friendly)
+# 6. Student Online Quiz Interface (Public Access)
 # ---------------------------------------------------------
-elif menu_choice.startswith("6"):
+elif menu_choice.startswith("6") or menu_choice.startswith("2️⃣ 📱"):
     st.header("📱 سامانه شرکت در آزمون آنلاین دانش‌آموزان")
     
     students_df = load_students()
@@ -738,7 +745,7 @@ elif menu_choice.startswith("6"):
         if existing:
             st.success(f"شما قبلاً در این آزمون شرکت کرده‌اید. درصد کسب‌شده: {existing['percentage']:.1f}٪")
             
-            with st.expander("📖 مشاهده پاسخ‌نامه تشریحی و راهنمای آموزشی آزمون"):
+            with st.expander("📖 مشاهده پاسخ‌نامه تشریحی آزمون"):
                 with get_connection() as conn:
                     qs = conn.execute("SELECT question_text, option_1, option_2, option_3, option_4, correct_option, explanation FROM questions WHERE quiz_id = ?", (q_id,)).fetchall()
                 for idx, q in enumerate(qs):
@@ -788,12 +795,12 @@ elif menu_choice.startswith("6"):
                         conn.commit()
                         
                     st.balloons()
-                    st.success(f"🎉 آزمون با موفقیت پایان یافت! نمره شما: {correct_count} از {total} (معادل {pct:.1f} درصد)")
+                    st.success(f"🎉 آزمون پایان یافت! نمره شما: {correct_count} از {total} (معادل {pct:.1f} درصد)")
 
 # ---------------------------------------------------------
-# 6. Dashboard and Analytical Report
+# 7. Dashboard and Analytical Report (Public Access)
 # ---------------------------------------------------------
-elif menu_choice.startswith("7"):
+elif menu_choice.startswith("7") or menu_choice.startswith("3️⃣ 📊"):
     st.header("📊 داشبورد تحلیلی و کارنامه جامع")
     
     students_df = load_students()
@@ -817,7 +824,7 @@ elif menu_choice.startswith("7"):
         with col2:
             st.metric("تعداد موارد رفتاری ثبت‌شده:", beh_count)
         with col3:
-            st.metric("میانگین درصد آزمون‌های آنلاین:", f"{quiz_avg:.1f}٪" if quiz_avg else "بدون آزمون")
+            st.metric("میانگین درصد آزمون‌های آنلاین:", f"{quiz_avg:.1f}٪" if quiz_avg is not None else "بدون آزمون")
             
         st.markdown("---")
         
