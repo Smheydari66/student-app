@@ -1,3 +1,7 @@
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import io, base64, subprocess, os, random
 import streamlit as st
 import sqlite3
 import pandas as pd
@@ -341,6 +345,305 @@ def seed_default_quiz():
 seed_default_quiz()
 
 # ---------------------------------------------------------
+import re
+
+with open('/workspace/scratch/student_management_app.py', 'r', encoding='utf-8') as f:
+    code = f.read()
+
+# Let's inspect helper functions location
+pdf_helpers = '''
+# ---------------------------------------------------------
+# PDF Generator Helpers (Official Letterheads & Reports)
+# ---------------------------------------------------------
+def generate_chart_b64(quiz_titles, quiz_pcts, eval_counts):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 2.8), dpi=150)
+    fig.patch.set_facecolor('#ffffff')
+    
+    if quiz_pcts:
+        ax1.bar(range(len(quiz_pcts)), quiz_pcts, color='#2563eb', width=0.4)
+        ax1.set_ylim(0, 110)
+        ax1.set_title('درصد آزمون‌های آنلاین (٪)', fontsize=9, fontname='DejaVu Sans')
+        ax1.set_xticks(range(len(quiz_titles)))
+        ax1.set_xticklabels([f'آزمون {i+1}' for i in range(len(quiz_titles))], fontsize=8, fontname='DejaVu Sans')
+    else:
+        ax1.text(0.5, 0.5, 'آزمونی ثبت نشده', ha='center', va='center', fontsize=9, fontname='DejaVu Sans')
+        ax1.axis('off')
+        
+    labels = list(eval_counts.keys())
+    values = list(eval_counts.values())
+    colors = ['#16a34a', '#2563eb', '#eab308', '#dc2626']
+    if sum(values) > 0:
+        ax2.bar(labels, values, color=colors[:len(labels)], width=0.4)
+        ax2.set_title('توزیع سطح ارزشیابی‌ها', fontsize=9, fontname='DejaVu Sans')
+    else:
+        ax2.text(0.5, 0.5, 'ارزشیابی ثبت نشده', ha='center', va='center', fontsize=9, fontname='DejaVu Sans')
+        ax2.axis('off')
+        
+    plt.tight_layout()
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    b64 = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close()
+    return b64
+
+def generate_behavior_report_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
+    is_positive = 'مثبت' in b_type or 'تشویق' in b_type
+    theme_color = '#15803d' if is_positive else '#b91c1c'
+    bg_color = '#f0fdf4' if is_positive else '#fef2f2'
+    border_color = '#22c55e' if is_positive else '#ef4444'
+    report_title = 'تقدیرنامه و لوح سپاس انضباطی کلاسی' if is_positive else 'کارت اطلاع‌رسانی و هشدار انضباطی اولیا'
+    
+    html = f"""<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align: right; padding: 30px; color: #0f172a; line-height: 1.8; }}
+.letterhead {{ border-bottom: 3px double {theme_color}; padding-bottom: 12px; margin-bottom: 20px; text-align: center; }}
+.org-name {{ color: #1e3a8a; font-size: 14px; font-weight: bold; }}
+.school-name {{ color: #0f172a; font-size: 18px; font-weight: bold; margin-top: 5px; }}
+.sub-header {{ color: #475569; font-size: 12px; margin-top: 4px; }}
+.report-card {{ background: {bg_color}; border: 2px solid {border_color}; border-radius: 12px; padding: 25px; margin-top: 15px; }}
+.report-header {{ color: {theme_color}; font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 15px; border-bottom: 1px dashed {border_color}; padding-bottom: 10px; }}
+.meta-table {{ width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 15px; background: #ffffff; border-radius: 8px; overflow: hidden; }}
+.meta-table td {{ padding: 8px 12px; border: 1px solid #e2e8f0; }}
+.content-text {{ font-size: 14px; line-height: 2; text-align: justify; margin: 15px 0; }}
+.signature-table {{ width: 100%; margin-top: 40px; text-align: center; font-size: 13px; border-collapse: collapse; }}
+.signature-table td {{ padding: 10px; vertical-align: top; }}
+</style>
+</head>
+<body>
+<div class="letterhead">
+    <div class="org-name">باسمه تعالی</div>
+    <div class="org-name">جمهوری اسلامی ایران - وزارت آموزش و پرورش</div>
+    <div class="sub-header">اداره کل آموزش و پرورش استان ایلام | مدیریت آموزش و پرورش شهرستان مهران</div>
+    <div class="school-name">دبستان پسرانه هیئت امنایی شهید مطهری مهران</div>
+    <div class="sub-header">سال تحصیلی ۱۴۰۴-۱۴۰۵ | پایه پنجم ابتدایی — آموزگار: سید موسی حیدری</div>
+</div>
+
+<div class="report-card">
+    <div class="report-header">{report_title}</div>
+    <table class="meta-table">
+        <tr>
+            <td><b>نام دانش‌آموز:</b> {student_name}</td>
+            <td><b>کد ملی:</b> {national_id}</td>
+            <td><b>گروه کلاسی:</b> {student_group}</td>
+            <td><b>تاریخ ثبت:</b> {log_date}</td>
+        </tr>
+    </table>
+    <div class="content-text">
+        {'فرزند عزیز و دانش‌آموز گرامی:' if is_positive else 'اولیاء محترم دانش‌آموز گرامی:'} <b>{student_name}</b><br>
+        {'بدین‌وسیله از تلاش، انضباط شایسته و رفتار نمونه شما در کلاس درس قدردانی می‌گردد.' if is_positive else 'با سلام و احترام، به استلزام اهداف پرورشی و تربیتی مدرسه، بدین‌وسیله گزارش زیر جهت اطلاع و پیگیری به حضورتان ارسال می‌گردد:'}<br><br>
+        <div style="background: #ffffff; padding: 12px; border-radius: 8px; border-right: 4px solid {theme_color}; margin: 10px 0;">
+            <b>📌 عنوان مشاهده رفتاری:</b> {title}<br>
+            <b>📝 توضیحات تکمیلی آموزگار:</b> {desc}
+        </div>
+        <br>
+        {'توفیق روزافزون شما را در مسیر اخلاق، دانایی و بالندگی از درگاه خداوند متعال خواستاریم.' if is_positive else 'خواهشمند است ضمن گفتگوی تربیتی و صمیمانه با فرزندتان، جهت پیگیری و بهبود این رفتار همکاری و هماهنگی لازم را با آموزگار مربوطه مبذول فرمایید.'}
+    </div>
+</div>
+
+<table class="signature-table">
+    <tr>
+        <td style="width: 50%;">
+            <b>آموزگار پایه پنجم ابتدایی</b><br>
+            سید موسی حیدری<br><br>
+            امضا و تاریخ
+        </td>
+        <td style="width: 50%;">
+            {'<b>مدیریت دبستان شهید مطهری مهران</b><br><br>مهر و امضا' if is_positive else '<b>رویت و امضای اولیای محترم دانش‌آموز</b><br><br>تاریخ و امضا'}
+        </td>
+    </tr>
+</table>
+</body>
+</html>"""
+    
+    html_path = f"/workspace/scratch/b_report_{random.randint(1000, 9999)}.html"
+    pdf_path = html_path.replace(".html", ".pdf")
+    with open(html_path, "w", encoding="utf-8") as f:
+        f.write(html)
+    
+    try:
+        subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', html_path, '--outdir', '/workspace/scratch'], capture_output=True)
+        with open(pdf_path, 'rb') as f:
+            pdf_bytes = f.read()
+        if os.path.exists(html_path): os.remove(html_path)
+        if os.path.exists(pdf_path): os.remove(pdf_path)
+        return pdf_bytes
+    except Exception:
+        return html.encode('utf-8')
+
+def generate_comprehensive_portfolio_pdf(student_id):
+    with get_connection() as conn:
+        st_row = conn.execute("SELECT * FROM students WHERE id = ?", (student_id,)).fetchone()
+        if not st_row:
+            return b""
+        student_name = f"{st_row['first_name']} {st_row['last_name']}"
+        national_id = st_row['national_id'] or "ثبت نشده"
+        parent_phone = st_row['parent_phone'] or "ثبت نشده"
+        student_group = st_row['student_group'] or "بدون گروه"
+        
+        df_evals = safe_read_sql("SELECT subject AS 'درس', level AS 'سطح توصیفی', feedback AS 'توصیف معلم', eval_date AS 'تاریخ' FROM evaluations WHERE student_id = ? ORDER BY id DESC", conn, params=(student_id,))
+        df_beh = safe_read_sql("SELECT behavior_type AS 'نوع', title AS 'عنوان رفتار', description AS 'توضیحات', log_date AS 'تاریخ' FROM behaviors WHERE student_id = ? ORDER BY id DESC", conn, params=(student_id,))
+        df_quizzes = safe_read_sql("SELECT q.title AS 'عنوان آزمون', q.subject AS 'درس', r.score AS 'نمره', r.total_questions AS 'کل سوالات', r.percentage AS 'درصد ٪', r.submitted_at AS 'تاریخ ثبت' FROM quiz_results r JOIN quizzes q ON r.quiz_id = q.id WHERE r.student_id = ? ORDER BY r.id DESC", conn, params=(student_id,))
+
+    quiz_titles = df_quizzes['عنوان آزمون'].tolist() if not df_quizzes.empty else []
+    quiz_pcts = df_quizzes['درصد ٪'].tolist() if not df_quizzes.empty else []
+    
+    eval_counts = {
+        "خیلی خوب": len(df_evals[df_evals['سطح توصیفی'].str.contains('خیلی خوب')]) if not df_evals.empty else 0,
+        "خوب": len(df_evals[df_evals['سطح توصیفی'].str.contains('خوب')]) if not df_evals.empty else 0,
+        "قابل قبول": len(df_evals[df_evals['سطح توصیفی'].str.contains('قابل قبول')]) if not df_evals.empty else 0,
+        "نیازمند تلاش": len(df_evals[df_evals['سطح توصیفی'].str.contains('تلاش')]) if not df_evals.empty else 0
+    }
+    
+    chart_b64 = generate_chart_b64(quiz_titles[:5], quiz_pcts[:5], eval_counts)
+    
+    quiz_avg = sum(quiz_pcts)/len(quiz_pcts) if quiz_pcts else None
+    beh_pos_count = len(df_beh[df_beh['نوع'].str.contains('مثبت|تشویق')]) if not df_beh.empty else 0
+    beh_neg_count = len(df_beh[df_beh['نوع'].str.contains('پیگیری|توجه|منفی')]) if not df_beh.empty else 0
+    
+    strengths_list = []
+    improvement_list = []
+    
+    if quiz_avg and quiz_avg >= 85:
+        strengths_list.append(f"عملکرد عالی در آزمون‌های آنلاین با میانگین درصد {quiz_avg:.1f}٪")
+    elif quiz_avg and quiz_avg < 70:
+        improvement_list.append(f"نیاز به مرور و تمرین بیشتر در مفاهیم آزمون‌ها (میانگین درصد فعلی: {quiz_avg:.1f}٪)")
+        
+    if eval_counts["خیلی خوب"] > 0:
+        strengths_list.append(f"احراز سطح «خیلی خوب» در {eval_counts['خیلی خوب']} مورد ارزشیابی توصیفی درسی")
+        
+    if beh_pos_count > 0:
+        strengths_list.append(f"ثبت {beh_pos_count} مورد تشویق و رفتار مثبت انضباطی در کلاس درس")
+    if beh_neg_count > 0:
+        improvement_list.append(f"نیاز به توجه بیشتر به نظم و قانون‌مداری کلاسی ({beh_neg_count} مورد نیاز به پیگیری)")
+        
+    if not strengths_list:
+        strengths_list.append("حضور منظم و فعال در برنامه‌های آموزشی کلاس درس")
+    if not improvement_list:
+        improvement_list.append("تثبیت مهارت‌های حل مسئله در دروس ریاضی و علوم")
+        
+    strengths_html = "".join([f"<li>{s}</li>" for s in strengths_list])
+    improvement_html = "".join([f"<li>{i}</li>" for i in improvement_list])
+    
+    shamsi_today = get_current_shamsi_date()
+    
+    eval_table_html = df_evals.to_html(index=False, classes="data-table") if not df_evals.empty else "<p>ارزشیابی درسی ثبت نشده است.</p>"
+    beh_table_html = df_beh.to_html(index=False, classes="data-table") if not df_beh.empty else "<p>مورد رفتاری ثبت نشده است.</p>"
+    quiz_table_html = df_quizzes.to_html(index=False, classes="data-table") if not df_quizzes.empty else "<p>آزمون آنلاینی ثبت نشده است.</p>"
+    
+    html = f"""<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align: right; padding: 25px; color: #0f172a; line-height: 1.6; font-size: 12px; }}
+.letterhead {{ border-bottom: 3px double #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; text-align: center; }}
+.org-name {{ color: #1e3a8a; font-size: 13px; font-weight: bold; }}
+.school-name {{ color: #0f172a; font-size: 17px; font-weight: bold; margin-top: 3px; }}
+.sub-header {{ color: #475569; font-size: 11px; margin-top: 2px; }}
+.meta-table {{ width: 100%; border-collapse: collapse; margin-bottom: 15px; background: #f8fafc; border-radius: 6px; overflow: hidden; }}
+.meta-table td {{ padding: 6px 10px; border: 1px solid #cbd5e1; font-size: 12px; }}
+.section-title {{ color: #1e3a8a; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 8px; border-right: 4px solid #2563eb; padding-right: 8px; }}
+.data-table {{ width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px; }}
+.data-table th {{ background: #1e3a8a; color: #ffffff; padding: 6px; border: 1px solid #1e3a8a; text-align: center; }}
+.data-table td {{ padding: 5px; border: 1px solid #cbd5e1; text-align: center; }}
+.analysis-box {{ background: #f0f9ff; border: 1px solid #0284c7; border-radius: 8px; padding: 12px; margin-top: 15px; }}
+.signature-table {{ width: 100%; margin-top: 30px; text-align: center; font-size: 12px; border-collapse: collapse; }}
+.signature-table td {{ padding: 10px; vertical-align: top; }}
+</style>
+</head>
+<body>
+<div class="letterhead">
+    <div class="org-name">باسمه تعالی</div>
+    <div class="org-name">جمهوری اسلامی ایران - وزارت آموزش و پرورش</div>
+    <div class="sub-header">اداره کل آموزش و پرورش استان ایلام | مدیریت آموزش و پرورش شهرستان مهران</div>
+    <div class="school-name">دبستان پسرانه هیئت امنایی شهید مطهری مهران</div>
+    <div class="sub-header">گزارش جامع عملکرد تحصیلی و پوشه کار دیجیتال — سال تحصیلی ۱۴۰۴-۱۴۰۵</div>
+</div>
+
+<table class="meta-table">
+    <tr>
+        <td><b>نام دانش‌آموز:</b> {student_name}</td>
+        <td><b>کد ملی:</b> {national_id}</td>
+        <td><b>گروه کلاسی:</b> {student_group}</td>
+        <td><b>شماره اولیا:</b> {parent_phone}</td>
+        <td><b>تاریخ صدور:</b> {shamsi_today}</td>
+    </tr>
+</table>
+
+<div class="section-title">📊 نمودار تحلیلی رشد تحصیلی و توزیع ارزشیابی‌ها</div>
+<div style="text-align: center; margin: 10px 0;">
+    <img src="data:image/png;base64,{chart_b64}" style="width: 85%; max-width: 650px;">
+</div>
+
+<div class="section-title">📝 ارزشیابی‌های کیفی-توصیفی ۷ عنوان درسی پایه پنجم</div>
+{eval_table_html}
+
+<div class="section-title">🌟 سوابق رفتاری و مشاهدات انضباطی</div>
+{beh_table_html}
+
+<div class="section-title">✏️ نتایج آزمون‌های آنلاین با تصحیح هوشمند</div>
+{quiz_table_html}
+
+<div class="analysis-box">
+    <h4 style="color: #0369a1; margin-top: 0; margin-bottom: 8px;">💡 تحلیل جامع آموزشی و توصیه‌های تربیتی آموزگار:</h4>
+    <p style="text-align: justify; margin-bottom: 8px;">
+        دانش‌آموز عزیز <b>{student_name}</b> در ارزیابی‌های دوره جاری کلاس پنجم دبستان شهید مطهری، روندی فعال را طی نموده است. خلاصه‌ی تحلیل عملکرد وی به شرح زیر می‌باشد:
+    </p>
+    <b>🌟 نقاط قوت تحصیلی و انضباطی:</b>
+    <ul style="margin-top: 4px; margin-bottom: 8px; padding-right: 20px;">
+        {strengths_html}
+    </ul>
+    <b>🎯 زمینه‌های نیازمند تمرین و پیگیری اولیا در منزل:</b>
+    <ul style="margin-top: 4px; margin-bottom: 4px; padding-right: 20px;">
+        {improvement_html}
+    </ul>
+</div>
+
+<table class="signature-table">
+    <tr>
+        <td style="width: 33%;">
+            <b>آموزگار پایه پنجم ابتدایی</b><br>
+            سید موسی حیدری<br><br>
+            امضا و تاریخ
+        </td>
+        <td style="width: 33%;">
+            <b>مدیریت دبستان شهید مطهری مهران</b><br><br>
+            مهر و امضا
+        </td>
+        <td style="width: 33%;">
+            <b>رویت و امضای اولیای محترم</b><br><br>
+            تاریخ و امضا
+        </td>
+    </tr>
+</table>
+</body>
+</html>"""
+    
+    html_path = f"/workspace/scratch/portfolio_{random.randint(1000, 9999)}.html"
+    pdf_path = html_path.replace(".html", ".pdf")
+    with open(html_path, "w", encoding="utf-8") as f:
+        f.write(html)
+        
+    try:
+        subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', html_path, '--outdir', '/workspace/scratch'], capture_output=True)
+        with open(pdf_path, 'rb') as f:
+            pdf_bytes = f.read()
+        if os.path.exists(html_path): os.remove(html_path)
+        if os.path.exists(pdf_path): os.remove(pdf_path)
+        return pdf_bytes
+    except Exception:
+        return html.encode('utf-8')
+'''
+
+print('pdf_helpers defined successfully!')
+
+
 # Helper Functions & Constants
 # ---------------------------------------------------------
 FIFTH_GRADE_SUBJECTS = [
@@ -778,13 +1081,23 @@ elif menu_choice.startswith("4"):
         
         if st.button("ثبت مشاهده رفتاری"):
             s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
+            st_info = students_df[students_df['full_name'] == selected_student].iloc[0]
+            nat_id = st_info['national_id'] or 'ثبت نشده'
+            st_grp = st_info['student_group'] or 'بدون گروه'
+            
             with get_connection() as conn:
                 conn.execute(
                     "INSERT INTO behaviors (student_id, behavior_type, title, description, log_date) VALUES (?, ?, ?, ?, ?)",
                     (s_id, b_type, title.strip(), desc.strip(), log_date.strip())
                 )
                 conn.commit()
-            st.success("مشاهده رفتاری ذخیره شد.")
+            st.success("✅ مشاهده رفتاری با موفقیت در سیستم ذخیره شد.")
+            
+            # Generate instant PDF Report
+            beh_pdf = generate_behavior_report_pdf(selected_student, nat_id, st_grp, b_type, title.strip(), desc.strip(), log_date.strip())
+            is_pos = 'مثبت' in b_type or 'تشویق' in b_type
+            btn_label = "📥 دانلود تقدیرنامه و لوح سپاس رسمی (PDF)" if is_pos else "📥 دانلود برگه هشدار و اطلاع‌رسانی اولیا (PDF)"
+            st.download_button(btn_label, data=beh_pdf, file_name=f"behavior_report_{s_id}_{random.randint(100,999)}.pdf", mime="application/pdf")
 
         st.markdown("---")
         st.subheader(f"📋 گزارش انضباطی: {selected_student}")
@@ -1165,6 +1478,28 @@ elif menu_choice.startswith("7"):
         selected_student = st.selectbox("انتخاب دانش‌آموز جهت مشاهده پوشه کار:", students_df['full_name'].tolist())
         s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
         
+        # Privacy & Security Guard for Portfolio
+        if not st.session_state['is_teacher_logged_in']:
+            with get_connection() as conn:
+                real_pin = conn.execute("SELECT pin_code FROM students WHERE id = ?", (s_id,)).fetchone()
+                pin_code_db = str(real_pin['pin_code']).strip() if real_pin and real_pin['pin_code'] else '1234'
+            
+            st.info("🔒 جهت حفظ حریم خصوصی و کرامت دانش‌آموزان، کارنامه و پوشه کار محرمانه می‌باشد.")
+            input_pin = st.text_input("🔑 رمز ۴ رقمی اختصاصی دانش‌آموز را وارد کنید:", type="password", key="portfolio_pin_guard")
+            if input_pin.strip() != pin_code_db:
+                st.warning("⚠️ برای مشاهده کارنامه، لطفاً رمز ۴ رقمی اختصاصی دانش‌آموز را به درستی وارد کنید.")
+                st.stop()
+            else:
+                st.success("🔓 احراز هویت موفقیت‌آمیز دانش‌آموز!")
+                
+        # Export Comprehensive PDF Report
+        col_pdf1, col_pdf2 = st.columns([3, 1])
+        with col_pdf1:
+            st.markdown(f"### 📄 پوشه کار و کارنامه تحصیلی: **{selected_student}**")
+        with col_pdf2:
+            portfolio_pdf = generate_comprehensive_portfolio_pdf(s_id)
+            st.download_button("📥 دانلود کارنامه جامع (PDF رسمی با سربرگ و نمودار)", data=portfolio_pdf, file_name=f"report_card_{selected_student}.pdf", mime="application/pdf")
+        
         with get_connection() as conn:
             eval_count = conn.execute("SELECT COUNT(*) FROM evaluations WHERE student_id = ?", (s_id,)).fetchone()[0]
             beh_count = conn.execute("SELECT COUNT(*) FROM behaviors WHERE student_id = ?", (s_id,)).fetchone()[0]
@@ -1192,9 +1527,27 @@ elif menu_choice.startswith("7"):
                 
         with tab_d2:
             with get_connection() as conn:
-                df_b = safe_read_sql("SELECT behavior_type AS 'نوع', title AS 'عنوان رفتار', description AS 'توضیحات تکمیلی', log_date AS 'تاریخ (شمسی)' FROM behaviors WHERE student_id = ? ORDER BY id DESC", conn, params=(s_id,))
+                df_b = safe_read_sql("SELECT id, behavior_type AS 'نوع', title AS 'عنوان رفتار', description AS 'توضیحات تکمیلی', log_date AS 'تاریخ (شمسی)' FROM behaviors WHERE student_id = ? ORDER BY id DESC", conn, params=(s_id,))
             if not df_b.empty:
-                st.dataframe(df_b, use_container_width=True, hide_index=True)
+                st.dataframe(df_b.drop(columns=['id'], errors='ignore'), use_container_width=True, hide_index=True)
+                
+                st.markdown("##### 📥 صدور گزارش PDF رسمی برای موارد رفتاری فوق:")
+                st_info = students_df[students_df['full_name'] == selected_student].iloc[0]
+                nat_id = st_info['national_id'] or 'ثبت نشده'
+                st_grp = st_info['student_group'] or 'بدون گروه'
+                
+                for _, b_row in df_b.iterrows():
+                    col_b1, col_b2 = st.columns([3, 1])
+                    with col_b1:
+                        st.markdown(f"🔹 **{b_row['نوع']}** — {b_row['عنوان رفتار']} ({b_row['تاریخ (شمسی)']})")
+                    with col_b2:
+                        single_pdf = generate_behavior_report_pdf(
+                            selected_student, nat_id, st_grp,
+                            b_row['نوع'], b_row['عنوان رفتار'], b_row['توضیحات تکمیلی'], b_row['تاریخ (شمسی)']
+                        )
+                        is_pos = 'مثبت' in b_row['نوع'] or 'تشویق' in b_row['نوع']
+                        btn_txt = "📥 PDF تقدیرنامه" if is_pos else "📥 PDF هشدار"
+                        st.download_button(btn_txt, data=single_pdf, file_name=f"behavior_{b_row['id']}.pdf", mime="application/pdf", key=f"dl_b_{b_row['id']}")
             else:
                 st.info("مورد رفتاری ثبت نشده است.")
                 
