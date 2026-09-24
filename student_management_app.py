@@ -341,14 +341,7 @@ def seed_default_quiz():
 
 seed_default_quiz()
 
-# ---------------------------------------------------------
-import re
 
-with open('/workspace/scratch/student_management_app.py', 'r', encoding='utf-8') as f:
-    code = f.read()
-
-# Let's inspect helper functions location
-pdf_helpers = '''
 # ---------------------------------------------------------
 # PDF Generator Helpers (Official Letterheads & Reports)
 # ---------------------------------------------------------
@@ -457,13 +450,13 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
 </body>
 </html>"""
     
-    html_path = f"/workspace/scratch/b_report_{random.randint(1000, 9999)}.html"
+    html_path = f"/tmp/b_report_{random.randint(1000, 9999)}.html"
     pdf_path = html_path.replace(".html", ".pdf")
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
     
     try:
-        subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', html_path, '--outdir', '/workspace/scratch'], capture_output=True)
+        subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', html_path, '--outdir', tempfile.gettempdir()], capture_output=True)
         with open(pdf_path, 'rb') as f:
             pdf_bytes = f.read()
         if os.path.exists(html_path): os.remove(html_path)
@@ -622,13 +615,13 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
 </body>
 </html>"""
     
-    html_path = f"/workspace/scratch/portfolio_{random.randint(1000, 9999)}.html"
+    html_path = f"/tmp/portfolio_{random.randint(1000, 9999)}.html"
     pdf_path = html_path.replace(".html", ".pdf")
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
         
     try:
-        subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', html_path, '--outdir', '/workspace/scratch'], capture_output=True)
+        subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', html_path, '--outdir', tempfile.gettempdir()], capture_output=True)
         with open(pdf_path, 'rb') as f:
             pdf_bytes = f.read()
         if os.path.exists(html_path): os.remove(html_path)
@@ -636,7 +629,6 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
         return pdf_bytes
     except Exception:
         return html.encode('utf-8')
-'''
 
 print('pdf_helpers defined successfully!')
 
