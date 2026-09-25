@@ -7,9 +7,12 @@ import random
 import re
 import io
 import os
-import io
 import tempfile
 import subprocess
+
+# ---------------------------------------------------------
+# Jalali / Shamsi Date Conversion Helper (Pure Python)
+# ---------------------------------------------------------
 def gregorian_to_jalali(gy, gm, gd):
     g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
     if gy > 1600:
@@ -40,71 +43,107 @@ def get_current_shamsi_date():
     return gregorian_to_jalali(today.year, today.month, today.day)
 
 # ---------------------------------------------------------
-# Page Configuration & Full RTL CSS Styling
+# Page Configuration & Modern RTL CSS Styling
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="سامانه هوشمند مدیریت کلاس پنجم و آزمون آنلاین",
+    page_title="سامانه مدیریت کلاس پنجم و آزمون آنلاین",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Persian / RTL CSS Styling & Fixes
+# Custom High-Contrast Persian / RTL CSS (Targeted & Clean)
 st.markdown("""
 <style>
     @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
     
-    html, body, [class*="css"], div, span, button, input, select, textarea, label, p, h1, h2, h3, h4, h5, h6 {
+    /* Global Typography & Font */
+    html, body, [class*="st-"], .stMarkdown, p, span, button, input, select, textarea, label, h1, h2, h3, h4, h5, h6 {
         font-family: 'Vazirmatn', Tahoma, sans-serif !important;
         direction: rtl !important;
         text-align: right !important;
-        color: #ffffff !important;
     }
     
     .stApp {
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+        color: #ffffff !important;
     }
     
-    /* Responsive Header */
+    /* Header Banner */
     .main-header {
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-        color: white !important;
-        padding: 24px;
+        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+        color: #ffffff !important;
+        padding: 22px;
         border-radius: 16px;
         text-align: center !important;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(255, 255, 255, 0.2);
     }
     .main-header h2, .main-header p {
         color: #ffffff !important;
         text-align: center !important;
+        margin: 4px 0;
     }
     
-    /* Card Styling */
+    /* Card Boxes */
     .card-box {
-        background: rgba(30, 41, 59, 0.85);
+        background: rgba(30, 41, 59, 0.9);
         border: 1px solid rgba(255, 255, 255, 0.15);
         padding: 20px;
         border-radius: 14px;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     
-    /* Quote Box */
     .quote-card {
-        background: linear-gradient(135deg, rgba(30, 58, 138, 0.6) 0%, rgba(30, 41, 59, 0.9) 100%);
+        background: linear-gradient(135deg, rgba(30, 58, 138, 0.7) 0%, rgba(30, 41, 59, 0.95) 100%);
         border-right: 6px solid #fbbf24;
         border-left: 1px solid rgba(255, 255, 255, 0.1);
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 22px;
+        padding: 20px;
         border-radius: 14px;
-        margin-bottom: 22px;
+        margin-bottom: 20px;
         box-shadow: 0 6px 16px rgba(0,0,0,0.25);
     }
     
-    /* Button Styles & Text Wrap Fixes */
+    /* Fast & Stylish Sidebar Navigation */
+    section[data-testid="stSidebar"] {
+        background-color: #0f172a !important;
+        border-left: 2px solid #1e293b !important;
+    }
+    
+    section[data-testid="stSidebar"] div[role="radiogroup"] label {
+        background-color: rgba(30, 41, 59, 0.8) !important;
+        color: #ffffff !important;
+        padding: 12px 16px !important;
+        border-radius: 10px !important;
+        margin-bottom: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+    }
+    
+    section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+        background-color: #2563eb !important;
+        border-color: #60a5fa !important;
+        transform: translateX(-3px);
+    }
+    
+    section[data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+        border: 2px solid #60a5fa !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+    }
+    
+    section[data-testid="stSidebar"] div[role="radiogroup"] label p {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 1.02rem !important;
+    }
+    
+    /* Buttons */
     .stButton > button {
         width: 100% !important;
         background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
@@ -114,7 +153,7 @@ st.markdown("""
         font-weight: bold !important;
         border: none !important;
         box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3) !important;
-        transition: all 0.3s ease !important;
+        transition: all 0.2s ease !important;
         white-space: nowrap !important;
         word-break: keep-all !important;
     }
@@ -122,38 +161,15 @@ st.markdown("""
     .stButton > button:hover {
         background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4) !important;
     }
     
-    /* Text Inputs, Selectboxes, Dataframes */
+    /* Inputs & Controls */
     input, select, textarea, div[data-baseweb="select"] {
         color: #ffffff !important;
         background-color: #0f172a !important;
         border-radius: 8px !important;
     }
     
-    /* Radio Buttons Nav */
-    div[data-testid="stMarkdownContainer"] p {
-        color: #ffffff !important;
-    }
-    
-    /* Clean Selectbox and Radio Styling */
-    div[data-baseweb="select"] > div {
-        background-color: #1e293b !important;
-        color: #ffffff !important;
-        border: 2px solid #3b82f6 !important;
-        border-radius: 10px !important;
-        font-size: 1.05rem !important;
-        font-weight: 700 !important;
-    }
-    
-    div[role="radiogroup"] label p {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-    }
-    
-    /* Popover Fix */
     div[data-baseweb="popover"], div[data-baseweb="popover"] * {
         background-color: #1e293b !important;
         color: #ffffff !important;
@@ -271,56 +287,40 @@ def init_db():
         )
         """)
         
-        # Teacher Auth Table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS teacher_auth (
-            id INTEGER PRIMARY KEY CHECK (id = 1),
-            password TEXT NOT NULL
-        )
-        """)
-        cursor.execute("INSERT OR IGNORE INTO teacher_auth (id, password) VALUES (1, '1234')")
-        
-        # Migrations for existing databases
-        columns_to_add = [
+        # Ensure column migrations
+        for table, col, col_type in [
             ("students", "pin_code", "TEXT DEFAULT '1234'"),
             ("students", "student_group", "TEXT DEFAULT 'بدون گروه'"),
-            ("quizzes", "is_active", "INTEGER DEFAULT 1"),
             ("questions", "question_type", "TEXT DEFAULT 'mcq'"),
             ("questions", "model_answer", "TEXT"),
             ("questions", "explanation", "TEXT"),
             ("quiz_results", "photo_data", "TEXT"),
             ("quiz_results", "essay_answers", "TEXT")
-        ]
-        for table, col, col_type in columns_to_add:
+        ]:
             try:
                 cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}")
-            except sqlite3.OperationalError:
+            except Exception:
                 pass
                 
         conn.commit()
 
 init_db()
 
-# Safe Read Helper
-def safe_read_sql(query, conn, params=None):
+def safe_read_sql(sql, conn, params=None):
     try:
-        return pd.read_sql_query(query, conn, params=params)
+        if params:
+            return pd.read_sql_query(sql, conn, params=params)
+        return pd.read_sql_query(sql, conn)
     except Exception:
-        init_db()
-        try:
-            return pd.read_sql_query(query, conn, params=params)
-        except Exception:
-            return pd.DataFrame()
+        return pd.DataFrame()
 
-# ---------------------------------------------------------
-# Default Quiz Seeder
-# ---------------------------------------------------------
+# Seed default test quiz if empty
 def seed_default_quiz():
     with get_connection() as conn:
-        cursor = conn.cursor()
-        count = cursor.execute("SELECT COUNT(*) FROM quizzes").fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM quizzes").fetchone()[0]
         if count == 0:
             shamsi_today = get_current_shamsi_date()
+            cursor = conn.cursor()
             cursor.execute(
                 "INSERT INTO quizzes (title, subject, duration_minutes, is_active, created_at) VALUES (?, ?, ?, 1, ?)",
                 ("آزمونک جامع فصل اول ریاضی و علوم پنجم", "ریاضی", 60, shamsi_today)
@@ -328,45 +328,39 @@ def seed_default_quiz():
             quiz_id = cursor.lastrowid
             
             sample_questions = [
-                ('mcq', 'حاصل کسر ۲/۵ + ۳/۱۰ کدام است؟', '۷/۱۰', '۵/۱۵', '۱/۲', '۴/۱۰', 1, None, 'ابتدا مخرج مشترک ۱۰ می‌گیریم: ۴/۱۰ + ۳/۱۰ = ۷/۱۰.'),
-                ('mcq', 'کدام‌یک از تغییرات زیر یک تغییر شیمیایی محسوب می‌شود؟', 'ذوب شدن یخ', 'تبخیر آب', 'سوختن چوب', 'خرد کردن کاغذ', 3, None, 'سوختن چوب تغییر شیمیایی است چون جنس ماده تغییر می‌کند.'),
-                ('mcq', 'در الگوی عددی ۵، ۹، ۱۳، ۱۷، ... عدد بعدی کدام است؟', '۱۹', '۲۱', '۲۰', '۲۲', 2, None, 'الگو ۴ تا ۴ تا اضافه می‌شود: ۱۷ + ۴ = ۲۱.'),
-                ('essay', 'تفاوت تغییر فیزیکی و تغییر شیمیایی را با یک مثال توضیح دهید.', None, None, None, None, 1, 'در تغییر فیزیکی جنس ماده عوض نمی‌شود (مثل ذوب یخ)، اما در تغییر شیمیایی ماده جدیدی تولید می‌شود (مثل پختن نان).', 'ملاک نمره‌دهی: اشاره درست به عدم تغییر جنس ماده در تغییر فیزیکی و ایجاد ماده جدید در تغییر شیمیایی.'),
-                ('essay', 'اگر محیط یک مربع ۲۰ سانتی‌متر باشد، مساحت آن چند سانتی‌متر مربع است؟ مراحل حل را بنویسید.', None, None, None, None, 1, 'ضلع مربع = ۲۰ ÷ ۴ = ۵ سانتی‌متر. مساحت = ۵ × ۵ = ۲۵ سانتی‌متر مربع.', 'ملاک نمره‌دهی: محاسبه ضلع (۵) و سپس ضرب ضلع در خودش (۲۵).')
+                ("حاصل کسر ۲/۵ + ۳/۱۰ کدام است؟", "۷/۱۰", "۵/۱۵", "۱/۲", "۴/۱۰", 1, "مخرج مشترک ۱۰ می‌باشد."),
+                ("کدام‌یک نمونه‌ای از «تغییر شیمیایی» است؟", "ذوب یخ", "تبخیر آب", "سوختن چوب", "خرد کردن کاغذ", 3, "سوختن ماهیت ماده را تغییر می‌دهد."),
+                ("در الگوی عددی ۳، ۷، ۱۱، ۱۵، ... عدد بعدی کدام است؟", "۱۷", "۱۹", "۱۸", "۲۰", 2, "الگو ۴ تا ۴ تا اضافه می‌شود.")
             ]
-            
             for q in sample_questions:
                 cursor.execute("""
-                    INSERT INTO questions (quiz_id, question_type, question_text, option_1, option_2, option_3, option_4, correct_option, model_answer, explanation)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (quiz_id, q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], q[8]))
+                    INSERT INTO questions (quiz_id, question_type, question_text, option_1, option_2, option_3, option_4, correct_option, explanation)
+                    VALUES (?, 'mcq', ?, ?, ?, ?, ?, ?, ?)
+                """, (quiz_id, q[0], q[1], q[2], q[3], q[4], q[5], q[6]))
             conn.commit()
 
 seed_default_quiz()
 
-
 # ---------------------------------------------------------
-# PDF Generator Helpers (Official Letterheads & Reports)
+# PDF & HTML Report Generator Helpers
 # ---------------------------------------------------------
 def generate_chart_b64(quiz_titles, quiz_pcts, eval_counts):
     try:
-        import io
-        import base64
         import matplotlib
         matplotlib.use('Agg')
         import matplotlib.pyplot as plt
-
+        
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 2.8), dpi=150)
         fig.patch.set_facecolor('#ffffff')
         
         if quiz_pcts:
             ax1.bar(range(len(quiz_pcts)), quiz_pcts, color='#2563eb', width=0.4)
             ax1.set_ylim(0, 110)
-            ax1.set_title('درصد آزمون‌های آنلاین (٪)', fontsize=9)
-            ax1.set_xticks(range(len(quiz_pcts)))
-            ax1.set_xticklabels([f'آزمون {i+1}' for i in range(len(quiz_pcts))], fontsize=8)
+            ax1.set_title('درصد آزمون‌های آنلاین', fontsize=9, fontname='DejaVu Sans')
+            ax1.set_xticks(range(len(quiz_titles)))
+            ax1.set_xticklabels([f'آزمون {i+1}' for i in range(len(quiz_titles))], fontsize=8, fontname='DejaVu Sans')
         else:
-            ax1.text(0.5, 0.5, 'آزمونی ثبت نشده', ha='center', va='center', fontsize=9)
+            ax1.text(0.5, 0.5, 'آزمونی ثبت نشده', ha='center', va='center', fontsize=9, fontname='DejaVu Sans')
             ax1.axis('off')
             
         labels = list(eval_counts.keys())
@@ -374,9 +368,9 @@ def generate_chart_b64(quiz_titles, quiz_pcts, eval_counts):
         colors = ['#16a34a', '#2563eb', '#eab308', '#dc2626']
         if sum(values) > 0:
             ax2.bar(labels, values, color=colors[:len(labels)], width=0.4)
-            ax2.set_title('توزیع سطح ارزشیابی‌ها', fontsize=9)
+            ax2.set_title('توزیع سطح ارزشیابی‌ها', fontsize=9, fontname='DejaVu Sans')
         else:
-            ax2.text(0.5, 0.5, 'ارزشیابی ثبت نشده', ha='center', va='center', fontsize=9)
+            ax2.text(0.5, 0.5, 'ارزشیابی ثبت نشده', ha='center', va='center', fontsize=9, fontname='DejaVu Sans')
             ax2.axis('off')
             
         plt.tight_layout()
@@ -384,216 +378,12 @@ def generate_chart_b64(quiz_titles, quiz_pcts, eval_counts):
         plt.savefig(buf, format='png', bbox_inches='tight')
         buf.seek(0)
         b64 = base64.b64encode(buf.read()).decode('utf-8')
-        plt.close(fig)
+        plt.close()
         return b64
     except Exception:
-        return 
+        return ""
 
-
-# ---------------------------------------------------------
-# ReportLab Native PDF Generator (Pure Python Fallback)
-# ---------------------------------------------------------
-import io
-# Safe Lazy ReportLab Import Helper
-def _get_reportlab():
-    try:
-        from reportlab.lib.pagesizes import A4
-        from reportlab.pdfgen import canvas
-        from reportlab.pdfbase import pdfmetrics
-        from reportlab.pdfbase.ttfonts import TTFont
-        from reportlab.lib.colors import HexColor
-        return True, A4, canvas, pdfmetrics, TTFont, HexColor
-    except ImportError:
-        return False, None, None, None, None, None
-
-_PERSIAN_FONT_REGISTERED = False
-def _register_persian_font():
-    global _PERSIAN_FONT_REGISTERED
-    if not _PERSIAN_FONT_REGISTERED:
-        font_paths = [
-            '/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf',
-            '/usr/share/fonts/truetype/noto/NotoNaskhArabic-Regular.ttf',
-            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
-        ]
-        for fp in font_paths:
-            if os.path.exists(fp):
-                try:
-                    pdfmetrics.registerFont(TTFont('PersianFont', fp))
-                    _PERSIAN_FONT_REGISTERED = True
-                    break
-                except Exception:
-                    pass
-
-PERSIAN_MAP = {
-    'ا': ('ﺍ', 'ﺎ', 'ﺎ', 'ﺍ'), 'ب': ('ﺏ', 'ﺑ', 'ﺒ', 'ﺐ'), 'پ': ('ﭖ', 'ﭘ', 'ﭙ', 'ﭗ'),
-    'ت': ('ﺕ', 'ﺗ', 'ﺘ', 'ﺖ'), 'ث': ('ﺙ', 'ﺛ', 'ﺜ', 'ﺚ'), 'ج': ('ﺝ', 'ﺟ', 'ﺠ', 'ﺞ'),
-    'چ': ('ﭺ', 'ﭼ', 'ﭽ', 'ﭻ'), 'ح': ('ﺡ', 'ﺣ', 'ﺤ', 'ﺢ'), 'خ': ('ﺥ', 'ﺧ', 'ﺨ', 'ﺦ'),
-    'د': ('ﺩ', 'ﺪ', 'ﺪ', 'ﺩ'), 'ذ': ('ﺫ', 'ﺬ', 'ﺬ', 'ﺫ'), 'ر': ('ﺭ', 'ﺮ', 'ﺮ', 'ﺭ'),
-    'ز': ('ﺯ', 'ﺰ', 'ﺰ', 'ﺯ'), 'ژ': ('ﮊ', 'ﮋ', 'ﮋ', 'ﮊ'), 'س': ('ﺱ', 'ﺱ', 'ﺴ', 'ﺲ'),
-    'ش': ('ﺵ', 'ﺷ', 'ﺸ', 'ﺶ'), 'ص': ('ﺹ', 'ﺻ', 'ﺼ', 'ﺺ'), 'ض': ('ﺽ', 'ﺿ', 'ﻀ', 'ﺾ'),
-    'ط': ('ﻁ', 'ﻃ', 'ﻄ', 'ﻂ'), 'ظ': ('ﻅ', 'ﻇ', 'ﻈ', 'ﻆ'), 'ع': ('ﻉ', 'ﻋ', 'ﻌ', 'ﻊ'),
-    'غ': ('ﻍ', 'ﻏ', 'ﻐ', 'ﻎ'), 'ف': ('ﻑ', 'ﻓ', 'ف', 'ﻒ'), 'ق': ('ﻕ', 'ﻗ', 'ﻖ', 'ﻖ'),
-    'ک': ('ﮎ', 'ﻛ', 'ﻜ', 'ﮏ'), 'گ': ('ﮒ', 'ﮔ', 'ﮕ', 'ﮓ'), 'ل': ('ﻝ', 'ﻟ', 'ﻠ', 'ﻞ'),
-    'م': ('ﻡ', 'ﻣ', 'ﻤ', 'ﻢ'), 'ن': ('ﻥ', 'ﻧ', 'ﻨ', 'ﻦ'), 'و': ('ﻭ', 'ﻮ', 'ﻮ', 'ﻭ'),
-    'ه': ('ﻩ', 'ﻫ', 'ﻬ', 'ﻪ'), 'ی': ('ﯼ', 'ﻳ', 'ﻴ', 'ﯽ'), 'آ': ('ﺁ', 'ﺂ', 'ﺂ', 'ﺁ'),
-    'ئ': ('ﺉ', 'ﺋ', 'ﺌ', 'ﺊ'), 'ء': ('ﺀ', 'ء', 'ء', 'ﺀ'),
-}
-NON_CONNECTING = set('ادذرزژوآ')
-
-def _reshape(text):
-    res = []
-    n = len(text)
-    for i, ch in enumerate(text):
-        if ch not in PERSIAN_MAP:
-            res.append(ch)
-            continue
-        prev_ch = text[i-1] if i > 0 else None
-        next_ch = text[i+1] if i < n-1 else None
-        prev_conn = prev_ch in PERSIAN_MAP and prev_ch not in NON_CONNECTING
-        next_conn = next_ch in PERSIAN_MAP
-        iso, init, med, fin = PERSIAN_MAP[ch]
-        if prev_conn and next_conn: res.append(med)
-        elif prev_conn and not next_conn: res.append(fin)
-        elif not prev_conn and next_conn: res.append(init)
-        else: res.append(iso)
-    return ''.join(res)
-
-def _rtl(text):
-    if not text: return ''
-    return _reshape(str(text))[::-1]
-
-def generate_reportlab_behavior_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
-    has_rl, A4, canvas, pdfmetrics, TTFont, HexColor = _get_reportlab()
-    if not has_rl:
-        raise ImportError("reportlab not installed")
-    _register_persian_font()
-    is_pos = 'مثبت' in b_type or 'تشویق' in b_type
-    theme_hex = '#15803d' if is_pos else '#b91c1c'
-    title_str = 'تقدیرنامه و لوح سپاس انضباطی کلاسی' if is_pos else 'کارت اطلاع‌رسانی و هشدار انضباطی اولیا'
-    
-    buf = io.BytesIO()
-    c = canvas.Canvas(buf, pagesize=A4)
-    w, h = A4
-    font_name = 'PersianFont' if _PERSIAN_FONT_REGISTERED else 'Helvetica'
-    
-    # Header bar
-    c.setFillColor(HexColor(theme_hex))
-    c.rect(0, h-90, w, 90, fill=1, stroke=0)
-    
-    c.setFillColor(HexColor('#ffffff'))
-    c.setFont(font_name, 14)
-    c.drawCentredString(w/2, h-35, _rtl('جمهوری اسلامی ایران - وزارت آموزش و پرورش'))
-    c.setFont(font_name, 11)
-    c.drawCentredString(w/2, h-55, _rtl('دبستان پسرانه هیئت امنایی شهید مطهری مهران - پایه پنجم'))
-    c.setFont(font_name, 13)
-    c.drawCentredString(w/2, h-78, _rtl(title_str))
-    
-    # Student Info
-    c.setFillColor(HexColor('#0f172a'))
-    c.setFont(font_name, 11)
-    y = h - 130
-    c.drawRightString(w - 40, y, _rtl(f'نام دانش‌آموز: {student_name}'))
-    c.drawRightString(w - 220, y, _rtl(f'کد ملی: {national_id}'))
-    c.drawRightString(w - 380, y, _rtl(f'گروه کلاسی: {student_group}'))
-    c.drawRightString(w - 500, y, _rtl(f'تاریخ: {log_date}'))
-    
-    # Divider line
-    c.setStrokeColor(HexColor('#cbd5e1'))
-    c.setLineWidth(1)
-    c.line(40, y-15, w-40, y-15)
-    
-    # Details Box
-    y -= 45
-    c.setFillColor(HexColor('#f8fafc'))
-    c.rect(40, y-120, w-80, 120, fill=1, stroke=1)
-    
-    c.setFillColor(HexColor('#0f172a'))
-    c.setFont(font_name, 12)
-    c.drawRightString(w - 55, y - 25, _rtl(f'عنوان مشاهده رفتاری: {title}'))
-    c.setFont(font_name, 11)
-    c.drawRightString(w - 55, y - 55, _rtl('شرح و توضیحات تکمیلی:'))
-    c.setFont(font_name, 10)
-    c.drawRightString(w - 55, y - 80, _rtl(desc[:80]))
-    if len(desc) > 80:
-        c.drawRightString(w - 55, y - 100, _rtl(desc[80:160]))
-        
-    # Signatures
-    y -= 180
-    c.setFont(font_name, 11)
-    c.drawRightString(w - 80, y, _rtl('آموزگار پایه پنجم: سید موسی حیدری'))
-    if is_pos:
-        c.drawRightString(200, y, _rtl('مدیریت دبستان شهید مطهری مهران'))
-    else:
-        c.drawRightString(200, y, _rtl('رویت و امضای اولیای محترم'))
-        
-    c.save()
-    return buf.getvalue()
-
-def generate_reportlab_portfolio_pdf(student_name, national_id, parent_phone, student_group, eval_count, beh_count, quiz_avg_str):
-    has_rl, A4, canvas, pdfmetrics, TTFont, HexColor = _get_reportlab()
-    if not has_rl:
-        raise ImportError("reportlab not installed")
-    _register_persian_font()
-    buf = io.BytesIO()
-    c = canvas.Canvas(buf, pagesize=A4)
-    w, h = A4
-    font_name = 'PersianFont' if _PERSIAN_FONT_REGISTERED else 'Helvetica'
-    
-    # Header bar
-    c.setFillColor(HexColor('#0f172a'))
-    c.rect(0, h-90, w, 90, fill=1, stroke=0)
-    
-    c.setFillColor(HexColor('#ffffff'))
-    c.setFont(font_name, 14)
-    c.drawCentredString(w/2, h-35, _rtl('جمهوری اسلامی ایران - وزارت آموزش و پرورش'))
-    c.setFont(font_name, 11)
-    c.drawCentredString(w/2, h-55, _rtl('دبستان پسرانه هیئت امنایی شهید مطهری مهران - پایه پنجم'))
-    c.setFont(font_name, 13)
-    c.drawCentredString(w/2, h-78, _rtl('کارنامه جامع تحصیلی و پوشه کار دیجیتال'))
-    
-    # Student Info
-    c.setFillColor(HexColor('#0f172a'))
-    c.setFont(font_name, 11)
-    y = h - 130
-    c.drawRightString(w - 40, y, _rtl(f'نام دانش‌آموز: {student_name}'))
-    c.drawRightString(w - 220, y, _rtl(f'کد ملی: {national_id}'))
-    c.drawRightString(w - 380, y, _rtl(f'گروه کلاسی: {student_group}'))
-    
-    # Summary Box
-    y -= 50
-    c.setFillColor(HexColor('#f1f5f9'))
-    c.rect(40, y-60, w-80, 60, fill=1, stroke=1)
-    
-    c.setFillColor(HexColor('#0f172a'))
-    c.setFont(font_name, 11)
-    c.drawRightString(w - 60, y - 35, _rtl(f'تعداد ارزشیابی‌ها: {eval_count}'))
-    c.drawRightString(w - 240, y - 35, _rtl(f'موارد رفتاری: {beh_count}'))
-    c.drawRightString(w - 420, y - 35, _rtl(f'میانگین درصد آزمون‌ها: {quiz_avg_str}'))
-    
-    # Analysis & Advice Box
-    y -= 100
-    c.setFillColor(HexColor('#eff6ff'))
-    c.rect(40, y-120, w-80, 120, fill=1, stroke=1)
-    
-    c.setFillColor(HexColor('#1e40af'))
-    c.setFont(font_name, 12)
-    c.drawRightString(w - 55, y - 25, _rtl('💡 تحلیل آموزشی و توصیه‌های تربیتی معلم:'))
-    c.setFillColor(HexColor('#0f172a'))
-    c.setFont(font_name, 10)
-    c.drawRightString(w - 55, y - 55, _rtl('۱. نقاط قوت: حضور منظم در کلاس، مشارکت فعال در فعالیت‌های گروهی.'))
-    c.drawRightString(w - 55, y - 80, _rtl('۲. توصیه به اولیا: تمرین مستمر کسرها و اعداد اعشاری ریاضی در منزل.'))
-    
-    # Signatures
-    y -= 180
-    c.setFont(font_name, 11)
-    c.drawRightString(w - 80, y, _rtl('آموزگار پایه پنجم: سید موسی حیدری'))
-    c.drawRightString(w/2 + 40, y, _rtl('مدیریت دبستان شهید مطهری مهران'))
-    c.drawRightString(180, y, _rtl('رویت و امضای اولیای محترم'))
-    
-    c.save()
-    return buf.getvalue()
-
-def generate_behavior_report_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
+def generate_behavior_report_html(student_name, national_id, student_group, b_type, title, desc, log_date):
     is_positive = 'مثبت' in b_type or 'تشویق' in b_type
     theme_color = '#15803d' if is_positive else '#b91c1c'
     bg_color = '#f0fdf4' if is_positive else '#fef2f2'
@@ -606,7 +396,7 @@ def generate_behavior_report_pdf(student_name, national_id, student_group, b_typ
 <meta charset="UTF-8">
 <style>
 @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
-body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align: right; padding: 30px; color: #0f172a; line-height: 1.8; }}
+body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align: right; padding: 25px; color: #0f172a; background: #ffffff; line-height: 1.8; }}
 .letterhead {{ border-bottom: 3px double {theme_color}; padding-bottom: 12px; margin-bottom: 20px; text-align: center; }}
 .org-name {{ color: #1e3a8a; font-size: 14px; font-weight: bold; }}
 .school-name {{ color: #0f172a; font-size: 18px; font-weight: bold; margin-top: 5px; }}
@@ -614,9 +404,9 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
 .report-card {{ background: {bg_color}; border: 2px solid {border_color}; border-radius: 12px; padding: 25px; margin-top: 15px; }}
 .report-header {{ color: {theme_color}; font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 15px; border-bottom: 1px dashed {border_color}; padding-bottom: 10px; }}
 .meta-table {{ width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 15px; background: #ffffff; border-radius: 8px; overflow: hidden; }}
-.meta-table td {{ padding: 8px 12px; border: 1px solid #e2e8f0; }}
-.content-text {{ font-size: 14px; line-height: 2; text-align: justify; margin: 15px 0; }}
-.signature-table {{ width: 100%; margin-top: 40px; text-align: center; font-size: 13px; border-collapse: collapse; }}
+.meta-table td {{ padding: 8px 12px; border: 1px solid #e2e8f0; color: #0f172a !important; }}
+.content-text {{ font-size: 14px; line-height: 2; text-align: justify; margin: 15px 0; color: #0f172a !important; }}
+.signature-table {{ width: 100%; margin-top: 40px; text-align: center; font-size: 13px; border-collapse: collapse; color: #0f172a !important; }}
 .signature-table td {{ padding: 10px; vertical-align: top; }}
 </style>
 </head>
@@ -665,104 +455,25 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
 </table>
 </body>
 </html>"""
-    
-    html_path = f"/tmp/b_report_{random.randint(1000, 9999)}.html"
-    pdf_path = html_path.replace(".html", ".pdf")
-    with open(html_path, "w", encoding="utf-8") as f:
-        f.write(html)
-    
-    try:
-        subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', html_path, '--outdir', tempfile.gettempdir()], capture_output=True)
-        with open(pdf_path, 'rb') as f:
-            pdf_bytes = f.read()
-        if os.path.exists(html_path): os.remove(html_path)
-        if os.path.exists(pdf_path): os.remove(pdf_path)
-        return pdf_bytes
-    except Exception:
-        try:
-            return generate_reportlab_behavior_pdf(student_name, national_id, student_group, b_type, title, desc, log_date)
-        except Exception:
-            return html.encode('utf-8')
+    return html
 
-def generate_comprehensive_portfolio_pdf(student_id):
-    with get_connection() as conn:
-        st_row = conn.execute("SELECT * FROM students WHERE id = ?", (student_id,)).fetchone()
-        if not st_row:
-            return b""
-        student_name = f"{st_row['first_name']} {st_row['last_name']}"
-        national_id = st_row['national_id'] or "ثبت نشده"
-        parent_phone = st_row['parent_phone'] or "ثبت نشده"
-        student_group = st_row['student_group'] or "بدون گروه"
-        
-        df_evals = safe_read_sql("SELECT subject AS 'درس', level AS 'سطح توصیفی', feedback AS 'توصیف معلم', eval_date AS 'تاریخ' FROM evaluations WHERE student_id = ? ORDER BY id DESC", conn, params=(student_id,))
-        df_beh = safe_read_sql("SELECT behavior_type AS 'نوع', title AS 'عنوان رفتار', description AS 'توضیحات', log_date AS 'تاریخ' FROM behaviors WHERE student_id = ? ORDER BY id DESC", conn, params=(student_id,))
-        df_quizzes = safe_read_sql("SELECT q.title AS 'عنوان آزمون', q.subject AS 'درس', r.score AS 'نمره', r.total_questions AS 'کل سوالات', r.percentage AS 'درصد ٪', r.submitted_at AS 'تاریخ ثبت' FROM quiz_results r JOIN quizzes q ON r.quiz_id = q.id WHERE r.student_id = ? ORDER BY r.id DESC", conn, params=(student_id,))
-
-    quiz_titles = df_quizzes['عنوان آزمون'].tolist() if not df_quizzes.empty else []
-    quiz_pcts = df_quizzes['درصد ٪'].tolist() if not df_quizzes.empty else []
-    
-    eval_counts = {
-        "خیلی خوب": len(df_evals[df_evals['سطح توصیفی'].str.contains('خیلی خوب')]) if not df_evals.empty else 0,
-        "خوب": len(df_evals[df_evals['سطح توصیفی'].str.contains('خوب')]) if not df_evals.empty else 0,
-        "قابل قبول": len(df_evals[df_evals['سطح توصیفی'].str.contains('قابل قبول')]) if not df_evals.empty else 0,
-        "نیازمند تلاش": len(df_evals[df_evals['سطح توصیفی'].str.contains('تلاش')]) if not df_evals.empty else 0
-    }
-    
-    chart_b64 = generate_chart_b64(quiz_titles[:5], quiz_pcts[:5], eval_counts)
-    
-    quiz_avg = sum(quiz_pcts)/len(quiz_pcts) if quiz_pcts else None
-    beh_pos_count = len(df_beh[df_beh['نوع'].str.contains('مثبت|تشویق')]) if not df_beh.empty else 0
-    beh_neg_count = len(df_beh[df_beh['نوع'].str.contains('پیگیری|توجه|منفی')]) if not df_beh.empty else 0
-    
-    strengths_list = []
-    improvement_list = []
-    
-    if quiz_avg and quiz_avg >= 85:
-        strengths_list.append(f"عملکرد عالی در آزمون‌های آنلاین با میانگین درصد {quiz_avg:.1f}٪")
-    elif quiz_avg and quiz_avg < 70:
-        improvement_list.append(f"نیاز به مرور و تمرین بیشتر در مفاهیم آزمون‌ها (میانگین درصد فعلی: {quiz_avg:.1f}٪)")
-        
-    if eval_counts["خیلی خوب"] > 0:
-        strengths_list.append(f"احراز سطح «خیلی خوب» در {eval_counts['خیلی خوب']} مورد ارزشیابی توصیفی درسی")
-        
-    if beh_pos_count > 0:
-        strengths_list.append(f"ثبت {beh_pos_count} مورد تشویق و رفتار مثبت انضباطی در کلاس درس")
-    if beh_neg_count > 0:
-        improvement_list.append(f"نیاز به توجه بیشتر به نظم و قانون‌مداری کلاسی ({beh_neg_count} مورد نیاز به پیگیری)")
-        
-    if not strengths_list:
-        strengths_list.append("حضور منظم و فعال در برنامه‌های آموزشی کلاس درس")
-    if not improvement_list:
-        improvement_list.append("تثبیت مهارت‌های حل مسئله در دروس ریاضی و علوم")
-        
-    strengths_html = "".join([f"<li>{s}</li>" for s in strengths_list])
-    improvement_html = "".join([f"<li>{i}</li>" for i in improvement_list])
-    
+def generate_portfolio_report_html(student_name, national_id, parent_phone, student_group, eval_count, beh_count, quiz_avg_str):
     shamsi_today = get_current_shamsi_date()
-    
-    eval_table_html = df_evals.to_html(index=False, classes="data-table") if not df_evals.empty else "<p>ارزشیابی درسی ثبت نشده است.</p>"
-    beh_table_html = df_beh.to_html(index=False, classes="data-table") if not df_beh.empty else "<p>مورد رفتاری ثبت نشده است.</p>"
-    quiz_table_html = df_quizzes.to_html(index=False, classes="data-table") if not df_quizzes.empty else "<p>آزمون آنلاینی ثبت نشده است.</p>"
-    
     html = f"""<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <style>
 @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
-body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align: right; padding: 25px; color: #0f172a; line-height: 1.6; font-size: 12px; }}
+body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align: right; padding: 25px; color: #0f172a; background: #ffffff; line-height: 1.6; font-size: 13px; }}
 .letterhead {{ border-bottom: 3px double #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; text-align: center; }}
 .org-name {{ color: #1e3a8a; font-size: 13px; font-weight: bold; }}
 .school-name {{ color: #0f172a; font-size: 17px; font-weight: bold; margin-top: 3px; }}
 .sub-header {{ color: #475569; font-size: 11px; margin-top: 2px; }}
 .meta-table {{ width: 100%; border-collapse: collapse; margin-bottom: 15px; background: #f8fafc; border-radius: 6px; overflow: hidden; }}
-.meta-table td {{ padding: 6px 10px; border: 1px solid #cbd5e1; font-size: 12px; }}
-.section-title {{ color: #1e3a8a; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 8px; border-right: 4px solid #2563eb; padding-right: 8px; }}
-.data-table {{ width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px; }}
-.data-table th {{ background: #1e3a8a; color: #ffffff; padding: 6px; border: 1px solid #1e3a8a; text-align: center; }}
-.data-table td {{ padding: 5px; border: 1px solid #cbd5e1; text-align: center; }}
-.analysis-box {{ background: #f0f9ff; border: 1px solid #0284c7; border-radius: 8px; padding: 12px; margin-top: 15px; }}
-.signature-table {{ width: 100%; margin-top: 30px; text-align: center; font-size: 12px; border-collapse: collapse; }}
+.meta-table td {{ padding: 8px 12px; border: 1px solid #cbd5e1; color: #0f172a !important; font-size: 12px; }}
+.summary-box {{ background: #eff6ff; border: 1px solid #3b82f6; border-radius: 8px; padding: 15px; margin-bottom: 15px; color: #0f172a !important; }}
+.signature-table {{ width: 100%; margin-top: 30px; text-align: center; font-size: 12px; border-collapse: collapse; color: #0f172a !important; }}
 .signature-table td {{ padding: 10px; vertical-align: top; }}
 </style>
 </head>
@@ -785,32 +496,12 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
     </tr>
 </table>
 
-<div class="section-title">📊 نمودار تحلیلی رشد تحصیلی و توزیع ارزشیابی‌ها</div>
-<div style="text-align: center; margin: 10px 0;">
-    <img src="data:image/png;base64,{chart_b64}" style="width: 85%; max-width: 650px;">
-</div>
-
-<div class="section-title">📝 ارزشیابی‌های کیفی-توصیفی ۷ عنوان درسی پایه پنجم</div>
-{eval_table_html}
-
-<div class="section-title">🌟 سوابق رفتاری و مشاهدات انضباطی</div>
-{beh_table_html}
-
-<div class="section-title">✏️ نتایج آزمون‌های آنلاین با تصحیح هوشمند</div>
-{quiz_table_html}
-
-<div class="analysis-box">
-    <h4 style="color: #0369a1; margin-top: 0; margin-bottom: 8px;">💡 تحلیل جامع آموزشی و توصیه‌های تربیتی آموزگار:</h4>
-    <p style="text-align: justify; margin-bottom: 8px;">
-        دانش‌آموز عزیز <b>{student_name}</b> در ارزیابی‌های دوره جاری کلاس پنجم دبستان شهید مطهری، روندی فعال را طی نموده است. خلاصه‌ی تحلیل عملکرد وی به شرح زیر می‌باشد:
-    </p>
-    <b>🌟 نقاط قوت تحصیلی و انضباطی:</b>
-    <ul style="margin-top: 4px; margin-bottom: 8px; padding-right: 20px;">
-        {strengths_html}
-    </ul>
-    <b>🎯 زمینه‌های نیازمند تمرین و پیگیری اولیا در منزل:</b>
-    <ul style="margin-top: 4px; margin-bottom: 4px; padding-right: 20px;">
-        {improvement_html}
+<div class="summary-box">
+    <h3 style="color: #1e3a8a; margin-top: 0;">📊 خلاصه وضعیت پوشه کار تحصیلی و انضباطی</h3>
+    <ul>
+        <li><b>تعداد ارزشیابی‌های کیفی-توصیفی ثبت‌شده:</b> {eval_count} مورد</li>
+        <li><b>تعداد مشاهدات رفتاری و انضباطی:</b> {beh_count} مورد</li>
+        <li><b>میانگین درصد آزمون‌های آنلاین:</b> {quiz_avg_str}</li>
     </ul>
 </div>
 
@@ -833,7 +524,65 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
 </table>
 </body>
 </html>"""
-    
+    return html
+
+def generate_behavior_report_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
+    html = generate_behavior_report_html(student_name, national_id, student_group, b_type, title, desc, log_date)
+    html_path = f"/tmp/b_report_{random.randint(1000, 9999)}.html"
+    pdf_path = html_path.replace(".html", ".pdf")
+    with open(html_path, "w", encoding="utf-8") as f:
+        f.write(html)
+        
+    try:
+        subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', html_path, '--outdir', tempfile.gettempdir()], capture_output=True)
+        if os.path.exists(pdf_path):
+            with open(pdf_path, 'rb') as f:
+                pdf_bytes = f.read()
+            if os.path.exists(html_path): os.remove(html_path)
+            if os.path.exists(pdf_path): os.remove(pdf_path)
+            return pdf_bytes
+    except Exception:
+        pass
+        
+    try:
+        return generate_fpdf_behavior_pdf(student_name, national_id, student_group, b_type, title, desc, log_date)
+    except Exception:
+        return html.encode('utf-8')
+
+def generate_fpdf_behavior_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
+    try:
+        from fpdf import FPDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Helvetica", 'B', 16)
+        pdf.cell(0, 10, "Behavior Report Card", ln=True, align='C')
+        pdf.set_font("Helvetica", '', 12)
+        pdf.cell(0, 10, f"Student: {student_name} | ID: {national_id}", ln=True)
+        pdf.cell(0, 10, f"Group: {student_group} | Date: {log_date}", ln=True)
+        pdf.cell(0, 10, f"Type: {b_type} | Title: {title}", ln=True)
+        pdf.multi_cell(0, 10, f"Description: {desc}")
+        buf = io.BytesIO()
+        pdf.output(buf)
+        return buf.getvalue()
+    except Exception:
+        return b""
+
+def generate_comprehensive_portfolio_pdf(student_id):
+    with get_connection() as conn:
+        st_row = conn.execute("SELECT * FROM students WHERE id = ?", (student_id,)).fetchone()
+        if not st_row:
+            return b""
+        student_name = f"{st_row['first_name']} {st_row['last_name']}"
+        national_id = st_row['national_id'] or "ثبت نشده"
+        parent_phone = st_row['parent_phone'] or "ثبت نشده"
+        student_group = st_row['student_group'] or "بدون گروه"
+        
+        eval_count = conn.execute("SELECT COUNT(*) FROM evaluations WHERE student_id = ?", (student_id,)).fetchone()[0]
+        beh_count = conn.execute("SELECT COUNT(*) FROM behaviors WHERE student_id = ?", (student_id,)).fetchone()[0]
+        quiz_avg = conn.execute("SELECT AVG(percentage) FROM quiz_results WHERE student_id = ?", (student_id,)).fetchone()[0]
+        quiz_avg_str = f"{quiz_avg:.1f}٪" if quiz_avg else "بدون آزمون"
+
+    html = generate_portfolio_report_html(student_name, national_id, parent_phone, student_group, eval_count, beh_count, quiz_avg_str)
     html_path = f"/tmp/portfolio_{random.randint(1000, 9999)}.html"
     pdf_path = html_path.replace(".html", ".pdf")
     with open(html_path, "w", encoding="utf-8") as f:
@@ -841,19 +590,36 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
         
     try:
         subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', html_path, '--outdir', tempfile.gettempdir()], capture_output=True)
-        with open(pdf_path, 'rb') as f:
-            pdf_bytes = f.read()
-        if os.path.exists(html_path): os.remove(html_path)
-        if os.path.exists(pdf_path): os.remove(pdf_path)
-        return pdf_bytes
+        if os.path.exists(pdf_path):
+            with open(pdf_path, 'rb') as f:
+                pdf_bytes = f.read()
+            if os.path.exists(html_path): os.remove(html_path)
+            if os.path.exists(pdf_path): os.remove(pdf_path)
+            return pdf_bytes
     except Exception:
-        try:
-            return generate_reportlab_portfolio_pdf(student_name, national_id, parent_phone, student_group, eval_count, beh_count, f"{quiz_avg:.1f}٪" if quiz_avg else "بدون آزمون")
-        except Exception:
-            return html.encode('utf-8')
+        pass
+        
+    try:
+        return generate_fpdf_portfolio_pdf(student_name, national_id, parent_phone, student_group, eval_count, beh_count, quiz_avg_str)
+    except Exception:
+        return html.encode('utf-8')
 
-print('pdf_helpers defined successfully!')
-
+def generate_fpdf_portfolio_pdf(student_name, national_id, parent_phone, student_group, eval_count, beh_count, quiz_avg_str):
+    try:
+        from fpdf import FPDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Helvetica", 'B', 16)
+        pdf.cell(0, 10, "Comprehensive Portfolio Report Card", ln=True, align='C')
+        pdf.set_font("Helvetica", '', 12)
+        pdf.cell(0, 10, f"Student: {student_name} | ID: {national_id}", ln=True)
+        pdf.cell(0, 10, f"Phone: {parent_phone} | Group: {student_group}", ln=True)
+        pdf.cell(0, 10, f"Evaluations: {eval_count} | Behaviors: {beh_count} | Quiz Avg: {quiz_avg_str}", ln=True)
+        buf = io.BytesIO()
+        pdf.output(buf)
+        return buf.getvalue()
+    except Exception:
+        return b""
 
 # Helper Functions & Constants
 # ---------------------------------------------------------
@@ -878,26 +644,27 @@ CLASS_GROUPS = [
     "گروه ارمغان 🚀",
     "گروه دانا 💡",
     "گروه تلاش 🌟",
-    "گروه نخبگان 🏆",
-    "گروه اندیشه 📖"
+    "گروه اندیشه 🧠",
+    "گروه کاوش 🔬"
 ]
 
 def load_students():
-    with get_connection() as conn:
-        df = safe_read_sql("SELECT id, first_name || ' ' || last_name AS full_name, national_id, pin_code, parent_phone, student_group, notes FROM students", conn)
-    return df
+    try:
+        with get_connection() as conn:
+            df = safe_read_sql("SELECT id, first_name || ' ' || last_name AS full_name, national_id, pin_code, parent_phone, student_group, notes FROM students", conn)
+        return df
+    except Exception:
+        init_db()
+        return pd.DataFrame(columns=['id', 'full_name', 'national_id', 'pin_code', 'parent_phone', 'student_group', 'notes'])
 
-def check_teacher_password(pwd):
-    with get_connection() as conn:
-        res = conn.execute("SELECT password FROM teacher_auth WHERE id = 1").fetchone()
-        return res['password'] == pwd if res else pwd == '1234'
+def check_teacher_password(input_pass):
+    saved_pass = st.session_state.get('teacher_password', '1234')
+    return str(input_pass).strip() == str(saved_pass).strip()
 
-def update_teacher_password(new_pwd):
-    with get_connection() as conn:
-        conn.execute("UPDATE teacher_auth SET password = ? WHERE id = 1", (new_pwd,))
-        conn.commit()
+def update_teacher_password(new_pass):
+    st.session_state['teacher_password'] = str(new_pass).strip()
 
-# Session State Setup
+# Initialize Session States
 if 'user_role' not in st.session_state:
     st.session_state['user_role'] = 'دانش‌آموز'
 if 'is_teacher_logged_in' not in st.session_state:
@@ -972,7 +739,7 @@ curr_shamsi = get_current_shamsi_date()
 st.markdown(f"""
 <div class="main-header">
     <h2>🎓 سامانه هوشمند مدیریت کلاس و آزمون آنلاین — پایه پنجم ابتدایی</h2>
-    <p>دبستان شهید مطهری مهران | آموزگار: سید موسی حیدری | تاریخ امروز: {curr_shamsi}</p>
+    <p>دبستان شهید مطهری مهران | آموزگار: سید موسی حیدری | 📅 تاریخ امروز: {curr_shamsi}</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1027,7 +794,7 @@ with col_h3:
 st.markdown("---")
 
 # ---------------------------------------------------------
-# NAVIGATION MENU (RESPONSIVE & MOBILE-FRIENDLY SELECTBOX / SIDEBAR)
+# SINGLE, LIGHTNING-FAST SIDEBAR NAVIGATION MENU (0ms LAG)
 # ---------------------------------------------------------
 if st.session_state['is_teacher_logged_in']:
     MENU_OPTIONS = [
@@ -1046,47 +813,13 @@ else:
         "7️⃣ 📊 داشبورد و کارنامه جامع"
     ]
 
-# Navigation Menu State Synchronization Callback
-if 'active_menu_option' not in st.session_state:
-    st.session_state['active_menu_option'] = MENU_OPTIONS[0]
-
-if st.session_state['active_menu_option'] not in MENU_OPTIONS:
-    st.session_state['active_menu_option'] = MENU_OPTIONS[0]
-
-def on_main_menu_change():
-    st.session_state['active_menu_option'] = st.session_state['main_nav_select_key']
-
-def on_sidebar_menu_change():
-    st.session_state['active_menu_option'] = st.session_state['sidebar_nav_select_key']
-
-# Main Area Menu Card (100% Responsive for Mobile & Desktop)
-st.markdown("""
-<div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 16px; border-radius: 12px; border: 2px solid #3b82f6; margin-bottom: 20px;">
-    <h3 style="color: #60a5fa !important; margin-bottom: 8px; font-size: 1.15rem;">📌 منوی دسترسی و انتقال بین بخش‌های سامانه:</h3>
-</div>
-""", unsafe_allow_html=True)
-
-st.selectbox(
-    "بخش مورد نظر را انتخاب کنید:",
+st.sidebar.markdown("### 📌 منوی مدیریت سامانه")
+menu_choice = st.sidebar.radio(
+    "انتخاب بخش:",
     MENU_OPTIONS,
-    index=MENU_OPTIONS.index(st.session_state['active_menu_option']),
-    key="main_nav_select_key",
-    on_change=on_main_menu_change,
-    label_visibility="collapsed"
+    index=0,
+    key="single_fast_nav_radio"
 )
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 📌 منوی سامانه:")
-st.sidebar.selectbox(
-    "انتخاب بخش از نوار کنار:",
-    MENU_OPTIONS,
-    index=MENU_OPTIONS.index(st.session_state['active_menu_option']),
-    key="sidebar_nav_select_key",
-    on_change=on_sidebar_menu_change,
-    label_visibility="collapsed"
-)
-
-menu_choice = st.session_state['active_menu_option']
 
 # Teacher Auth Guard Helper
 def check_teacher_auth():
@@ -1100,8 +833,7 @@ def check_teacher_auth():
 if menu_choice.startswith("1"):
     st.subheader("👋 به سامانه مدیریت هوشمند کلاس پنجم خوش آمدید")
     
-    curr_shamsi = get_current_shamsi_date()
-    st.markdown(f"""
+    st.markdown("""
     <div class="card-box">
         <h3>🌱 طراح و توسعه‌دهنده سامانه: <b>سید موسی حیدری</b></h3>
         <p>آموزگار پایه پنجم ابتدایی — دبستان شهید مطهری مهران</p>
@@ -1128,16 +860,10 @@ if menu_choice.startswith("1"):
 # ---------------------------------------------------------
 elif menu_choice.startswith("2"):
     check_teacher_auth()
-    st.header("👨‍🎓 مدیریت پرونده دانش‌آموزان و گروه‌بندی (۲۹ نفر)")
-
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📋 لیست دانش‌آموزان و گروه‌ها",
-        "✏️ ویرایش کامل اطلاعات دانش‌آموز",
-        "🗑️ حذف پرونده دانش‌آموز",
-        "📊 ثبت دسته‌جمعی از اکسل",
-        "➕ ثبت دانش‌آموز جدید (تکی)"
-    ])
-
+    st.header("👨‍🎓 مدیریت دانش‌آموزان و گروه‌بندی کلاسی (۲۹ نفر)")
+    
+    tab1, tab2, tab3, tab4 = st.tabs(["📋 لیست دانش‌آموزان و گروه‌ها", "✏️ ویرایش مشخصات دانش‌آموز", "📊 ثبت دسته‌جمعی از اکسل", "➕ ثبت دانش‌آموز جدید (تکی)"])
+    
     with tab1:
         students_df = load_students()
         if not students_df.empty:
@@ -1146,7 +872,7 @@ elif menu_choice.startswith("2"):
                 search_query = st.text_input("🔍 جستجوی سریع دانش‌آموز (نام یا کد ملی):")
             with col_s2:
                 selected_group_filter = st.selectbox("فیلتر بر اساس گروه:", ["همه گروه‌ها"] + CLASS_GROUPS)
-
+                
             filtered_df = students_df.copy()
             if search_query:
                 filtered_df = filtered_df[
@@ -1155,7 +881,7 @@ elif menu_choice.startswith("2"):
                 ]
             if selected_group_filter != "همه گروه‌ها":
                 filtered_df = filtered_df[filtered_df['student_group'] == selected_group_filter]
-
+                
             st.dataframe(filtered_df.rename(columns={
                 'id': 'شناسه',
                 'full_name': 'نام و نام خانوادگی',
@@ -1163,85 +889,71 @@ elif menu_choice.startswith("2"):
                 'pin_code': 'رمز ۴ رقمی',
                 'parent_phone': 'شماره همراه اولیا',
                 'student_group': 'گروه کلاسی',
-                'notes': 'ملاحظات پرونده'
+                'notes': 'ملاحظات'
             }), use_container_width=True, hide_index=True)
-        else:
-            st.info("هنوز هیچ دانش‌آموزی ثبت نشده است. از زبانه 'ثبت دسته‌جمعی از اکسل' استفاده کنید.")
-
-    with tab2:
-        st.subheader("✏️ ویرایش کامل مشخصات دانش‌آموز")
-        students_df = load_students()
-        if not students_df.empty:
-            sel_st_edit = st.selectbox("دانش‌آموز مورد نظر جهت ویرایش را انتخاب کنید:", students_df['full_name'].tolist(), key="tab_edit_sel")
-            s_row = students_df[students_df['full_name'] == sel_st_edit].iloc[0]
-            s_id = int(s_row['id'])
-
-            with get_connection() as conn:
-                full_rec = conn.execute("SELECT * FROM students WHERE id = ?", (s_id,)).fetchone()
-
-            with st.form("edit_student_full_form"):
-                col_e1, col_e2 = st.columns(2)
-                with col_e1:
-                    e_fn = st.text_input("نام:*", value=full_rec['first_name'])
-                    e_nid = st.text_input("کد ملی:", value=full_rec['national_id'] or "")
-                    e_grp = st.selectbox("گروه کلاسی:", CLASS_GROUPS, index=CLASS_GROUPS.index(full_rec['student_group']) if full_rec['student_group'] in CLASS_GROUPS else 0)
-                with col_e2:
-                    e_ln = st.text_input("نام خانوادگی:*", value=full_rec['last_name'])
-                    e_pin = st.text_input("رمز ۴ رقمی اختصاصی:", value=full_rec['pin_code'] or "1234")
-                    e_ph = st.text_input("شماره همراه اولیا:", value=full_rec['parent_phone'] or "")
-
-                e_notes = st.text_area("ملاحظات پرونده / آموزشی / پزشکی:", value=full_rec['notes'] or "")
-
-                if st.form_submit_button("💾 ذخیره تغییرات ویرایش‌یافته"):
-                    if e_fn.strip() and e_ln.strip():
-                        with get_connection() as conn:
-                            conn.execute("""
-                                UPDATE students 
-                                SET first_name = ?, last_name = ?, national_id = ?, pin_code = ?, parent_phone = ?, student_group = ?, notes = ?
-                                WHERE id = ?
-                            """, (e_fn.strip(), e_ln.strip(), e_nid.strip(), e_pin.strip(), e_ph.strip(), e_grp, e_notes.strip(), s_id))
-                            conn.commit()
-                        st.success(f"اطلاعات دانش‌آموز '{e_fn} {e_ln}' با موفقیت ویرایش شد.")
-                        st.rerun()
-                    else:
-                        st.error("نام و نام خانوادگی نمی‌تواند خالی باشد.")
-        else:
-            st.info("دانش‌آموزی برای ویرایش وجود ندارد.")
-
-    with tab3:
-        st.subheader("🗑️ حذف کامل پرونده دانش‌آموز")
-        students_df = load_students()
-        if not students_df.empty:
-            sel_st_del = st.selectbox("دانش‌آموز مورد نظر جهت حذف را انتخاب کنید:", students_df['full_name'].tolist(), key="tab_del_sel")
-            s_id_del = int(students_df[students_df['full_name'] == sel_st_del]['id'].values[0])
-
-            st.warning(f"⚠️ **هشدار:** آیا از حذف کامل پرونده **{sel_st_del}** اطمینان دارید؟ تمام سوابق تحصیلی، ارزشیابی‌ها، موارد رفتاری و نمرات آزمون‌های این دانش‌آموز نیز حذف خواهند شد.")
-
+            
+            st.markdown("---")
+            st.subheader("🗑️ حذف پرونده دانش‌آموز")
+            student_to_delete = st.selectbox("انتخاب دانش‌آموز جهت حذف پرونده:", students_df['full_name'].tolist(), key="del_student_sel")
             if st.button("🗑️ حذف قطعی پرونده دانش‌آموز"):
+                s_id = int(students_df[students_df['full_name'] == student_to_delete]['id'].values[0])
                 with get_connection() as conn:
-                    conn.execute("DELETE FROM students WHERE id = ?", (s_id_del,))
+                    conn.execute("DELETE FROM students WHERE id = ?", (s_id,))
                     conn.commit()
-                st.success(f"پرونده دانش‌آموز {sel_st_del} با موفقیت حذف گردید.")
+                st.success(f"پرونده {student_to_delete} با موفقیت حذف گردید.")
                 st.rerun()
         else:
-            st.info("دانش‌آموزی جهت حذف وجود ندارد.")
+            st.info("هنوز دانش‌آموزی ثبت نشده است. از زبانه 'ثبت دسته‌جمعی از اکسل' استفاده کنید.")
 
-    with tab4:
-        st.subheader("📊 بارگذاری دسته‌جمعی ۲۹ دانش‌آموز از فایل اکسل (در ۱ ثانیه)")
+    with tab2:
+        students_df = load_students()
+        if not students_df.empty:
+            st.subheader("✏️ ویرایش مشخصات و اطلاعات پرونده دانش‌آموز")
+            st_to_edit = st.selectbox("انتخاب دانش‌آموز جهت ویرایش:", students_df['full_name'].tolist(), key="edit_student_dropdown")
+            st_info = students_df[students_df['full_name'] == st_to_edit].iloc[0]
+            s_id = int(st_info['id'])
+            
+            with st.form(f"edit_student_form_{s_id}"):
+                col_e1, col_e2 = st.columns(2)
+                with col_e1:
+                    e_fn = st.text_input("نام:", value=str(st_info['full_name']).split()[0] if st_info['full_name'] else "")
+                    e_nid = st.text_input("کد ملی:", value=str(st_info['national_id']) if st_info['national_id'] else "")
+                    e_grp = st.selectbox("گروه کلاسی:", CLASS_GROUPS, index=CLASS_GROUPS.index(st_info['student_group']) if st_info['student_group'] in CLASS_GROUPS else 0)
+                with col_e2:
+                    e_ln = st.text_input("نام خانوادگی:", value=" ".join(str(st_info['full_name']).split()[1:]) if len(str(st_info['full_name']).split()) > 1 else "")
+                    e_pin = st.text_input("رمز ۴ رقمی اختصاصی:", value=str(st_info['pin_code']) if st_info['pin_code'] else "1234")
+                    e_ph = st.text_input("شماره همراه اولیا:", value=str(st_info['parent_phone']) if st_info['parent_phone'] else "")
+                e_notes = st.text_area("ملاحظات پرونده:", value=str(st_info['notes']) if st_info['notes'] else "")
+                
+                if st.form_submit_button("💾 ذخیره تغییرات ویرایش‌یافته"):
+                    with get_connection() as conn:
+                        conn.execute("""
+                            UPDATE students 
+                            SET first_name = ?, last_name = ?, national_id = ?, pin_code = ?, parent_phone = ?, student_group = ?, notes = ?
+                            WHERE id = ?
+                        """, (e_fn.strip(), e_ln.strip(), e_nid.strip(), e_pin.strip(), e_ph.strip(), e_grp, e_notes.strip(), s_id))
+                        conn.commit()
+                    st.success(f"اطلاعات دانش‌آموز {e_fn} {e_ln} با موفقیت ویرایش و به‌روزرسانی شد.")
+                    st.rerun()
+        else:
+            st.info("دانش‌آموزی جهت ویرایش ثبت نشده است.")
+
+    with tab3:
+        st.subheader("📊 بارگذاری دسته‌جمعی اسامی دانش‌آموزان از فایل اکسل (در ۱ ثانیه)")
         st.info("فایل اکسل باید شامل ستون‌های 'نام'، 'نام خانوادگی'، 'کد ملی'، 'شماره همراه اولیا' و 'گروه کلاسی' باشد.")
-
+        
         sample_df = pd.DataFrame([
             {"نام": "امیرعلی", "نام خانوادگی": "احمدی", "کد ملی": "1001112233", "رمز اختصاصی": "1234", "شماره همراه اولیا": "09181111111", "گروه کلاسی": "گروه ارمغان 🚀"},
             {"نام": "محمدیاسین", "نام خانوادگی": "حیدری", "کد ملی": "1002223344", "رمز اختصاصی": "1234", "شماره همراه اولیا": "09182222222", "گروه کلاسی": "گروه دانا 💡"}
         ])
-
+        
         st.download_button(
             "📥 دانلود فایل اکسل الگوی اسامی دانش‌آموزان",
             sample_df.to_csv(index=False).encode('utf-8-sig'),
             "students_template.csv",
             "text/csv"
         )
-
+        
         uploaded_file = st.file_uploader("فایل اکسل (xlsx) یا (csv) اسامی را انتخاب کنید:", type=["xlsx", "csv"], key=f"excel_{st.session_state['excel_upload_key']}")
         if uploaded_file is not None:
             try:
@@ -1249,10 +961,10 @@ elif menu_choice.startswith("2"):
                     df_up = pd.read_csv(uploaded_file)
                 else:
                     df_up = pd.read_excel(uploaded_file)
-
+                    
                 st.success(f"فایل با موفقیت خوانده شد. تعداد {len(df_up)} دانش‌آموز پیدا شد.")
                 st.dataframe(df_up, use_container_width=True)
-
+                
                 if st.button("⚡ بارگذاری و ذخیره تمام اسامی در دیتابیس"):
                     with get_connection() as conn:
                         added_count = 0
@@ -1264,7 +976,7 @@ elif menu_choice.startswith("2"):
                             pin = str(row.get('رمز اختصاصی', '1234')).strip()
                             ph = str(row.get('شماره همراه اولیا', '')).strip()
                             grp = str(row.get('گروه کلاسی', 'گروه ارمغان 🚀')).strip()
-
+                            
                             if fn and ln:
                                 try:
                                     conn.execute(
@@ -1281,7 +993,7 @@ elif menu_choice.startswith("2"):
             except Exception as e:
                 st.error(f"خطا در خواندن فایل: {e}")
 
-    with tab5:
+    with tab4:
         with st.form("add_single_student_form"):
             col1, col2 = st.columns(2)
             with col1:
@@ -1293,7 +1005,7 @@ elif menu_choice.startswith("2"):
                 pin = st.text_input("رمز ۴ رقمی اختصاصی:", value="1234")
                 ph = st.text_input("شماره همراه اولیا:")
             notes = st.text_area("توضیحات تکمیلی:")
-
+            
             if st.form_submit_button("ثبت دانش‌آموز"):
                 if fn.strip() and ln.strip():
                     try:
@@ -1304,18 +1016,19 @@ elif menu_choice.startswith("2"):
                                 (fn.strip(), ln.strip(), nid.strip(), pin.strip(), ph.strip(), grp, notes.strip(), shamsi_today)
                             )
                             conn.commit()
-                        st.success(f"دانش‌آموز {fn} {ln} با موفقیت ثبت شد.")
+                        st.success(f"دانش‌آموز {fn} {ln} با موفقیت ثبت گردید.")
                         st.rerun()
                     except sqlite3.IntegrityError:
-                        st.error("کد ملی تکراری است.")
+                        st.error("کد ملی وارد شده تکراری است.")
                 else:
                     st.warning("لطفاً نام و نام خانوادگی را وارد کنید.")
+
 # ---------------------------------------------------------
-# 3. QUALITATIVE EVALUATION (TEACHER ONLY)
+# 3. QUALITATIVE EVALUATIONS (TEACHER ONLY)
 # ---------------------------------------------------------
 elif menu_choice.startswith("3"):
     check_teacher_auth()
-    st.header("📝 ثبت ارزشیابی کیفی-توصیفی ۷ درس پایه پنجم")
+    st.header("📝 ثبت ارزشیابی کیفی-توصیفی (پایه پنجم)")
     
     students_df = load_students()
     if students_df.empty:
@@ -1324,12 +1037,12 @@ elif menu_choice.startswith("3"):
         col1, col2 = st.columns(2)
         with col1:
             selected_student = st.selectbox("انتخاب دانش‌آموز:", students_df['full_name'].tolist())
-            selected_subject = st.selectbox("عنوان درس:", FIFTH_GRADE_SUBJECTS)
+            selected_subject = st.selectbox("انتخاب درس:", FIFTH_GRADE_SUBJECTS)
         with col2:
             selected_level = st.selectbox("سطح عملکرد توصیفی:", EVALUATION_LEVELS)
             eval_date = st.text_input("تاریخ ارزشیابی (شمسی):", value=get_current_shamsi_date())
             
-        feedback_text = st.text_area("بازخورد توصیفی و توصیه‌های آموزگار:", placeholder="مثلاً: در محاسبات کسرها عملکرد عالی دارد، نیاز به تمرین در ضرب اعشاری دارد.")
+        feedback_text = st.text_area("توصیف عملکرد و بازخورد آموزگار:", placeholder="مثلاً: در مفاهیم کسرها و مخرج مشترک مهارتی عالی دارد...")
         
         if st.button("ثبت ارزشیابی توصیفی"):
             s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
@@ -1339,18 +1052,20 @@ elif menu_choice.startswith("3"):
                     (s_id, selected_subject, selected_level, feedback_text.strip(), eval_date.strip())
                 )
                 conn.commit()
-            st.success(f"ارزشیابی {selected_subject} برای {selected_student} با موفقیت ثبت شد.")
-
+            st.success(f"ارزشیابی درس {selected_subject} برای {selected_student} ثبت شد.")
+            
         st.markdown("---")
-        st.subheader(f"📋 سوابق ارزشیابی: {selected_student}")
+        st.subheader(f"🔍 سوابق ارزشیابی: {selected_student}")
         s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
         with get_connection() as conn:
-            eval_h = safe_read_sql("""
-                SELECT subject AS 'عنوان درس', level AS 'سطح توصیفی', feedback AS 'توصیف عملکرد معلم', eval_date AS 'تاریخ'
+            e_history = safe_read_sql("""
+                SELECT subject AS 'عنوان درس', level AS 'سطح توصیفی', feedback AS 'توصیف عملکرد معلم', eval_date AS 'تاریخ (شمسی)'
                 FROM evaluations WHERE student_id = ? ORDER BY id DESC
             """, conn, params=(s_id,))
-        if not eval_h.empty:
-            st.dataframe(eval_h, use_container_width=True, hide_index=True)
+        if not e_history.empty:
+            st.dataframe(e_history, use_container_width=True, hide_index=True)
+        else:
+            st.info("ارزشیابی درسی برای این دانش‌آموز ثبت نشده است.")
 
 # ---------------------------------------------------------
 # 4. BEHAVIOR & DISCIPLINE (TEACHER ONLY)
@@ -1387,15 +1102,14 @@ elif menu_choice.startswith("4"):
                 conn.commit()
             st.success("✅ مشاهده رفتاری با موفقیت در سیستم ذخیره شد.")
             
-            # Render Report Directly INSIDE App Page
-            is_pos = 'مثبت' in b_type or 'تشویق' in b_type
+            # Instant Online View & Download
             html_card = generate_behavior_report_html(selected_student, nat_id, st_grp, b_type, title.strip(), desc.strip(), log_date.strip())
-            st.markdown("##### 📄 برگه رسمی گزارش ثبت‌شده (نمایش آنلاین در برنامه):")
-            st.markdown(html_card, unsafe_allow_html=True)
-            
-            # Offer 100% Valid FPDF PDF Download
+            with st.expander("👁️ مشاهده برگه رسمی لوح تقدیر / هشدار انضباطی (آنلاین)", expanded=True):
+                st.markdown(html_card, unsafe_allow_html=True)
+                
             beh_pdf = generate_behavior_report_pdf(selected_student, nat_id, st_grp, b_type, title.strip(), desc.strip(), log_date.strip())
-            btn_label = "📥 دانلود فایل پی دی اف (PDF) - قابل ذخیره و پرینت" if is_pos else "📥 دانلود برگه هشدار اولیا (PDF)"
+            is_pos = 'مثبت' in b_type or 'تشویق' in b_type
+            btn_label = "📥 دانلود تقدیرنامه و لوح سپاس رسمی (PDF)" if is_pos else "📥 دانلود برگه هشدار و اطلاع‌رسانی اولیا (PDF)"
             st.download_button(btn_label, data=beh_pdf, file_name=f"behavior_report_{s_id}_{random.randint(100,999)}.pdf", mime="application/pdf")
 
         st.markdown("---")
@@ -1417,53 +1131,48 @@ elif menu_choice.startswith("5"):
     st.header("✏️ آزمون‌ساز آنلاین (بارگذاری آسان از اکسل، متن یا دستی)")
     
     tab_q1, tab_q_excel, tab_q_text, tab_q_json, tab_q_results = st.tabs([
-        "➕ طراحی دستی سوالات", 
-        "📊 بارگذاری از فایل اکسل (Excel/CSV)", 
-        "📋 کپی-پیست متن یکجا (بدون فایل)", 
-        "📥 فایل JSON", 
-        "📊 نتایج و نمرات"
+        "➕ طراحی دستی سوالات",
+        "📊 بارگذاری از فایل اکسل (Excel)",
+        "📋 کپی-پیست متن یکجا",
+        "📥 بارگذاری فایل JSON",
+        "📈 آزمون‌ها و نتایج"
     ])
     
     with tab_q1:
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            quiz_title = st.text_input("عنوان آزمون:", key="m_q_title")
-        with col2:
-            quiz_subject = st.selectbox("درس مربوطه:", FIFTH_GRADE_SUBJECTS, key="m_q_sub")
-        with col3:
-            duration = st.number_input("زمان آزمون (دقیقه):", min_value=5, max_value=180, value=60, key="m_q_dur")
+        q_col1, q_col2, q_col3 = st.columns(3)
+        with q_col1:
+            quiz_title = st.text_input("عنوان آزمون جدید:", placeholder="مثلاً: آزمونک فصل اول ریاضی (کسرها)", key="man_q_title")
+        with q_col2:
+            quiz_subject = st.selectbox("درس مربوطه:", FIFTH_GRADE_SUBJECTS, key="man_q_sub")
+        with q_col3:
+            duration = st.number_input("زمان آزمون (دقیقه):", min_value=5, max_value=180, value=30, key="man_q_dur")
             
-        num_q = st.number_input("تعداد سوالات:", min_value=1, max_value=30, value=2, key="m_q_num")
+        num_questions = st.number_input("تعداد سوالات ۴ گزینه‌ای:", min_value=1, max_value=30, value=2, key="man_q_num")
+        st.markdown("---")
         
         questions_input = []
-        for i in range(int(num_q)):
-            st.markdown(f"**📌 سوال شماره {i+1}:**")
-            q_type = st.selectbox(f"نوع سوال {i+1}:", ["تستی ۴ گزینه‌ای", "تشریحی / تحلیلی"], key=f"qtype_{i}")
-            q_text = st.text_area(f"متن سوال {i+1}:", key=f"qtext_{i}")
+        for i in range(int(num_questions)):
+            st.markdown(f"**سوال شماره {i+1}:**")
+            q_text = st.text_input(f"متن سوال {i+1}:", key=f"mq_{i}")
+            c1, c2, c3, c4 = st.columns(4)
+            with c1: o1 = st.text_input(f"گزینه ۱:", key=f"mo1_{i}")
+            with c2: o2 = st.text_input(f"گزینه ۲:", key=f"mo2_{i}")
+            with c3: o3 = st.text_input(f"گزینه ۳:", key=f"mo3_{i}")
+            with c4: o4 = st.text_input(f"گزینه ۴:", key=f"mo4_{i}")
             
-            if q_type == "تستی ۴ گزینه‌ای":
-                c1, c2, c3, c4 = st.columns(4)
-                with c1: o1 = st.text_input(f"گزینه ۱:", key=f"o1_{i}")
-                with c2: o2 = st.text_input(f"گزینه ۲:", key=f"o2_{i}")
-                with c3: o3 = st.text_input(f"گزینه ۳:", key=f"o3_{i}")
-                with c4: o4 = st.text_input(f"گزینه ۴:", key=f"o4_{i}")
-                corr = st.selectbox(f"گزینه صحیح:", [1, 2, 3, 4], key=f"corr_{i}")
-                exp = st.text_area(f"تحلیل و پاسخ تشریحی سوال {i+1}:", key=f"exp_{i}")
-                questions_input.append(('mcq', q_text, o1, o2, o3, o4, corr, None, exp))
-            else:
-                m_ans = st.text_area(f"پاسخ نمونه / کلید تصحیح سوال {i+1}:", key=f"mans_{i}")
-                exp = st.text_area(f"تحلیل آموزشی سوال {i+1}:", key=f"exp_e_{i}")
-                questions_input.append(('essay', q_text, None, None, None, None, 1, m_ans, exp))
+            corr = st.selectbox(f"گزینه صحیح سوال {i+1}:", [1, 2, 3, 4], key=f"mcorr_{i}")
+            exp = st.text_input(f"پاسخ نمونه / تحلیل آموزشی (اختیاری):", key=f"mexp_{i}")
+            questions_input.append(('mcq', q_text, o1, o2, o3, o4, corr, None, exp))
             st.markdown("---")
             
-        if st.button("🚀 انتشار و فعال‌سازی آزمون دستی"):
-            if quiz_title.strip() and all(q[1].strip() for q in questions_input):
+        if st.button("🚀 انتشار و فعال‌سازی دستی آزمون", key="btn_create_man"):
+            if quiz_title and all(q[1] for q in questions_input):
                 shamsi_today = get_current_shamsi_date()
                 with get_connection() as conn:
                     cursor = conn.cursor()
                     cursor.execute(
                         "INSERT INTO quizzes (title, subject, duration_minutes, is_active, created_at) VALUES (?, ?, ?, 1, ?)",
-                        (quiz_title.strip(), quiz_subject, duration, shamsi_today)
+                        (quiz_title, quiz_subject, duration, shamsi_today)
                     )
                     qid = cursor.lastrowid
                     for q in questions_input:
@@ -1472,13 +1181,13 @@ elif menu_choice.startswith("5"):
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """, (qid, q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], q[8]))
                     conn.commit()
-                st.success(f"آزمون '{quiz_title}' منتشر شد.")
+                st.success(f"🎉 آزمون '{quiz_title}' منتشر شد.")
             else:
-                st.error("عنوان و متن تمام سوالات را تکمیل کنید.")
+                st.error("لطفاً عنوان آزمون و متن تمام سوالات را وارد کنید.")
 
     with tab_q_excel:
-        st.subheader("🌸 بارگذاری سریع سوالات از فایل اکسل (Excel / CSV)")
-        st.info("💡 ستون‌های اکسل شامل 'متن سوال'، 'گزینه ۱'، 'گزینه ۲'، 'گزینه ۳'، 'گزینه ۴' و 'گزینه صحیح (۱ تا ۴)' می‌باشد.")
+        st.subheader("📊 بارگذاری سریع سوالات از فایل اکسل (Excel / CSV)")
+        st.info("راحت‌ترین روش: ستون‌های فایل اکسل شامل 'متن سوال'، 'گزینه ۱'، 'گزینه ۲'، 'گزینه ۳'، 'گزینه ۴' و 'گزینه صحیح (۱ تا ۴)' است.")
         
         c_ex1, c_ex2, c_ex3 = st.columns(3)
         with c_ex1: ex_title = st.text_input("عنوان آزمون جدید (از اکسل):", key="ex_q_title")
@@ -1496,8 +1205,8 @@ elif menu_choice.startswith("5"):
                 st.success(f"فایل اکسل با موفقیت خوانده شد ({len(df_q)} سوال پیدا شد).")
                 st.dataframe(df_q, use_container_width=True)
                 
-                if st.button("🚀 ایجاد و فعال‌سازی آزمون از اکسل", key="btn_create_ex"):
-                    if not ex_title.strip():
+                if st.button("⚡ ایجاد و فعال‌سازی آزمون از اکسل", key="btn_create_ex"):
+                    if not ex_title:
                         st.error("لطفاً عنوان آزمون را وارد کنید.")
                     else:
                         shamsi_today = get_current_shamsi_date()
@@ -1505,65 +1214,55 @@ elif menu_choice.startswith("5"):
                             cursor = conn.cursor()
                             cursor.execute(
                                 "INSERT INTO quizzes (title, subject, duration_minutes, is_active, created_at) VALUES (?, ?, ?, 1, ?)",
-                                (ex_title.strip(), ex_subject, ex_duration, shamsi_today)
+                                (ex_title, ex_subject, ex_duration, shamsi_today)
                             )
                             qid = cursor.lastrowid
                             cnt = 0
-                            
-                            def get_col_val(row, candidates, default=''):
-                                for cand in candidates:
-                                    for col in row.index:
-                                        if cand.strip().lower() in str(col).strip().lower():
-                                            val = str(row[col]).strip()
-                                            if val and val != 'nan' and val != 'None':
-                                                return val
-                                return default
-
                             for _, row in df_q.iterrows():
-                                q_txt = get_col_val(row, ['متن سوال', 'سوال', 'question', 'q_text'])
-                                o1 = get_col_val(row, ['گزینه ۱', 'گزینه 1', 'گزینه1', 'گزینه۱', 'option_1', 'option1', 'الف'])
-                                o2 = get_col_val(row, ['گزینه ۲', 'گزینه 2', 'گزینه2', 'گزینه۲', 'option_2', 'option2', 'ب'])
-                                o3 = get_col_val(row, ['گزینه ۳', 'گزینه 3', 'گزینه3', 'گزینه۳', 'option_3', 'option3', 'ج'])
-                                o4 = get_col_val(row, ['گزینه ۴', 'گزینه 4', 'گزینه4', 'گزینه۴', 'option_4', 'option4', 'د'])
-                                corr_str = get_col_val(row, ['گزینه صحیح', 'پاسخ صحیح', 'کلید', 'correct_option', 'correct'], '1')
+                                q_text = str(row.get('متن سوال', row.get('سوال', ''))).strip()
+                                o1 = str(row.get('گزینه ۱', row.get('گزینه 1', ''))).strip()
+                                o2 = str(row.get('گزینه ۲', row.get('گزینه 2', ''))).strip()
+                                o3 = str(row.get('گزینه ۳', row.get('گزینه 3', ''))).strip()
+                                o4 = str(row.get('گزینه ۴', row.get('گزینه 4', ''))).strip()
                                 try:
-                                    corr = int(float(corr_str))
+                                    corr = int(row.get('گزینه صحیح', row.get('پاسخ صحیح', 1)))
                                 except (ValueError, TypeError):
                                     corr = 1
-                                exp = get_col_val(row, ['تحلیل', 'پاسخ تشریحی', 'توضیحات', 'explanation'], '')
+                                exp = str(row.get('پاسخ نمونه / تحلیل آموزشی', '')).strip()
                                 
-                                if q_txt:
+                                if q_text:
                                     cursor.execute("""
                                         INSERT INTO questions (quiz_id, question_type, question_text, option_1, option_2, option_3, option_4, correct_option, model_answer, explanation)
-                                        VALUES (?, 'mcq', ?, ?, ?, ?, ?, ?, ?, ?)
-                                    """, (qid, q_txt, o1, o2, o3, o4, corr, None, exp if exp else None))
+                                        VALUES (?, 'mcq', ?, ?, ?, ?, ?, ?, None, ?)
+                                    """, (qid, q_text, o1, o2, o3, o4, corr, exp))
                                     cnt += 1
                             conn.commit()
-                        st.success(f"🎉 آزمون '{ex_title}' با {cnt} سوال با موفقیت از اکسل ساخته شد!")
+                        st.success(f"🎉 آزمون '{ex_title}' با {cnt} سوال از اکسل ساخته شد!")
             except Exception as e:
                 st.error(f"خطا در بارگذاری اکسل: {e}")
 
     with tab_q_text:
-        st.subheader("📋 ورود یکجای سوالات با کپی-پیست متن (بدون فایل)")
-        st.info("💡 اگر فایلی ندارید، متن سوالات را مستقیم اینجا کپی-پیست کنید.")
+        st.subheader("📋 ورود یکجای سوالات با کپی-پیست متن (بدون نیاز به فایل)")
+        st.info("اگر فایلی ندارید، متن سوالات را مستقیم اینجا کپی-پیست کنید.")
         
         c_tx1, c_tx2, c_tx3 = st.columns(3)
         with c_tx1: tx_title = st.text_input("عنوان آزمون متنی:", key="tx_title")
         with c_tx2: tx_subject = st.selectbox("درس مربوطه:", FIFTH_GRADE_SUBJECTS, key="tx_sub")
         with c_tx3: tx_duration = st.number_input("زمان (دقیقه):", min_value=5, max_value=180, value=30, key="tx_dur")
         
-        sample_paste = "سوال ۱: حاصل کسر ۲/۵ + ۳/۱۰ کدام است؟ | گزینه ۱: ۷/۱۰ | گزینه ۲: ۵/۱۵ | گزینه ۳: ۱/۲ | گزینه ۴: ۴/۱۰ | پاسخ صحیح: ۱\nسوال ۲: کدام‌یک تغییر شیمیایی است؟ | گزینه ۱: ذوب یخ | گزینه ۲: تبخیر آب | گزینه ۳: سوختن چوب | گزینه ۴: خرد کردن کاغذ | پاسخ صحیح: ۳"
+        sample_paste = """سوال ۱: حاصل کسر ۲/۵ + ۳/۱۰ کدام است؟ | گزینه ۱: ۷/۱۰ | گزینه ۲: ۵/۱۵ | گزینه ۳: ۱/۲ | گزینه ۴: ۴/۱۰ | پاسخ صحیح: ۱
+سوال ۲: کدام‌یک تغییر شیمیایی است؟ | گزینه ۱: ذوب یخ | گزینه ۲: تبخیر آب | گزینه ۳: سوختن چوب | گزینه ۴: خرد کردن کاغذ | پاسخ صحیح: ۳"""
         
-        pasted_text = st.text_area("متن سوالات را کپی-پیست کنید (با کاراکتر | جدا کنید):", value=sample_paste, height=180)
-        if st.button("🚀 ایجاد آزمون از متن کپی شده", key="btn_create_tx"):
-            if tx_title.strip() and pasted_text.strip():
-                lines = pasted_text.strip().split("\n")
+        pasted_text = st.text_area("متن سوالات را کپی-پیست کنید (با کاراکتر |):", value=sample_paste, height=160)
+        if st.button("🚀 ایجاد آزمون از متن کپی‌شده", key="btn_create_tx"):
+            if tx_title and pasted_text.strip():
                 shamsi_today = get_current_shamsi_date()
+                lines = pasted_text.strip().split("\n")
                 with get_connection() as conn:
                     cursor = conn.cursor()
                     cursor.execute(
                         "INSERT INTO quizzes (title, subject, duration_minutes, is_active, created_at) VALUES (?, ?, ?, 1, ?)",
-                        (tx_title.strip(), tx_subject, tx_duration, shamsi_today)
+                        (tx_title, tx_subject, tx_duration, shamsi_today)
                     )
                     qid = cursor.lastrowid
                     cnt = 0
@@ -1571,135 +1270,137 @@ elif menu_choice.startswith("5"):
                         if not line.strip(): continue
                         parts = [p.strip() for p in line.split("|")]
                         q_txt = parts[0]
-                        o1, o2, o3, o4 = "", "", "", ""
-                        corr = 1
-                        for p in parts[1:]:
-                            p_clean = p.strip()
-                            if 'گزینه ۱' in p_clean or 'گزینه 1' in p_clean or p_clean.startswith('۱:') or p_clean.startswith('1:'):
-                                o1 = p_clean.replace('گزینه ۱:', '').replace('گزینه 1:', '').replace('۱:', '').replace('1:', '').strip()
-                            elif 'گزینه ۲' in p_clean or 'گزینه 2' in p_clean or p_clean.startswith('۲:') or p_clean.startswith('2:'):
-                                o2 = p_clean.replace('گزینه ۲:', '').replace('گزینه 2:', '').replace('۲:', '').replace('2:', '').strip()
-                            elif 'گزینه ۳' in p_clean or 'گزینه 3' in p_clean or p_clean.startswith('۳:') or p_clean.startswith('3:'):
-                                o3 = p_clean.replace('گزینه ۳:', '').replace('گزینه 3:', '').replace('۳:', '').replace('3:', '').strip()
-                            elif 'گزینه ۴' in p_clean or 'گزینه 4' in p_clean or p_clean.startswith('۴:') or p_clean.startswith('4:'):
-                                o4 = p_clean.replace('گزینه ۴:', '').replace('گزینه 4:', '').replace('۴:', '').replace('4:', '').strip()
-                            elif 'پاسخ صحیح' in p_clean or 'گزینه صحیح' in p_clean or 'جواب' in p_clean or 'کلید' in p_clean:
-                                val_str = p_clean.replace('پاسخ صحیح:', '').replace('گزینه صحیح:', '').replace('جواب:', '').replace('کلید:', '').strip()
-                                try:
-                                    corr = int(val_str)
-                                except ValueError:
-                                    corr = 1
-                        if not o1 and len(parts) > 1: o1 = parts[1]
-                        if not o2 and len(parts) > 2: o2 = parts[2]
-                        if not o3 and len(parts) > 3: o3 = parts[3]
-                        if not o4 and len(parts) > 4: o4 = parts[4]
-                        if len(parts) > 5 and corr == 1:
-                            try:
-                                corr = int(parts[5].replace('پاسخ صحیح:', '').strip())
-                            except ValueError:
-                                corr = 1
-                                
+                        o1 = parts[1].replace("گزینه ۱:", "").replace("گزینه 1:", "").strip() if len(parts) > 1 else "گزینه ۱"
+                        o2 = parts[2].replace("گزینه ۲:", "").replace("گزینه 2:", "").strip() if len(parts) > 2 else "گزینه ۲"
+                        o3 = parts[3].replace("گزینه ۳:", "").replace("گزینه 3:", "").strip() if len(parts) > 3 else "گزینه ۳"
+                        o4 = parts[4].replace("گزینه ۴:", "").replace("گزینه 4:", "").strip() if len(parts) > 4 else "گزینه ۴"
+                        try:
+                            corr = int(parts[5].replace("پاسخ صحیح:", "").replace("جواب:", "").strip()) if len(parts) > 5 else 1
+                        except (ValueError, IndexError):
+                            corr = 1
                         cursor.execute("""
                             INSERT INTO questions (quiz_id, question_type, question_text, option_1, option_2, option_3, option_4, correct_option, model_answer, explanation)
-                            VALUES (?, 'mcq', ?, ?, ?, ?, ?, ?, ?, ?)
-                        """, (qid, q_txt, o1, o2, o3, o4, corr, None, 'ورود متنی'))
+                            VALUES (?, 'mcq', ?, ?, ?, ?, ?, ?, None, 'ورود متنی')
+                        """, (qid, q_txt, o1, o2, o3, o4, corr))
                         cnt += 1
                     conn.commit()
                 st.success(f"🎉 آزمون '{tx_title}' شامل {cnt} سوال با موفقیت ساخته شد!")
 
     with tab_q_json:
-        st.subheader("📥 بارگذاری فایل JSON (روش برنامه‌نویسی)")
-        sample_json = {"title": "نمونه آزمون", "subject": "ریاضی", "duration_minutes": 30, "questions": [{"question_type": "mcq", "question_text": "نمونه سوال؟", "option_1": "الف", "option_2": "ب", "option_3": "ج", "option_4": "د", "correct_option": 1}]}
+        st.subheader("📥 بارگذاری فایل JSON (روش پیشرفته)")
+        sample_json = {
+            "title": "نمونه آزمون جامع", "subject": "ریاضی", "duration_minutes": 30,
+            "questions": [{"question_type": "mcq", "question_text": "نمونه سوال؟", "option_1": "الف", "option_2": "ب", "option_3": "ج", "option_4": "د", "correct_option": 1}]
+        }
         st.download_button("📥 دانلود الگوی JSON", json.dumps(sample_json, ensure_ascii=False, indent=2), "template.json", "application/json")
-        uploaded_json = st.file_uploader("فایل JSON را انتخاب کنید:", type=["json"], key="quiz_json_file")
+        uploaded_json = st.file_uploader("فایل JSON آزمون را آپلود کنید:", type=["json"], key="json_quiz_up")
         if uploaded_json is not None:
             try:
                 data = json.load(uploaded_json)
-                st.success(f"فایل آزمون '{data.get('title')}' شناسایی شد شامل {len(data.get('questions', []))} سوال.")
-                if st.button("⚡ بارگذاری و فعال‌سازی این آزمون", key="btn_create_js"):
-                    shamsi_today = get_current_shamsi_date()
+                q_title = data.get('title', 'آزمون بارگذاری شده')
+                q_sub = data.get('subject', 'ریاضی')
+                q_dur = data.get('duration_minutes', 30)
+                shamsi_today = get_current_shamsi_date()
+                
+                if st.button("🚀 ایجاد آزمون از فایل JSON"):
                     with get_connection() as conn:
                         cursor = conn.cursor()
                         cursor.execute(
                             "INSERT INTO quizzes (title, subject, duration_minutes, is_active, created_at) VALUES (?, ?, ?, 1, ?)",
-                            (data.get('title'), data.get('subject', 'ریاضی'), data.get('duration_minutes', 60), shamsi_today)
+                            (q_title, q_sub, q_dur, shamsi_today)
                         )
                         qid = cursor.lastrowid
                         for q in data.get('questions', []):
                             cursor.execute("""
                                 INSERT INTO questions (quiz_id, question_type, question_text, option_1, option_2, option_3, option_4, correct_option, model_answer, explanation)
                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                            """, (
-                                qid, q.get('question_type', 'mcq'), q.get('question_text'),
-                                q.get('option_1'), q.get('option_2'), q.get('option_3'), q.get('option_4'),
-                                q.get('correct_option', 1), q.get('model_answer'), q.get('explanation')
-                            ))
+                            """, (qid, q.get('question_type', 'mcq'), q.get('question_text', ''), q.get('option_1', ''), q.get('option_2', ''), q.get('option_3', ''), q.get('option_4', ''), q.get('correct_option', 1), q.get('model_answer', ''), q.get('explanation', '')))
                         conn.commit()
-                    st.success("آزمون با موفقیت بارگذاری و فعال شد!")
+                    st.success(f"🎉 آزمون '{q_title}' از JSON ساخته شد.")
             except Exception as e:
                 st.error(f"خطا در خواندن فایل JSON: {e}")
 
     with tab_q_results:
         with get_connection() as conn:
-            quizzes_df = safe_read_sql("SELECT id, title AS 'عنوان', subject AS 'درس', duration_minutes AS 'مدت (دقیقه)', created_at AS 'تاریخ ساخت (شمسی)' FROM quizzes", conn)
+            quizzes_df = safe_read_sql("SELECT id, title AS 'عنوان', subject AS 'درس', duration_minutes AS 'مدت (دقیقه)', created_at AS 'تاریخ ساخت' FROM quizzes ORDER BY id DESC", conn)
+            
         if not quizzes_df.empty:
             st.dataframe(quizzes_df, use_container_width=True, hide_index=True)
+            st.markdown("---")
+            st.subheader("📈 مشاهده نمرات دانش‌آموزان در آزمون‌ها")
+            selected_quiz_id = st.selectbox(
+                "انتخاب آزمون جهت مشاهده کارنامه:",
+                quizzes_df['id'].tolist(),
+                format_func=lambda x: quizzes_df[quizzes_df['id'] == x]['عنوان'].values[0]
+            )
+            with get_connection() as conn:
+                results_df = safe_read_sql("""
+                    SELECT s.first_name || ' ' || s.last_name AS 'دانش‌آموز',
+                           r.score AS 'نمره تستی',
+                           r.total_questions AS 'کل سوالات تستی',
+                           r.percentage AS 'درصد ٪',
+                           r.submitted_at AS 'زمان ثبت'
+                    FROM quiz_results r
+                    JOIN students s ON r.student_id = s.id
+                    WHERE r.quiz_id = ? ORDER BY r.percentage DESC
+                """, conn, params=(selected_quiz_id,))
+            if not results_df.empty:
+                st.dataframe(results_df, use_container_width=True, hide_index=True)
+            else:
+                st.info("هنوز دانش‌آموزی در این آزمون شرکت نکرده است.")
+        else:
+            st.info("هنوز آزمونی در سیستم ثبت نشده است.")
 
 # ---------------------------------------------------------
-# 6. STUDENT QUIZ TAKING INTERFACE (WITH 4 SECURITY LAYERS)
+# 6. STUDENT ONLINE QUIZ INTERFACE
 # ---------------------------------------------------------
 elif menu_choice.startswith("6"):
-    st.header("📱 شرکت در آزمون آنلاین دانش‌آموزان")
+    st.header("📱 سامانه شرکت در آزمون آنلاین دانش‌آموزان")
     
     students_df = load_students()
     with get_connection() as conn:
         quizzes_df = safe_read_sql("SELECT id, title, subject, duration_minutes FROM quizzes WHERE is_active = 1", conn)
         
     if students_df.empty or quizzes_df.empty:
-        st.warning("در حال حاضر آزمون فعال یا دانش‌آموزی در سیستم تعریف نشده است.")
+        st.warning("⚠️ در حال حاضر آزمون فعال یا دانش‌آموزی در سیستم تعریف نشده است.")
     else:
-        col1, col2 = st.columns(2)
-        with col1:
-            student_name = st.selectbox("نام دانش‌آموز (خود را انتخاب کنید):", students_df['full_name'].tolist())
-        with col2:
-            quiz_name = st.selectbox("انتخاب آزمون:", quizzes_df['title'].tolist())
+        sq_col1, sq_col2 = st.columns(2)
+        with sq_col1:
+            student_name = st.selectbox("نام و نام خانوادگی خود را انتخاب کنید:*", students_df['full_name'].tolist())
+        with sq_col2:
+            quiz_name = st.selectbox("آزمون مورد نظر را انتخاب کنید:*", quizzes_df['title'].tolist())
             
-        s_row = students_df[students_df['full_name'] == student_name].iloc[0]
-        s_id = int(s_row['id'])
-        correct_pin = str(s_row.get('pin_code', '1234')).strip()
+        s_id = int(students_df[students_df['full_name'] == student_name]['id'].values[0])
         q_id = int(quizzes_df[quizzes_df['title'] == quiz_name]['id'].values[0])
         
-        # 🔑 LAYER 1: PIN AUTHENTICATION
-        st.markdown("##### 🔑 لایه ۱ امنیت: ورود رمز اختصاصی دانش‌آموز")
-        user_pin = st.text_input("رمز ۴ رقمی اختصاصی خود را وارد کنید:*", type="password", key=f"st_pin_{s_id}_{q_id}")
+        # 🛡️ LAYER 1: PIN CODE AUTHENTICATION
+        with get_connection() as conn:
+            st_pin_row = conn.execute("SELECT pin_code FROM students WHERE id = ?", (s_id,)).fetchone()
+            real_pin = str(st_pin_row['pin_code']).strip() if st_pin_row and st_pin_row['pin_code'] else '1234'
+            
+        entered_pin = st.text_input("🔑 رمز ۴ رقمی اختصاصی خود را وارد کنید:*", type="password", key=f"sq_pin_{s_id}_{q_id}")
         
-        if not user_pin:
-            st.info("💡 جهت دسترسی به سوالات آزمون، رمز ۴ رقمی اختصاصی خود را وارد کنید (رمز پیش‌فرض: 1234).")
-        elif user_pin.strip() != correct_pin:
-            st.error("❌ رمز ۴ رقمی اختصاصی اشتباه است. لطفاً رمز درست خود را وارد کنید.")
+        if entered_pin.strip() != real_pin:
+            st.warning("⚠️ جهت شروع آزمون، لطفاً رمز ۴ رقمی اختصاصی خود را وارد کنید.")
         else:
-            st.success("✅ رمز اختصاصی تایید شد. خوش آمدید!")
+            st.success("🔓 رمز عبور تایید شد!")
             
             # 🔒 LAYER 3: CHECK IF ALREADY SUBMITTED
             with get_connection() as conn:
-                existing = conn.execute("SELECT id, percentage, photo_data, submitted_at FROM quiz_results WHERE quiz_id = ? AND student_id = ?", (q_id, s_id)).fetchone()
+                existing = conn.execute("SELECT id, percentage, submitted_at FROM quiz_results WHERE quiz_id = ? AND student_id = ?", (q_id, s_id)).fetchone()
                 
             if existing:
-                st.warning(f"🔒 این آزمون قبلاً توسط شما در تاریخ {existing['submitted_at']} تحویل داده شده و قفل گردیده است.")
-                st.info(f"درصد بخش تستی کسب‌شده: {existing['percentage']:.1f}٪")
-                if existing['photo_data']:
-                    st.image(existing['photo_data'], caption="عکس ثبت‌شده چهره شما در زمان تحویل آزمون", width=220)
+                st.info(f"🔒 شما قبلاً در این آزمون شرکت کرده‌اید. درصد کسب‌شده: {existing['percentage']:.1f}٪ (زمان ثبت: {existing['submitted_at']})")
             else:
-                duration_min = int(quizzes_df[quizzes_df['id'] == q_id]['duration_minutes'].values[0])
-                st.info(f"⏱️ زمان پاسخگویی: {duration_min} دقیقه")
+                quiz_dur = int(quizzes_df[quizzes_df['id'] == q_id]['duration_minutes'].values[0])
+                st.info(f"⏱️ زمان آزمون: {quiz_dur} دقیقه")
                 
-                # Fetch Questions
                 with get_connection() as conn:
                     questions_rows = conn.execute("SELECT * FROM questions WHERE quiz_id = ?", (q_id,)).fetchall()
                     
                 questions = [dict(q) for q in questions_rows]
                 
-                # 🔀 LAYER 2: SHUFFLE QUESTIONS FOR THIS STUDENT
+                # 🔀 LAYER 2: SHUFFLE QUESTIONS
                 if f"shuffled_q_{q_id}_{s_id}" not in st.session_state:
                     shuffled = list(questions)
                     random.seed(s_id + q_id)
@@ -1730,8 +1431,7 @@ elif menu_choice.startswith("6"):
                         st.markdown("---")
                         
                     # 📸 LAYER 4: CAMERA PHOTO CAPTURE
-                    st.markdown("##### 📸 لایه ۴ امنیت: ثبت تصویر چهره جهت احراز هویت آزمون")
-                    st.info("لطفاً دوربین گوشی/سیستم خود را روشن کرده و یک عکس واضح از چهره خود بگیرید:")
+                    st.markdown("##### 📸 ثبت تصویر چهره جهت احراز هویت آزمون")
                     photo = st.camera_input("ثبت تصویر چهره دانش‌آموز", key=f"cam_{s_id}_{q_id}")
                     
                     submit_quiz = st.form_submit_button("🏁 پایان آزمون و ثبت نهایی پاسخ‌ها")
@@ -1777,21 +1477,20 @@ elif menu_choice.startswith("7"):
         selected_student = st.selectbox("انتخاب دانش‌آموز جهت مشاهده پوشه کار:", students_df['full_name'].tolist())
         s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
         
-        # Privacy & Security Guard for Portfolio
+        # Privacy Guard for Portfolio
         if not st.session_state['is_teacher_logged_in']:
             with get_connection() as conn:
                 real_pin = conn.execute("SELECT pin_code FROM students WHERE id = ?", (s_id,)).fetchone()
                 pin_code_db = str(real_pin['pin_code']).strip() if real_pin and real_pin['pin_code'] else '1234'
             
-            st.info("🔒 جهت حفظ حریم خصوصی و کرامت دانش‌آموزان، کارنامه و پوشه کار محرمانه می‌باشد.")
+            st.info("🔒 جهت حفظ حریم خصوصی، کارنامه محرمانه می‌باشد.")
             input_pin = st.text_input("🔑 رمز ۴ رقمی اختصاصی دانش‌آموز را وارد کنید:", type="password", key="portfolio_pin_guard")
             if input_pin.strip() != pin_code_db:
-                st.warning("⚠️ برای مشاهده کارنامه، لطفاً رمز ۴ رقمی اختصاصی دانش‌آموز را به درستی وارد کنید.")
+                st.warning("⚠️ لطفاً رمز ۴ رقمی اختصاصی دانش‌آموز را وارد کنید.")
                 st.stop()
             else:
-                st.success("🔓 احراز هویت موفقیت‌آمیز دانش‌آموز!")
+                st.success("🔓 احراز هویت موفقیت‌آمیز!")
                 
-        # Export & Display Comprehensive Report Card
         st.markdown(f"### 📄 پوشه کار و کارنامه تحصیلی: **{selected_student}**")
         
         with get_connection() as conn:
@@ -1812,11 +1511,6 @@ elif menu_choice.startswith("7"):
         portfolio_pdf = generate_comprehensive_portfolio_pdf(s_id)
         st.download_button("📥 دانلود فایل پی دی اف کارنامه (PDF معتبر قابل پرینت)", data=portfolio_pdf, file_name=f"report_card_{selected_student}.pdf", mime="application/pdf")
         
-        with get_connection() as conn:
-            eval_count = conn.execute("SELECT COUNT(*) FROM evaluations WHERE student_id = ?", (s_id,)).fetchone()[0]
-            beh_count = conn.execute("SELECT COUNT(*) FROM behaviors WHERE student_id = ?", (s_id,)).fetchone()[0]
-            quiz_avg = conn.execute("SELECT AVG(percentage) FROM quiz_results WHERE student_id = ?", (s_id,)).fetchone()[0]
-            
         c1, c2, c3 = st.columns(3)
         with c1:
             st.metric("تعداد ارزشیابی‌های درسی:", eval_count)
@@ -1877,7 +1571,15 @@ elif menu_choice.startswith("7"):
                 for _, r_row in df_q.iterrows():
                     if r_row['photo_data']:
                         st.image(r_row['photo_data'], caption=f"آزمون: {r_row['عنوان آزمون']} | درصد: {r_row['درصد ٪']:.1f}٪ | زمان: {r_row['زمان ثبت (شمسی)']}", width=180)
+                
+                st.markdown("##### 📈 نمودار رشد نمرات آزمون‌ها:")
+                df_chart = safe_read_sql("""
+                    SELECT q.title AS 'آزمون', r.percentage AS 'درصد'
+                    FROM quiz_results r JOIN quizzes q ON r.quiz_id = q.id 
+                    WHERE r.student_id = ? ORDER BY r.id ASC
+                """, conn, params=(s_id,))
+                if not df_chart.empty:
+                    st.line_chart(df_chart.set_index('آزمون'))
             else:
-                st.info("نتیجه آزمونی ثبت نشده است.")
-
+                st.info("نتیجه آزمونی برای این دانش‌آموز ثبت نشده است.")
 
