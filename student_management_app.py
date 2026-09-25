@@ -4,6 +4,9 @@ import pandas as pd
 import datetime
 import json
 import random
+import re
+import io
+from fpdf import FPDF
 import os
 import io
 import tempfile
@@ -1025,26 +1028,20 @@ st.markdown("---")
 # ---------------------------------------------------------
 # NAVIGATION MENU (RADIO BUTTONS - 100% READONLY & CLICKABLE)
 # ---------------------------------------------------------
-st.markdown("### 📌 منوی بخش‌های سامانه (انتخاب کنید):")
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 📌 منوی مدیریت و دسترسی سامانه:")
 
-if st.session_state['is_teacher_logged_in']:
-    menu_options = [
-        "1️⃣ 🏠 معرفی سامانه و اهداف آموزشی",
-        "2️⃣ 👨‍🎓 مدیریت دانش‌آموزان و گروه‌بندی (۲۹ نفر)",
-        "3️⃣ 📝 ثبت ارزشیابی کیفی-توصیفی",
-        "4️⃣ 🌟 مدیریت رفتار و مشاهدات انضباطی",
-        "5️⃣ ✏️ آزمون‌ساز آنلاین و طراحی سوالات",
-        "6️⃣ 📱 شرکت در آزمون آنلاین (دانش‌آموز)",
-        "7️⃣ 📊 داشبورد و کارنامه جامع"
-    ]
-else:
-    menu_options = [
-        "1️⃣ 🏠 معرفی سامانه و اهداف آموزشی",
-        "6️⃣ 📱 شرکت در آزمون آنلاین (دانش‌آموز)",
-        "7️⃣ 📊 داشبورد و کارنامه جامع"
-    ]
+MENU_OPTIONS = [
+    "1️⃣ 🏠 معرفی سامانه و اهداف آموزشی",
+    "2️⃣ 👨‍🎓 مدیریت دانش‌آموزان و گروه‌بندی (۲۹ نفر)",
+    "3️⃣ 📝 ثبت ارزشیابی کیفی-توصیفی",
+    "4️⃣ 🌟 مدیریت رفتار و مشاهدات انضباطی",
+    "5️⃣ ✏️ آزمون‌ساز آنلاین و طراحی سوالات",
+    "6️⃣ 📱 شرکت در آزمون آنلاین (دانش‌آموز)",
+    "7️⃣ 📊 داشبورد و کارنامه جامع"
+]
 
-menu_choice = st.radio("منو:", menu_options, label_visibility="collapsed", key="main_nav_menu")
+menu_choice = st.sidebar.radio("انتخاب بخش:", MENU_OPTIONS, index=0, key="stable_nav_menu_radio")
 
 # Teacher Auth Guard Helper
 def check_teacher_auth():
@@ -1345,10 +1342,15 @@ elif menu_choice.startswith("4"):
                 conn.commit()
             st.success("✅ مشاهده رفتاری با موفقیت در سیستم ذخیره شد.")
             
-            # Generate instant PDF Report
-            beh_pdf = generate_behavior_report_pdf(selected_student, nat_id, st_grp, b_type, title.strip(), desc.strip(), log_date.strip())
+            # Render Report Directly INSIDE App Page
             is_pos = 'مثبت' in b_type or 'تشویق' in b_type
-            btn_label = "📥 دانلود تقدیرنامه و لوح سپاس رسمی (PDF)" if is_pos else "📥 دانلود برگه هشدار و اطلاع‌رسانی اولیا (PDF)"
+            html_card = generate_behavior_report_html(selected_student, nat_id, st_grp, b_type, title.strip(), desc.strip(), log_date.strip())
+            st.markdown("##### 📄 برگه رسمی گزارش ثبت‌شده (نمایش آنلاین در برنامه):")
+            st.markdown(html_card, unsafe_allow_html=True)
+            
+            # Offer 100% Valid FPDF PDF Download
+            beh_pdf = generate_behavior_report_pdf(selected_student, nat_id, st_grp, b_type, title.strip(), desc.strip(), log_date.strip())
+            btn_label = "📥 دانلود فایل پی دی اف (PDF) - قابل ذخیره و پرینت" if is_pos else "📥 دانلود برگه هشدار اولیا (PDF)"
             st.download_button(btn_label, data=beh_pdf, file_name=f"behavior_report_{s_id}_{random.randint(100,999)}.pdf", mime="application/pdf")
 
         st.markdown("---")
@@ -1744,13 +1746,26 @@ elif menu_choice.startswith("7"):
             else:
                 st.success("🔓 احراز هویت موفقیت‌آمیز دانش‌آموز!")
                 
-        # Export Comprehensive PDF Report
-        col_pdf1, col_pdf2 = st.columns([3, 1])
-        with col_pdf1:
-            st.markdown(f"### 📄 پوشه کار و کارنامه تحصیلی: **{selected_student}**")
-        with col_pdf2:
-            portfolio_pdf = generate_comprehensive_portfolio_pdf(s_id)
-            st.download_button("📥 دانلود کارنامه جامع (PDF رسمی با سربرگ و نمودار)", data=portfolio_pdf, file_name=f"report_card_{selected_student}.pdf", mime="application/pdf")
+        # Export & Display Comprehensive Report Card
+        st.markdown(f"### 📄 پوشه کار و کارنامه تحصیلی: **{selected_student}**")
+        
+        with get_connection() as conn:
+            eval_count = conn.execute("SELECT COUNT(*) FROM evaluations WHERE student_id = ?", (s_id,)).fetchone()[0]
+            beh_count = conn.execute("SELECT COUNT(*) FROM behaviors WHERE student_id = ?", (s_id,)).fetchone()[0]
+            quiz_avg = conn.execute("SELECT AVG(percentage) FROM quiz_results WHERE student_id = ?", (s_id,)).fetchone()[0]
+            quiz_avg_str = f"{quiz_avg:.1f}٪" if quiz_avg else "بدون آزمون"
+            st_row = conn.execute("SELECT * FROM students WHERE id = ?", (s_id,)).fetchone()
+            nat_id_str = st_row['national_id'] if st_row and st_row['national_id'] else 'ثبت نشده'
+            phone_str = st_row['parent_phone'] if st_row and st_row['parent_phone'] else 'ثبت نشده'
+            grp_str = st_row['student_group'] if st_row and st_row['student_group'] else 'بدون گروه'
+
+        # Render HTML Report Card directly INSIDE the App Page
+        portfolio_html = generate_portfolio_report_html(selected_student, nat_id_str, phone_str, grp_str, eval_count, beh_count, quiz_avg_str)
+        with st.expander("👁️ مشاهده برگه رسمی کارنامه (نمایش آنلاین درون سامانه)", expanded=True):
+            st.markdown(portfolio_html, unsafe_allow_html=True)
+
+        portfolio_pdf = generate_comprehensive_portfolio_pdf(s_id)
+        st.download_button("📥 دانلود فایل پی دی اف کارنامه (PDF معتبر قابل پرینت)", data=portfolio_pdf, file_name=f"report_card_{selected_student}.pdf", mime="application/pdf")
         
         with get_connection() as conn:
             eval_count = conn.execute("SELECT COUNT(*) FROM evaluations WHERE student_id = ?", (s_id,)).fetchone()[0]
