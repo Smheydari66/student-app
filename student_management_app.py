@@ -1,14 +1,13 @@
-
 import streamlit as st
 import sqlite3
 import pandas as pd
 import datetime
 import json
 import random
-
-# ---------------------------------------------------------
-# Jalali / Shamsi Date Conversion Helper (Pure Python)
-# ---------------------------------------------------------
+import os
+import io
+import tempfile
+import subprocess
 def gregorian_to_jalali(gy, gm, gd):
     g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
     if gy > 1600:
@@ -386,6 +385,198 @@ def generate_chart_b64(quiz_titles, quiz_pcts, eval_counts):
     except Exception:
         return 
 
+
+# ---------------------------------------------------------
+# ReportLab Native PDF Generator (Pure Python Fallback)
+# ---------------------------------------------------------
+import io
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.colors import HexColor
+
+_PERSIAN_FONT_REGISTERED = False
+def _register_persian_font():
+    global _PERSIAN_FONT_REGISTERED
+    if not _PERSIAN_FONT_REGISTERED:
+        font_paths = [
+            '/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf',
+            '/usr/share/fonts/truetype/noto/NotoNaskhArabic-Regular.ttf',
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+        ]
+        for fp in font_paths:
+            if os.path.exists(fp):
+                try:
+                    pdfmetrics.registerFont(TTFont('PersianFont', fp))
+                    _PERSIAN_FONT_REGISTERED = True
+                    break
+                except Exception:
+                    pass
+
+PERSIAN_MAP = {
+    'ا': ('ﺍ', 'ﺎ', 'ﺎ', 'ﺍ'), 'ب': ('ﺏ', 'ﺑ', 'ﺒ', 'ﺐ'), 'پ': ('ﭖ', 'ﭘ', 'ﭙ', 'ﭗ'),
+    'ت': ('ﺕ', 'ﺗ', 'ﺘ', 'ﺖ'), 'ث': ('ﺙ', 'ﺛ', 'ﺜ', 'ﺚ'), 'ج': ('ﺝ', 'ﺟ', 'ﺠ', 'ﺞ'),
+    'چ': ('ﭺ', 'ﭼ', 'ﭽ', 'ﭻ'), 'ح': ('ﺡ', 'ﺣ', 'ﺤ', 'ﺢ'), 'خ': ('ﺥ', 'ﺧ', 'ﺨ', 'ﺦ'),
+    'د': ('ﺩ', 'ﺪ', 'ﺪ', 'ﺩ'), 'ذ': ('ﺫ', 'ﺬ', 'ﺬ', 'ﺫ'), 'ر': ('ﺭ', 'ﺮ', 'ﺮ', 'ﺭ'),
+    'ز': ('ﺯ', 'ﺰ', 'ﺰ', 'ﺯ'), 'ژ': ('ﮊ', 'ﮋ', 'ﮋ', 'ﮊ'), 'س': ('ﺱ', 'ﺱ', 'ﺴ', 'ﺲ'),
+    'ش': ('ﺵ', 'ﺷ', 'ﺸ', 'ﺶ'), 'ص': ('ﺹ', 'ﺻ', 'ﺼ', 'ﺺ'), 'ض': ('ﺽ', 'ﺿ', 'ﻀ', 'ﺾ'),
+    'ط': ('ﻁ', 'ﻃ', 'ﻄ', 'ﻂ'), 'ظ': ('ﻅ', 'ﻇ', 'ﻈ', 'ﻆ'), 'ع': ('ﻉ', 'ﻋ', 'ﻌ', 'ﻊ'),
+    'غ': ('ﻍ', 'ﻏ', 'ﻐ', 'ﻎ'), 'ف': ('ﻑ', 'ﻓ', 'ف', 'ﻒ'), 'ق': ('ﻕ', 'ﻗ', 'ﻖ', 'ﻖ'),
+    'ک': ('ﮎ', 'ﻛ', 'ﻜ', 'ﮏ'), 'گ': ('ﮒ', 'ﮔ', 'ﮕ', 'ﮓ'), 'ل': ('ﻝ', 'ﻟ', 'ﻠ', 'ﻞ'),
+    'م': ('ﻡ', 'ﻣ', 'ﻤ', 'ﻢ'), 'ن': ('ﻥ', 'ﻧ', 'ﻨ', 'ﻦ'), 'و': ('ﻭ', 'ﻮ', 'ﻮ', 'ﻭ'),
+    'ه': ('ﻩ', 'ﻫ', 'ﻬ', 'ﻪ'), 'ی': ('ﯼ', 'ﻳ', 'ﻴ', 'ﯽ'), 'آ': ('ﺁ', 'ﺂ', 'ﺂ', 'ﺁ'),
+    'ئ': ('ﺉ', 'ﺋ', 'ﺌ', 'ﺊ'), 'ء': ('ﺀ', 'ء', 'ء', 'ﺀ'),
+}
+NON_CONNECTING = set('ادذرزژوآ')
+
+def _reshape(text):
+    res = []
+    n = len(text)
+    for i, ch in enumerate(text):
+        if ch not in PERSIAN_MAP:
+            res.append(ch)
+            continue
+        prev_ch = text[i-1] if i > 0 else None
+        next_ch = text[i+1] if i < n-1 else None
+        prev_conn = prev_ch in PERSIAN_MAP and prev_ch not in NON_CONNECTING
+        next_conn = next_ch in PERSIAN_MAP
+        iso, init, med, fin = PERSIAN_MAP[ch]
+        if prev_conn and next_conn: res.append(med)
+        elif prev_conn and not next_conn: res.append(fin)
+        elif not prev_conn and next_conn: res.append(init)
+        else: res.append(iso)
+    return ''.join(res)
+
+def _rtl(text):
+    if not text: return ''
+    return _reshape(str(text))[::-1]
+
+def generate_reportlab_behavior_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
+    _register_persian_font()
+    is_pos = 'مثبت' in b_type or 'تشویق' in b_type
+    theme_hex = '#15803d' if is_pos else '#b91c1c'
+    title_str = 'تقدیرنامه و لوح سپاس انضباطی کلاسی' if is_pos else 'کارت اطلاع‌رسانی و هشدار انضباطی اولیا'
+    
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pagesize=A4)
+    w, h = A4
+    font_name = 'PersianFont' if _PERSIAN_FONT_REGISTERED else 'Helvetica'
+    
+    # Header bar
+    c.setFillColor(HexColor(theme_hex))
+    c.rect(0, h-90, w, 90, fill=1, stroke=0)
+    
+    c.setFillColor(HexColor('#ffffff'))
+    c.setFont(font_name, 14)
+    c.drawCentredString(w/2, h-35, _rtl('جمهوری اسلامی ایران - وزارت آموزش و پرورش'))
+    c.setFont(font_name, 11)
+    c.drawCentredString(w/2, h-55, _rtl('دبستان پسرانه هیئت امنایی شهید مطهری مهران - پایه پنجم'))
+    c.setFont(font_name, 13)
+    c.drawCentredString(w/2, h-78, _rtl(title_str))
+    
+    # Student Info
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(font_name, 11)
+    y = h - 130
+    c.drawRightString(w - 40, y, _rtl(f'نام دانش‌آموز: {student_name}'))
+    c.drawRightString(w - 220, y, _rtl(f'کد ملی: {national_id}'))
+    c.drawRightString(w - 380, y, _rtl(f'گروه کلاسی: {student_group}'))
+    c.drawRightString(w - 500, y, _rtl(f'تاریخ: {log_date}'))
+    
+    # Divider line
+    c.setStrokeColor(HexColor('#cbd5e1'))
+    c.setLineWidth(1)
+    c.line(40, y-15, w-40, y-15)
+    
+    # Details Box
+    y -= 45
+    c.setFillColor(HexColor('#f8fafc'))
+    c.rect(40, y-120, w-80, 120, fill=1, stroke=1)
+    
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(font_name, 12)
+    c.drawRightString(w - 55, y - 25, _rtl(f'عنوان مشاهده رفتاری: {title}'))
+    c.setFont(font_name, 11)
+    c.drawRightString(w - 55, y - 55, _rtl('شرح و توضیحات تکمیلی:'))
+    c.setFont(font_name, 10)
+    c.drawRightString(w - 55, y - 80, _rtl(desc[:80]))
+    if len(desc) > 80:
+        c.drawRightString(w - 55, y - 100, _rtl(desc[80:160]))
+        
+    # Signatures
+    y -= 180
+    c.setFont(font_name, 11)
+    c.drawRightString(w - 80, y, _rtl('آموزگار پایه پنجم: سید موسی حیدری'))
+    if is_pos:
+        c.drawRightString(200, y, _rtl('مدیریت دبستان شهید مطهری مهران'))
+    else:
+        c.drawRightString(200, y, _rtl('رویت و امضای اولیای محترم'))
+        
+    c.save()
+    return buf.getvalue()
+
+def generate_reportlab_portfolio_pdf(student_name, national_id, parent_phone, student_group, eval_count, beh_count, quiz_avg_str):
+    _register_persian_font()
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pagesize=A4)
+    w, h = A4
+    font_name = 'PersianFont' if _PERSIAN_FONT_REGISTERED else 'Helvetica'
+    
+    # Header bar
+    c.setFillColor(HexColor('#0f172a'))
+    c.rect(0, h-90, w, 90, fill=1, stroke=0)
+    
+    c.setFillColor(HexColor('#ffffff'))
+    c.setFont(font_name, 14)
+    c.drawCentredString(w/2, h-35, _rtl('جمهوری اسلامی ایران - وزارت آموزش و پرورش'))
+    c.setFont(font_name, 11)
+    c.drawCentredString(w/2, h-55, _rtl('دبستان پسرانه هیئت امنایی شهید مطهری مهران - پایه پنجم'))
+    c.setFont(font_name, 13)
+    c.drawCentredString(w/2, h-78, _rtl('کارنامه جامع تحصیلی و پوشه کار دیجیتال'))
+    
+    # Student Info
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(font_name, 11)
+    y = h - 130
+    c.drawRightString(w - 40, y, _rtl(f'نام دانش‌آموز: {student_name}'))
+    c.drawRightString(w - 220, y, _rtl(f'کد ملی: {national_id}'))
+    c.drawRightString(w - 380, y, _rtl(f'گروه کلاسی: {student_group}'))
+    
+    # Summary Box
+    y -= 50
+    c.setFillColor(HexColor('#f1f5f9'))
+    c.rect(40, y-60, w-80, 60, fill=1, stroke=1)
+    
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(font_name, 11)
+    c.drawRightString(w - 60, y - 35, _rtl(f'تعداد ارزشیابی‌ها: {eval_count}'))
+    c.drawRightString(w - 240, y - 35, _rtl(f'موارد رفتاری: {beh_count}'))
+    c.drawRightString(w - 420, y - 35, _rtl(f'میانگین درصد آزمون‌ها: {quiz_avg_str}'))
+    
+    # Analysis & Advice Box
+    y -= 100
+    c.setFillColor(HexColor('#eff6ff'))
+    c.rect(40, y-120, w-80, 120, fill=1, stroke=1)
+    
+    c.setFillColor(HexColor('#1e40af'))
+    c.setFont(font_name, 12)
+    c.drawRightString(w - 55, y - 25, _rtl('💡 تحلیل آموزشی و توصیه‌های تربیتی معلم:'))
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(font_name, 10)
+    c.drawRightString(w - 55, y - 55, _rtl('۱. نقاط قوت: حضور منظم در کلاس، مشارکت فعال در فعالیت‌های گروهی.'))
+    c.drawRightString(w - 55, y - 80, _rtl('۲. توصیه به اولیا: تمرین مستمر کسرها و اعداد اعشاری ریاضی در منزل.'))
+    
+    # Signatures
+    y -= 180
+    c.setFont(font_name, 11)
+    c.drawRightString(w - 80, y, _rtl('آموزگار پایه پنجم: سید موسی حیدری'))
+    c.drawRightString(w/2 + 40, y, _rtl('مدیریت دبستان شهید مطهری مهران'))
+    c.drawRightString(180, y, _rtl('رویت و امضای اولیای محترم'))
+    
+    c.save()
+    return buf.getvalue()
+
 def generate_behavior_report_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
     is_positive = 'مثبت' in b_type or 'تشویق' in b_type
     theme_color = '#15803d' if is_positive else '#b91c1c'
@@ -472,7 +663,10 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
         if os.path.exists(pdf_path): os.remove(pdf_path)
         return pdf_bytes
     except Exception:
-        return html.encode('utf-8')
+        try:
+            return generate_reportlab_behavior_pdf(student_name, national_id, student_group, b_type, title, desc, log_date)
+        except Exception:
+            return html.encode('utf-8')
 
 def generate_comprehensive_portfolio_pdf(student_id):
     with get_connection() as conn:
@@ -637,7 +831,10 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
         if os.path.exists(pdf_path): os.remove(pdf_path)
         return pdf_bytes
     except Exception:
-        return html.encode('utf-8')
+        try:
+            return generate_reportlab_portfolio_pdf(student_name, national_id, parent_phone, student_group, eval_count, beh_count, f"{quiz_avg:.1f}٪" if quiz_avg else "بدون آزمون")
+        except Exception:
+            return html.encode('utf-8')
 
 print('pdf_helpers defined successfully!')
 
