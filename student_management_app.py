@@ -390,11 +390,17 @@ def generate_chart_b64(quiz_titles, quiz_pcts, eval_counts):
 # ReportLab Native PDF Generator (Pure Python Fallback)
 # ---------------------------------------------------------
 import io
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.colors import HexColor
+# Safe Lazy ReportLab Import Helper
+def _get_reportlab():
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.pdfgen import canvas
+        from reportlab.pdfbase import pdfmetrics
+        from reportlab.pdfbase.ttfonts import TTFont
+        from reportlab.lib.colors import HexColor
+        return True, A4, canvas, pdfmetrics, TTFont, HexColor
+    except ImportError:
+        return False, None, None, None, None, None
 
 _PERSIAN_FONT_REGISTERED = False
 def _register_persian_font():
@@ -453,6 +459,9 @@ def _rtl(text):
     return _reshape(str(text))[::-1]
 
 def generate_reportlab_behavior_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
+    has_rl, A4, canvas, pdfmetrics, TTFont, HexColor = _get_reportlab()
+    if not has_rl:
+        raise ImportError("reportlab not installed")
     _register_persian_font()
     is_pos = 'مثبت' in b_type or 'تشویق' in b_type
     theme_hex = '#15803d' if is_pos else '#b91c1c'
@@ -517,6 +526,9 @@ def generate_reportlab_behavior_pdf(student_name, national_id, student_group, b_
     return buf.getvalue()
 
 def generate_reportlab_portfolio_pdf(student_name, national_id, parent_phone, student_group, eval_count, beh_count, quiz_avg_str):
+    has_rl, A4, canvas, pdfmetrics, TTFont, HexColor = _get_reportlab()
+    if not has_rl:
+        raise ImportError("reportlab not installed")
     _register_persian_font()
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=A4)
