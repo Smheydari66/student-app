@@ -137,18 +137,20 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    div[role="radiogroup"] label {
-        background-color: rgba(30, 41, 59, 0.7) !important;
-        padding: 10px 16px !important;
+    /* Clean Selectbox and Radio Styling */
+    div[data-baseweb="select"] > div {
+        background-color: #1e293b !important;
+        color: #ffffff !important;
+        border: 2px solid #3b82f6 !important;
         border-radius: 10px !important;
-        margin-bottom: 8px !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        transition: all 0.2s !important;
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
     }
     
-    div[role="radiogroup"] label:hover {
-        background-color: rgba(37, 99, 235, 0.4) !important;
-        border-color: #3b82f6 !important;
+    div[role="radiogroup"] label p {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
     }
     
     /* Popover Fix */
@@ -1025,22 +1027,52 @@ with col_h3:
 st.markdown("---")
 
 # ---------------------------------------------------------
-# NAVIGATION MENU (RADIO BUTTONS - 100% READONLY & CLICKABLE)
+# NAVIGATION MENU (RESPONSIVE & MOBILE-FRIENDLY SELECTBOX / SIDEBAR)
 # ---------------------------------------------------------
+if st.session_state['is_teacher_logged_in']:
+    MENU_OPTIONS = [
+        "1️⃣ 🏠 معرفی سامانه و اهداف آموزشی",
+        "2️⃣ 👨‍🎓 مدیریت دانش‌آموزان و گروه‌بندی (۲۹ نفر)",
+        "3️⃣ 📝 ثبت ارزشیابی کیفی-توصیفی",
+        "4️⃣ 🌟 مدیریت رفتار و مشاهدات انضباطی",
+        "5️⃣ ✏️ آزمون‌ساز آنلاین و طراحی سوالات",
+        "6️⃣ 📱 شرکت در آزمون آنلاین (دانش‌آموز)",
+        "7️⃣ 📊 داشبورد و کارنامه جامع"
+    ]
+else:
+    MENU_OPTIONS = [
+        "1️⃣ 🏠 معرفی سامانه و اهداف آموزشی",
+        "6️⃣ 📱 شرکت در آزمون آنلاین (دانش‌آموز)",
+        "7️⃣ 📊 داشبورد و کارنامه جامع"
+    ]
+
+# Main Area Menu Card (100% Responsive for Mobile & Desktop)
+st.markdown("""
+<div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 16px; border-radius: 12px; border: 2px solid #3b82f6; margin-bottom: 20px;">
+    <h3 style="color: #60a5fa !important; margin-bottom: 8px; font-size: 1.15rem;">📌 منوی دسترسی و انتقال بین بخش‌های سامانه:</h3>
+</div>
+""", unsafe_allow_html=True)
+
+menu_choice = st.selectbox(
+    "بخش مورد نظر را انتخاب کنید:",
+    MENU_OPTIONS,
+    index=0,
+    key="main_responsive_nav_menu",
+    label_visibility="collapsed"
+)
+
+# Also sync with sidebar for convenience
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 📌 منوی مدیریت و دسترسی سامانه:")
-
-MENU_OPTIONS = [
-    "1️⃣ 🏠 معرفی سامانه و اهداف آموزشی",
-    "2️⃣ 👨‍🎓 مدیریت دانش‌آموزان و گروه‌بندی (۲۹ نفر)",
-    "3️⃣ 📝 ثبت ارزشیابی کیفی-توصیفی",
-    "4️⃣ 🌟 مدیریت رفتار و مشاهدات انضباطی",
-    "5️⃣ ✏️ آزمون‌ساز آنلاین و طراحی سوالات",
-    "6️⃣ 📱 شرکت در آزمون آنلاین (دانش‌آموز)",
-    "7️⃣ 📊 داشبورد و کارنامه جامع"
-]
-
-menu_choice = st.sidebar.radio("انتخاب بخش:", MENU_OPTIONS, index=0, key="stable_nav_menu_radio")
+st.sidebar.markdown("### 📌 منوی سامانه:")
+sidebar_menu = st.sidebar.selectbox(
+    "انتخاب بخش از نوار کنار:",
+    MENU_OPTIONS,
+    index=MENU_OPTIONS.index(menu_choice) if menu_choice in MENU_OPTIONS else 0,
+    key="sidebar_sync_nav_menu",
+    label_visibility="collapsed"
+)
+if sidebar_menu != menu_choice:
+    menu_choice = sidebar_menu
 
 # Teacher Auth Guard Helper
 def check_teacher_auth():
@@ -1833,4 +1865,3 @@ elif menu_choice.startswith("7"):
                         st.image(r_row['photo_data'], caption=f"آزمون: {r_row['عنوان آزمون']} | درصد: {r_row['درصد ٪']:.1f}٪ | زمان: {r_row['زمان ثبت (شمسی)']}", width=180)
             else:
                 st.info("نتیجه آزمونی ثبت نشده است.")
-
