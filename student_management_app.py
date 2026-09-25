@@ -6,7 +6,6 @@ import json
 import random
 import re
 import io
-from fpdf import FPDF
 import os
 import io
 import tempfile
@@ -1834,4 +1833,12 @@ elif menu_choice.startswith("7"):
                         st.image(r_row['photo_data'], caption=f"آزمون: {r_row['عنوان آزمون']} | درصد: {r_row['درصد ٪']:.1f}٪ | زمان: {r_row['زمان ثبت (شمسی)']}", width=180)
             else:
                 st.info("نتیجه آزمونی ثبت نشده است.")
+
+📋 محتوای فایل requirements.txt جهت قرارگیری در GitHub:
+streamlit
+pandas
+openpyxl
+fpdf2
+reportlab
+matplotlib
 
