@@ -1834,11 +1834,3 @@ elif menu_choice.startswith("7"):
             else:
                 st.info("نتیجه آزمونی ثبت نشده است.")
 
-📋 محتوای فایل requirements.txt جهت قرارگیری در GitHub:
-streamlit
-pandas
-openpyxl
-fpdf2
-reportlab
-matplotlib
-
