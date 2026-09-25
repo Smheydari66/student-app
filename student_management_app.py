@@ -344,6 +344,7 @@ seed_default_quiz()
 # ---------------------------------------------------------
 # PDF & HTML Report Generator Helpers
 # ---------------------------------------------------------
+@st.cache_data(ttl=120)
 def generate_chart_b64(quiz_titles, quiz_pcts, eval_counts):
     try:
         import matplotlib
@@ -383,6 +384,7 @@ def generate_chart_b64(quiz_titles, quiz_pcts, eval_counts):
     except Exception:
         return ""
 
+@st.cache_data(ttl=120)
 def generate_behavior_report_html(student_name, national_id, student_group, b_type, title, desc, log_date):
     is_positive = 'مثبت' in b_type or 'تشویق' in b_type
     theme_color = '#15803d' if is_positive else '#b91c1c'
@@ -457,6 +459,7 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
 </html>"""
     return html
 
+@st.cache_data(ttl=120)
 def generate_portfolio_report_html(student_name, national_id, parent_phone, student_group, eval_count, beh_count, quiz_avg_str):
     shamsi_today = get_current_shamsi_date()
     html = f"""<!DOCTYPE html>
@@ -526,6 +529,7 @@ body {{ font-family: 'Vazirmatn', Tahoma, sans-serif; direction: rtl; text-align
 </html>"""
     return html
 
+@st.cache_data(ttl=120)
 def generate_behavior_report_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
     html = generate_behavior_report_html(student_name, national_id, student_group, b_type, title, desc, log_date)
     html_path = f"/tmp/b_report_{random.randint(1000, 9999)}.html"
@@ -567,6 +571,7 @@ def generate_fpdf_behavior_pdf(student_name, national_id, student_group, b_type,
     except Exception:
         return b""
 
+@st.cache_data(ttl=120)
 def generate_comprehensive_portfolio_pdf(student_id):
     with get_connection() as conn:
         st_row = conn.execute("SELECT * FROM students WHERE id = ?", (student_id,)).fetchone()
@@ -794,32 +799,62 @@ with col_h3:
 st.markdown("---")
 
 # ---------------------------------------------------------
-# SINGLE, LIGHTNING-FAST SIDEBAR NAVIGATION MENU (0ms LAG)
+# STABLE, FAST & BEAUTIFUL RESPONSIVE NAVIGATION MENU
 # ---------------------------------------------------------
-if st.session_state['is_teacher_logged_in']:
+if st.session_state.get('is_teacher_logged_in', False):
     MENU_OPTIONS = [
-        "1️⃣ 🏠 معرفی سامانه و اهداف آموزشی",
-        "2️⃣ 👨‍🎓 مدیریت دانش‌آموزان و گروه‌بندی (۲۹ نفر)",
-        "3️⃣ 📝 ثبت ارزشیابی کیفی-توصیفی",
-        "4️⃣ 🌟 مدیریت رفتار و مشاهدات انضباطی",
-        "5️⃣ ✏️ آزمون‌ساز آنلاین و طراحی سوالات",
-        "6️⃣ 📱 شرکت در آزمون آنلاین (دانش‌آموز)",
-        "7️⃣ 📊 داشبورد و کارنامه جامع"
+        "🏠 ۱. معرفی سامانه و اهداف کلاسی",
+        "👨‍🎓 ۲. مدیریت اسامی و گروه‌بندی (۲۹ نفر)",
+        "📝 ۳. ثبت ارزشیابی کیفی-توصیفی",
+        "🌟 ۴. مدیریت رفتار و مشاهدات انضباطی",
+        "✏️ ۵. آزمون‌ساز آنلاین و تصحیح هوشمند",
+        "📱 ۶. شرکت در آزمون آنلاین (دانش‌آموز)",
+        "📊 ۷. داشبورد و پوشه کار جامع"
     ]
 else:
     MENU_OPTIONS = [
-        "1️⃣ 🏠 معرفی سامانه و اهداف آموزشی",
-        "6️⃣ 📱 شرکت در آزمون آنلاین (دانش‌آموز)",
-        "7️⃣ 📊 داشبورد و کارنامه جامع"
+        "🏠 ۱. معرفی سامانه و اهداف کلاسی",
+        "📱 ۶. شرکت در آزمون آنلاین (دانش‌آموز)",
+        "📊 ۷. داشبورد و پوشه کار جامع"
     ]
 
-st.sidebar.markdown("### 📌 منوی مدیریت سامانه")
-menu_choice = st.sidebar.radio(
+if 'active_nav_option' not in st.session_state or st.session_state['active_nav_option'] not in MENU_OPTIONS:
+    st.session_state['active_nav_option'] = MENU_OPTIONS[0]
+
+def _on_main_nav_change():
+    st.session_state['active_nav_option'] = st.session_state['top_main_nav_key']
+
+def _on_sidebar_nav_change():
+    st.session_state['active_nav_option'] = st.session_state['sidebar_nav_key']
+
+# Main Area Top Menu Bar (Always Visible on Mobile & Desktop)
+st.markdown('''
+<div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 12px 18px; border-radius: 12px; border: 2px solid #2563eb; margin-bottom: 15px;">
+    <span style="color: #60a5fa; font-weight: bold; font-size: 1.05rem;">📌 منوی دسترسی و انتقال سریع بین بخش‌ها:</span>
+</div>
+''', unsafe_allow_html=True)
+
+st.selectbox(
     "انتخاب بخش:",
     MENU_OPTIONS,
-    index=0,
-    key="single_fast_nav_radio"
+    index=MENU_OPTIONS.index(st.session_state['active_nav_option']),
+    key="top_main_nav_key",
+    on_change=_on_main_nav_change,
+    label_visibility="collapsed"
 )
+
+# Sidebar Menu Sync
+st.sidebar.markdown("### 📌 منوی سامانه:")
+st.sidebar.selectbox(
+    "انتخاب بخش از نوار کنار:",
+    MENU_OPTIONS,
+    index=MENU_OPTIONS.index(st.session_state['active_nav_option']),
+    key="sidebar_nav_key",
+    on_change=_on_sidebar_nav_change,
+    label_visibility="collapsed"
+)
+
+menu_choice = st.session_state['active_nav_option']
 
 # Teacher Auth Guard Helper
 def check_teacher_auth():
@@ -1506,7 +1541,7 @@ elif menu_choice.startswith("7"):
         # Render HTML Report Card directly INSIDE the App Page
         portfolio_html = generate_portfolio_report_html(selected_student, nat_id_str, phone_str, grp_str, eval_count, beh_count, quiz_avg_str)
         with st.expander("👁️ مشاهده برگه رسمی کارنامه (نمایش آنلاین درون سامانه)", expanded=True):
-            st.markdown(portfolio_html, unsafe_allow_html=True)
+            components.html(portfolio_html, height=540, scrolling=True)
 
         portfolio_pdf = generate_comprehensive_portfolio_pdf(s_id)
         st.download_button("📥 دانلود فایل پی دی اف کارنامه (PDF معتبر قابل پرینت)", data=portfolio_pdf, file_name=f"report_card_{selected_student}.pdf", mime="application/pdf")
