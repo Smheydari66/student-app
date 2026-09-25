@@ -346,36 +346,45 @@ seed_default_quiz()
 # PDF Generator Helpers (Official Letterheads & Reports)
 # ---------------------------------------------------------
 def generate_chart_b64(quiz_titles, quiz_pcts, eval_counts):
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 2.8), dpi=150)
-    fig.patch.set_facecolor('#ffffff')
-    
-    if quiz_pcts:
-        ax1.bar(range(len(quiz_pcts)), quiz_pcts, color='#2563eb', width=0.4)
-        ax1.set_ylim(0, 110)
-        ax1.set_title('درصد آزمون‌های آنلاین (٪)', fontsize=9, fontname='DejaVu Sans')
-        ax1.set_xticks(range(len(quiz_titles)))
-        ax1.set_xticklabels([f'آزمون {i+1}' for i in range(len(quiz_titles))], fontsize=8, fontname='DejaVu Sans')
-    else:
-        ax1.text(0.5, 0.5, 'آزمونی ثبت نشده', ha='center', va='center', fontsize=9, fontname='DejaVu Sans')
-        ax1.axis('off')
+    try:
+        import io
+        import base64
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 2.8), dpi=150)
+        fig.patch.set_facecolor('#ffffff')
         
-    labels = list(eval_counts.keys())
-    values = list(eval_counts.values())
-    colors = ['#16a34a', '#2563eb', '#eab308', '#dc2626']
-    if sum(values) > 0:
-        ax2.bar(labels, values, color=colors[:len(labels)], width=0.4)
-        ax2.set_title('توزیع سطح ارزشیابی‌ها', fontsize=9, fontname='DejaVu Sans')
-    else:
-        ax2.text(0.5, 0.5, 'ارزشیابی ثبت نشده', ha='center', va='center', fontsize=9, fontname='DejaVu Sans')
-        ax2.axis('off')
-        
-    plt.tight_layout()
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight')
-    buf.seek(0)
-    b64 = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close()
-    return b64
+        if quiz_pcts:
+            ax1.bar(range(len(quiz_pcts)), quiz_pcts, color='#2563eb', width=0.4)
+            ax1.set_ylim(0, 110)
+            ax1.set_title('درصد آزمون‌های آنلاین (٪)', fontsize=9)
+            ax1.set_xticks(range(len(quiz_pcts)))
+            ax1.set_xticklabels([f'آزمون {i+1}' for i in range(len(quiz_pcts))], fontsize=8)
+        else:
+            ax1.text(0.5, 0.5, 'آزمونی ثبت نشده', ha='center', va='center', fontsize=9)
+            ax1.axis('off')
+            
+        labels = list(eval_counts.keys())
+        values = list(eval_counts.values())
+        colors = ['#16a34a', '#2563eb', '#eab308', '#dc2626']
+        if sum(values) > 0:
+            ax2.bar(labels, values, color=colors[:len(labels)], width=0.4)
+            ax2.set_title('توزیع سطح ارزشیابی‌ها', fontsize=9)
+        else:
+            ax2.text(0.5, 0.5, 'ارزشیابی ثبت نشده', ha='center', va='center', fontsize=9)
+            ax2.axis('off')
+            
+        plt.tight_layout()
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight')
+        buf.seek(0)
+        b64 = base64.b64encode(buf.read()).decode('utf-8')
+        plt.close(fig)
+        return b64
+    except Exception:
+        return 
 
 def generate_behavior_report_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
     is_positive = 'مثبت' in b_type or 'تشویق' in b_type
@@ -911,7 +920,7 @@ elif menu_choice.startswith("2"):
     with tab2:
         st.subheader("✏️ ویرایش کامل مشخصات دانش‌آموز")
         students_df = load_students()
-        if not students_df.empty():
+        if not students_df.empty:
             sel_st_edit = st.selectbox("دانش‌آموز مورد نظر جهت ویرایش را انتخاب کنید:", students_df['full_name'].tolist(), key="tab_edit_sel")
             s_row = students_df[students_df['full_name'] == sel_st_edit].iloc[0]
             s_id = int(s_row['id'])
@@ -951,7 +960,7 @@ elif menu_choice.startswith("2"):
     with tab3:
         st.subheader("🗑️ حذف کامل پرونده دانش‌آموز")
         students_df = load_students()
-        if not students_df.empty():
+        if not students_df.empty:
             sel_st_del = st.selectbox("دانش‌آموز مورد نظر جهت حذف را انتخاب کنید:", students_df['full_name'].tolist(), key="tab_del_sel")
             s_id_del = int(students_df[students_df['full_name'] == sel_st_del]['id'].values[0])
 
