@@ -915,8 +915,8 @@ if st.session_state['show_welcome_page']:
     st.markdown(f"""
     <div class="main-header">
         <h1>🌸 به سامانه هوشمند مدیریت کلاس و آزمون آنلاین پایه پنجم ابتدایی خوش آمدید 🌸</h1>
-        <p style="font-size: 1.2rem; font-weight: bold; margin-top: 10px;">🏫 دبستان شهید مطهری مهران — سال تحصیلی ۱۴۰۴-۱۴۰۵</p>
-        <p style="font-size: 1.1rem; opacity: 0.9;">طراح و آموزگار پایه پنجم: <b>سید موسی حیدری</b> | امروز: <b>{curr_shamsi}</b></p>
+        <p style="font-size: 1.2rem; font-weight: bold; margin-top: 10px;">🏫 دبستان شهید مطهری مهران — سال تحصیلی ۱۴۰۴-۱۴۰۵ | 📅 تاریخ امروز: <b>{curr_shamsi}</b></p>
+        <p style="font-size: 1.1rem; opacity: 0.9;">طراح و آموزگار پایه پنجم: <b>سید موسی حیدری</b></p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1046,6 +1046,19 @@ else:
         "7️⃣ 📊 داشبورد و کارنامه جامع"
     ]
 
+# Navigation Menu State Synchronization Callback
+if 'active_menu_option' not in st.session_state:
+    st.session_state['active_menu_option'] = MENU_OPTIONS[0]
+
+if st.session_state['active_menu_option'] not in MENU_OPTIONS:
+    st.session_state['active_menu_option'] = MENU_OPTIONS[0]
+
+def on_main_menu_change():
+    st.session_state['active_menu_option'] = st.session_state['main_nav_select_key']
+
+def on_sidebar_menu_change():
+    st.session_state['active_menu_option'] = st.session_state['sidebar_nav_select_key']
+
 # Main Area Menu Card (100% Responsive for Mobile & Desktop)
 st.markdown("""
 <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 16px; border-radius: 12px; border: 2px solid #3b82f6; margin-bottom: 20px;">
@@ -1053,26 +1066,27 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-menu_choice = st.selectbox(
+st.selectbox(
     "بخش مورد نظر را انتخاب کنید:",
     MENU_OPTIONS,
-    index=0,
-    key="main_responsive_nav_menu",
+    index=MENU_OPTIONS.index(st.session_state['active_menu_option']),
+    key="main_nav_select_key",
+    on_change=on_main_menu_change,
     label_visibility="collapsed"
 )
 
-# Also sync with sidebar for convenience
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📌 منوی سامانه:")
-sidebar_menu = st.sidebar.selectbox(
+st.sidebar.selectbox(
     "انتخاب بخش از نوار کنار:",
     MENU_OPTIONS,
-    index=MENU_OPTIONS.index(menu_choice) if menu_choice in MENU_OPTIONS else 0,
-    key="sidebar_sync_nav_menu",
+    index=MENU_OPTIONS.index(st.session_state['active_menu_option']),
+    key="sidebar_nav_select_key",
+    on_change=on_sidebar_menu_change,
     label_visibility="collapsed"
 )
-if sidebar_menu != menu_choice:
-    menu_choice = sidebar_menu
+
+menu_choice = st.session_state['active_menu_option']
 
 # Teacher Auth Guard Helper
 def check_teacher_auth():
@@ -1090,7 +1104,7 @@ if menu_choice.startswith("1"):
     st.markdown(f"""
     <div class="card-box">
         <h3>🌱 طراح و توسعه‌دهنده سامانه: <b>سید موسی حیدری</b></h3>
-        <p>آموزگار پایه پنجم ابتدایی — دبستان شهید مطهری مهران | تاریخ امروز: <b>{curr_shamsi}</b></p>
+        <p>آموزگار پایه پنجم ابتدایی — دبستان شهید مطهری مهران</p>
     </div>
     
     <div class="card-box">
@@ -1865,3 +1879,5 @@ elif menu_choice.startswith("7"):
                         st.image(r_row['photo_data'], caption=f"آزمون: {r_row['عنوان آزمون']} | درصد: {r_row['درصد ٪']:.1f}٪ | زمان: {r_row['زمان ثبت (شمسی)']}", width=180)
             else:
                 st.info("نتیجه آزمونی ثبت نشده است.")
+
+
