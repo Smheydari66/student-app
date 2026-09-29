@@ -54,67 +54,102 @@ st.markdown("""
 <style>
     @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
 
-    html, body, .stApp {
+    /* Global Typography - Targeted to prevent breaking Streamlit Icon Fonts */
+    html, body, .stApp, .stMarkdown, p, h1, h2, h3, h4, h5, h6, input, select, textarea, button, label {
         font-family: 'Vazirmatn', Tahoma, sans-serif !important;
-        direction: rtl !important;
-        text-align: right !important;
+        direction: rtl;
+        text-align: right;
+    }
+
+    .stApp {
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-        color: #f8fafc !important;
-    }
-
-    /* Headings */
-    .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
-        font-family: 'Vazirmatn', Tahoma, sans-serif !important;
-        direction: rtl !important;
-        text-align: right !important;
-        color: #f8fafc !important;
-        word-break: break-word !important;
-    }
-
-    /* Paragraphs and Labels in Streamlit */
-    .stMarkdown p, .stMarkdown label, .stMarkdown span {
-        font-family: 'Vazirmatn', Tahoma, sans-serif !important;
-        direction: rtl !important;
-        color: #f8fafc !important;
-    }
-
-    /* Main Header Box */
-    .main-header {
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
         color: #ffffff !important;
-        padding: 20px;
+    }
+
+    /* Header Banner (v58 Style) */
+    .main-header {
+        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+        color: #ffffff !important;
+        padding: 22px;
         border-radius: 16px;
         text-align: center !important;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(255, 255, 255, 0.2);
     }
     .main-header h2, .main-header p {
         color: #ffffff !important;
         text-align: center !important;
+        margin: 4px 0;
+        white-space: normal !important;
+        word-break: keep-all !important;
     }
 
-    /* Cards */
+    /* Card Boxes (v58 Style) */
     .card-box {
-        background: rgba(30, 41, 59, 0.85);
+        background: rgba(30, 41, 59, 0.9);
         border: 1px solid rgba(255, 255, 255, 0.15);
-        padding: 18px;
+        padding: 20px;
         border-radius: 14px;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    /* Quote Box */
     .quote-card {
-        background: linear-gradient(135deg, rgba(30, 58, 138, 0.6) 0%, rgba(30, 41, 59, 0.9) 100%);
+        background: linear-gradient(135deg, rgba(30, 58, 138, 0.7) 0%, rgba(30, 41, 59, 0.95) 100%);
         border-right: 6px solid #fbbf24;
         border-left: 1px solid rgba(255, 255, 255, 0.1);
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         padding: 20px;
         border-radius: 14px;
-        margin-bottom: 22px;
+        margin-bottom: 20px;
         box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    }
+
+    /* Sidebar Navigation (v58 Fast & Stylish) */
+    section[data-testid="stSidebar"] {
+        background-color: #0f172a !important;
+        border-left: 2px solid #1e293b !important;
+    }
+
+    section[data-testid="stSidebar"] div[role="radiogroup"] {
+        gap: 8px !important;
+    }
+
+    section[data-testid="stSidebar"] div[role="radiogroup"] label {
+        background-color: rgba(30, 41, 59, 0.85) !important;
+        color: #ffffff !important;
+        padding: 12px 16px !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+        background-color: #2563eb !important;
+        border-color: #60a5fa !important;
+        transform: translateX(-3px);
+    }
+
+    section[data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+        border: 2px solid #60a5fa !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+    }
+
+    section[data-testid="stSidebar"] div[role="radiogroup"] label p {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 1.02rem !important;
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+        margin: 0 !important;
     }
 
     /* Buttons */
@@ -125,55 +160,54 @@ st.markdown("""
         border-radius: 10px !important;
         padding: 10px 18px !important;
         font-weight: bold !important;
-        font-family: 'Vazirmatn', Tahoma, sans-serif !important;
         border: none !important;
         box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3) !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.3s ease !important;
+        white-space: nowrap !important;
+        word-break: keep-all !important;
     }
+
     .stButton > button:hover {
         background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+        transform: translateY(-2px);
         box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4) !important;
     }
 
-    /* BaseWeb Selectboxes */
+    /* Input Controls */
+    input, select, textarea, div[data-baseweb="select"] {
+        color: #ffffff !important;
+        background-color: #0f172a !important;
+        border-radius: 8px !important;
+    }
+
     div[data-baseweb="select"] > div {
         background-color: #1e293b !important;
         color: #ffffff !important;
-        border: 1px solid #38bdf8 !important;
+        border: 2px solid #3b82f6 !important;
         border-radius: 10px !important;
-        font-family: 'Vazirmatn', Tahoma, sans-serif !important;
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
     }
 
-    /* Tabs Styling */
-    button[data-baseweb="tab"] {
-        font-family: 'Vazirmatn', Tahoma, sans-serif !important;
-        font-weight: bold !important;
-        font-size: 1rem !important;
-        color: #94a3b8 !important;
-    }
-    button[data-baseweb="tab"][aria-selected="true"] {
-        color: #38bdf8 !important;
-        border-bottom-color: #38bdf8 !important;
-    }
-
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: #0f172a !important;
-        border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-
-    /* Radio Navigation Menu */
-    div[role="radiogroup"] label {
+    div[data-baseweb="popover"], div[data-baseweb="popover"] * {
         background-color: #1e293b !important;
-        border: 1px solid #334155 !important;
-        border-radius: 10px !important;
-        padding: 8px 14px !important;
-        margin-bottom: 6px !important;
-        transition: all 0.2s ease !important;
+        color: #ffffff !important;
     }
-    div[role="radiogroup"] label:hover {
-        border-color: #3b82f6 !important;
-        background-color: #334155 !important;
+
+    li[role="option"] {
+        color: #ffffff !important;
+    }
+    li[role="option"]:hover {
+        background-color: #0284c7 !important;
+        color: #ffffff !important;
+    }
+
+    div[data-testid="stRadio"] div[role="radiogroup"] label p {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -400,10 +434,10 @@ def generate_chart_b64(quiz_titles, quiz_pcts, eval_counts):
 
 
 # ---------------------------------------------------------
-# ReportLab Native PDF Generator (Pure Python)
+# ReportLab Native PDF Generator (Pure Python Fallback)
 # ---------------------------------------------------------
-import io, tempfile
-
+import io
+# Safe Lazy ReportLab Import Helper
 def _get_reportlab():
     try:
         from reportlab.lib.pagesizes import A4
@@ -419,33 +453,31 @@ _PERSIAN_FONT_REGISTERED = False
 def _register_persian_font():
     global _PERSIAN_FONT_REGISTERED
     if not _PERSIAN_FONT_REGISTERED:
-        has_rl, A4, canvas, pdfmetrics, TTFont, HexColor = _get_reportlab()
-        if has_rl:
-            font_paths = [
-                '/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf',
-                '/usr/share/fonts/truetype/noto/NotoNaskhArabic-Regular.ttf',
-                '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
-            ]
-            for fp in font_paths:
-                if os.path.exists(fp):
-                    try:
-                        pdfmetrics.registerFont(TTFont('PersianFont', fp))
-                        _PERSIAN_FONT_REGISTERED = True
-                        break
-                    except Exception:
-                        pass
+        font_paths = [
+            '/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf',
+            '/usr/share/fonts/truetype/noto/NotoNaskhArabic-Regular.ttf',
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+        ]
+        for fp in font_paths:
+            if os.path.exists(fp):
+                try:
+                    pdfmetrics.registerFont(TTFont('PersianFont', fp))
+                    _PERSIAN_FONT_REGISTERED = True
+                    break
+                except Exception:
+                    pass
 
 PERSIAN_MAP = {
     'ا': ('ﺍ', 'ﺎ', 'ﺎ', 'ﺍ'), 'ب': ('ﺏ', 'ﺑ', 'ﺒ', 'ﺐ'), 'پ': ('ﭖ', 'ﭘ', 'ﭙ', 'ﭗ'),
-    'ت': ('ﺕ', 'ﺕ', 'ﺘ', 'ﺖ'), 'ث': ('ﺙ', 'ﺛ', 'ﺜ', 'ﺚ'), 'ج': ('ﺝ', 'ﺝ', 'ﺠ', 'ﺞ'),
-    'چ': ('ﭺ', 'ﭼ', 'ﭽ', 'ﭻ'), 'ح': ('ﺡ', 'ﺡ', 'ﺤ', 'ﺢ'), 'خ': ('ﺥ', 'ﺧ', 'ﺨ', 'ﺦ'),
+    'ت': ('ﺕ', 'ﺗ', 'ﺘ', 'ﺖ'), 'ث': ('ﺙ', 'ﺛ', 'ﺜ', 'ﺚ'), 'ج': ('ﺝ', 'ﺟ', 'ﺠ', 'ﺞ'),
+    'چ': ('ﭺ', 'ﭼ', 'ﭽ', 'ﭻ'), 'ح': ('ﺡ', 'ﺣ', 'ﺤ', 'ﺢ'), 'خ': ('ﺥ', 'ﺧ', 'ﺨ', 'ﺦ'),
     'د': ('ﺩ', 'ﺪ', 'ﺪ', 'ﺩ'), 'ذ': ('ﺫ', 'ﺬ', 'ﺬ', 'ﺫ'), 'ر': ('ﺭ', 'ﺮ', 'ﺮ', 'ﺭ'),
     'ز': ('ﺯ', 'ﺰ', 'ﺰ', 'ﺯ'), 'ژ': ('ﮊ', 'ﮋ', 'ﮋ', 'ﮊ'), 'س': ('ﺱ', 'ﺱ', 'ﺴ', 'ﺲ'),
-    'ش': ('ﺵ', 'ﺷ', 'ﺸ', 'ﺶ'), 'ص': ('ﺹ', 'ﺹ', 'ﺼ', 'ﺺ'), 'ض': ('ﺽ', 'ﺿ', 'ﻀ', 'ﺾ'),
+    'ش': ('ﺵ', 'ﺷ', 'ﺸ', 'ﺶ'), 'ص': ('ﺹ', 'ﺻ', 'ﺼ', 'ﺺ'), 'ض': ('ﺽ', 'ﺿ', 'ﻀ', 'ﺾ'),
     'ط': ('ﻁ', 'ﻃ', 'ﻄ', 'ﻂ'), 'ظ': ('ﻅ', 'ﻇ', 'ﻈ', 'ﻆ'), 'ع': ('ﻉ', 'ﻋ', 'ﻌ', 'ﻊ'),
     'غ': ('ﻍ', 'ﻏ', 'ﻐ', 'ﻎ'), 'ف': ('ﻑ', 'ﻓ', 'ف', 'ﻒ'), 'ق': ('ﻕ', 'ﻗ', 'ﻖ', 'ﻖ'),
-    'ک': ('ﮎ', 'ﻛ', 'ﻜ', 'ﮏ'), 'گ': ('ﮒ', 'ﮔ', 'ﮕ', 'ﮓ'), 'ل': ('ﻝ', 'ﻝ', 'ﻠ', 'ﻞ'),
-    'م': ('ﻡ', 'ﻣ', 'ﻤ', 'ﻢ'), 'ن': ('ﻥ', 'ﻥ', 'ﻨ', 'ﻦ'), 'و': ('ﻭ', 'ﻮ', 'ﻮ', 'ﻭ'),
+    'ک': ('ﮎ', 'ﻛ', 'ﻜ', 'ﮏ'), 'گ': ('ﮒ', 'ﮔ', 'ﮕ', 'ﮓ'), 'ل': ('ﻝ', 'ﻟ', 'ﻠ', 'ﻞ'),
+    'م': ('ﻡ', 'ﻣ', 'ﻤ', 'ﻢ'), 'ن': ('ﻥ', 'ﻧ', 'ﻨ', 'ﻦ'), 'و': ('ﻭ', 'ﻮ', 'ﻮ', 'ﻭ'),
     'ه': ('ﻩ', 'ﻫ', 'ﻬ', 'ﻪ'), 'ی': ('ﯼ', 'ﻳ', 'ﻴ', 'ﯽ'), 'آ': ('ﺁ', 'ﺂ', 'ﺂ', 'ﺁ'),
     'ئ': ('ﺉ', 'ﺋ', 'ﺌ', 'ﺊ'), 'ء': ('ﺀ', 'ء', 'ء', 'ﺀ'),
 }
@@ -463,96 +495,76 @@ def _reshape(text):
         prev_conn = prev_ch in PERSIAN_MAP and prev_ch not in NON_CONNECTING
         next_conn = next_ch in PERSIAN_MAP
         iso, init, med, fin = PERSIAN_MAP[ch]
-        if prev_conn and next_conn:
-            res.append(med)
-        elif prev_conn:
-            res.append(fin)
-        elif next_conn:
-            res.append(init)
-        else:
-            res.append(iso)
+        if prev_conn and next_conn: res.append(med)
+        elif prev_conn and not next_conn: res.append(fin)
+        elif not prev_conn and next_conn: res.append(init)
+        else: res.append(iso)
     return ''.join(res)
 
 def _rtl(text):
     if not text: return ''
-    try:
-        import arabic_reshaper
-        from bidi.algorithm import get_display
-        return get_display(arabic_reshaper.reshape(str(text)))
-    except Exception:
-        return _reshape(str(text))[::-1]
+    return _reshape(str(text))[::-1]
 
-def generate_behavior_report_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
+def generate_reportlab_behavior_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
     has_rl, A4, canvas, pdfmetrics, TTFont, HexColor = _get_reportlab()
     if not has_rl:
-        return b"%PDF-1.4"
-    
+        raise ImportError("reportlab not installed")
     _register_persian_font()
-    font_name = 'PersianFont' if _PERSIAN_FONT_REGISTERED else 'Helvetica'
-    
-    is_positive = 'مثبت' in str(b_type) or 'تشویق' in str(b_type)
-    bg_color = HexColor('#f0fdf4') if is_positive else HexColor('#fef2f2')
-    border_color = HexColor('#22c55e') if is_positive else HexColor('#ef4444')
-    header_color = HexColor('#15803d') if is_positive else HexColor('#b91c1c')
-    report_title = 'تقدیرنامه و لوح سپاس انضباطی کلاسی' if is_positive else 'کارت اطلاع‌رسانی و هشدار انضباطی اولیا'
+    is_pos = 'مثبت' in b_type or 'تشویق' in b_type
+    theme_hex = '#15803d' if is_pos else '#b91c1c'
+    title_str = 'تقدیرنامه و لوح سپاس انضباطی کلاسی' if is_pos else 'کارت اطلاع‌رسانی و هشدار انضباطی اولیا'
     
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=A4)
     w, h = A4
+    font_name = 'PersianFont' if _PERSIAN_FONT_REGISTERED else 'Helvetica'
     
-    # Page Header
-    c.setFillColor(header_color)
-    c.rect(0, h-85, w, 85, fill=1, stroke=0)
+    # Header bar
+    c.setFillColor(HexColor(theme_hex))
+    c.rect(0, h-90, w, 90, fill=1, stroke=0)
     
     c.setFillColor(HexColor('#ffffff'))
-    c.setFont(font_name, 13)
-    c.drawCentredString(w/2, h-30, _rtl('جمهوری اسلامی ایران - وزارت آموزش و پرورش'))
-    c.setFont(font_name, 10)
-    c.drawCentredString(w/2, h-50, _rtl('دبستان پسرانه هیئت امنایی شهید مطهری مهران - پایه پنجم ابتدایی'))
-    c.setFont(font_name, 12)
-    c.drawCentredString(w/2, h-72, _rtl(report_title))
-    
-    # Card Box
-    y = h - 110
-    c.setFillColor(bg_color)
-    c.setStrokeColor(border_color)
-    c.rect(30, y-220, w-60, 220, fill=1, stroke=1)
-    
-    c.setFillColor(HexColor('#0f172a'))
-    c.setFont(font_name, 10)
-    c.drawRightString(w - 50, y - 30, _rtl(f'نام دانش‌آموز: {student_name}'))
-    c.drawRightString(w - 220, y - 30, _rtl(f'کد ملی: {national_id}'))
-    c.drawRightString(w - 360, y - 30, _rtl(f'گروه کلاسی: {student_group}'))
-    c.drawRightString(w - 480, y - 30, _rtl(f'تاریخ: {log_date}'))
-    
-    # Title & Description Box
-    c.setFillColor(HexColor('#ffffff'))
-    c.rect(45, y-140, w-90, 90, fill=1, stroke=1)
-    
-    c.setFillColor(header_color)
+    c.setFont(font_name, 14)
+    c.drawCentredString(w/2, h-35, _rtl('جمهوری اسلامی ایران - وزارت آموزش و پرورش'))
     c.setFont(font_name, 11)
-    c.drawRightString(w - 60, y - 70, _rtl(f'📌 عنوان مشاهده رفتاری: {title}'))
+    c.drawCentredString(w/2, h-55, _rtl('دبستان پسرانه هیئت امنایی شهید مطهری مهران - پایه پنجم'))
+    c.setFont(font_name, 13)
+    c.drawCentredString(w/2, h-78, _rtl(title_str))
+    
+    # Student Info
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(font_name, 11)
+    y = h - 130
+    c.drawRightString(w - 40, y, _rtl(f'نام دانش‌آموز: {student_name}'))
+    c.drawRightString(w - 220, y, _rtl(f'کد ملی: {national_id}'))
+    c.drawRightString(w - 380, y, _rtl(f'گروه کلاسی: {student_group}'))
+    c.drawRightString(w - 500, y, _rtl(f'تاریخ: {log_date}'))
+    
+    # Divider line
+    c.setStrokeColor(HexColor('#cbd5e1'))
+    c.setLineWidth(1)
+    c.line(40, y-15, w-40, y-15)
+    
+    # Details Box
+    y -= 45
+    c.setFillColor(HexColor('#f8fafc'))
+    c.rect(40, y-120, w-80, 120, fill=1, stroke=1)
     
     c.setFillColor(HexColor('#0f172a'))
+    c.setFont(font_name, 12)
+    c.drawRightString(w - 55, y - 25, _rtl(f'عنوان مشاهده رفتاری: {title}'))
+    c.setFont(font_name, 11)
+    c.drawRightString(w - 55, y - 55, _rtl('شرح و توضیحات تکمیلی:'))
     c.setFont(font_name, 10)
-    c.drawRightString(w - 60, y - 95, _rtl('📝 توضیحات تکمیلی آموزگار:'))
-    c.setFont(font_name, 9)
-    desc_str = str(desc) if desc else 'توضیحات ثبت نشده است.'
-    c.drawRightString(w - 60, y - 115, _rtl(desc_str[:90]))
-    if len(desc_str) > 90:
-        c.drawRightString(w - 60, y - 130, _rtl(desc_str[90:180]))
+    c.drawRightString(w - 55, y - 80, _rtl(desc[:80]))
+    if len(desc) > 80:
+        c.drawRightString(w - 55, y - 100, _rtl(desc[80:160]))
         
-    # Closing Note
-    note_text = 'توفیق روزافزون شما را در مسیر اخلاق، دانایی و بالندگی از درگاه خداوند متعال خواستاریم.' if is_positive else 'خواهشمند است ضمن گفتگوی تربیتی با فرزندتان، جهت پیگیری و بهبود این رفتار همکاری لازم را مبذول فرمایید.'
-    c.setFillColor(HexColor('#0f172a'))
-    c.setFont(font_name, 9)
-    c.drawRightString(w - 50, y - 180, _rtl(note_text))
-    
     # Signatures
-    y -= 270
-    c.setFont(font_name, 10)
+    y -= 180
+    c.setFont(font_name, 11)
     c.drawRightString(w - 80, y, _rtl('آموزگار پایه پنجم: سید موسی حیدری'))
-    if is_positive:
+    if is_pos:
         c.drawRightString(200, y, _rtl('مدیریت دبستان شهید مطهری مهران'))
     else:
         c.drawRightString(200, y, _rtl('رویت و امضای اولیای محترم'))
@@ -560,146 +572,304 @@ def generate_behavior_report_pdf(student_name, national_id, student_group, b_typ
     c.save()
     return buf.getvalue()
 
-def generate_comprehensive_portfolio_pdf(student_id):
+def generate_reportlab_portfolio_pdf(student_name, national_id, parent_phone, student_group, eval_count, beh_count, quiz_avg_str):
     has_rl, A4, canvas, pdfmetrics, TTFont, HexColor = _get_reportlab()
     if not has_rl:
-        return b"%PDF-1.4"
-        
+        raise ImportError("reportlab not installed")
     _register_persian_font()
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pagesize=A4)
+    w, h = A4
     font_name = 'PersianFont' if _PERSIAN_FONT_REGISTERED else 'Helvetica'
+    
+    # Header bar
+    c.setFillColor(HexColor('#0f172a'))
+    c.rect(0, h-90, w, 90, fill=1, stroke=0)
+    
+    c.setFillColor(HexColor('#ffffff'))
+    c.setFont(font_name, 14)
+    c.drawCentredString(w/2, h-35, _rtl('جمهوری اسلامی ایران - وزارت آموزش و پرورش'))
+    c.setFont(font_name, 11)
+    c.drawCentredString(w/2, h-55, _rtl('دبستان پسرانه هیئت امنایی شهید مطهری مهران - پایه پنجم'))
+    c.setFont(font_name, 13)
+    c.drawCentredString(w/2, h-78, _rtl('کارنامه جامع تحصیلی و پوشه کار دیجیتال'))
+    
+    # Student Info
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(font_name, 11)
+    y = h - 130
+    c.drawRightString(w - 40, y, _rtl(f'نام دانش‌آموز: {student_name}'))
+    c.drawRightString(w - 220, y, _rtl(f'کد ملی: {national_id}'))
+    c.drawRightString(w - 380, y, _rtl(f'گروه کلاسی: {student_group}'))
+    
+    # Summary Box
+    y -= 50
+    c.setFillColor(HexColor('#f1f5f9'))
+    c.rect(40, y-60, w-80, 60, fill=1, stroke=1)
+    
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(font_name, 11)
+    c.drawRightString(w - 60, y - 35, _rtl(f'تعداد ارزشیابی‌ها: {eval_count}'))
+    c.drawRightString(w - 240, y - 35, _rtl(f'موارد رفتاری: {beh_count}'))
+    c.drawRightString(w - 420, y - 35, _rtl(f'میانگین درصد آزمون‌ها: {quiz_avg_str}'))
+    
+    # Analysis & Advice Box
+    y -= 100
+    c.setFillColor(HexColor('#eff6ff'))
+    c.rect(40, y-120, w-80, 120, fill=1, stroke=1)
+    
+    c.setFillColor(HexColor('#1e40af'))
+    c.setFont(font_name, 12)
+    c.drawRightString(w - 55, y - 25, _rtl('💡 تحلیل آموزشی و توصیه‌های تربیتی معلم:'))
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(font_name, 10)
+    c.drawRightString(w - 55, y - 55, _rtl('۱. نقاط قوت: حضور منظم در کلاس، مشارکت فعال در فعالیت‌های گروهی.'))
+    c.drawRightString(w - 55, y - 80, _rtl('۲. توصیه به اولیا: تمرین مستمر کسرها و اعداد اعشاری ریاضی در منزل.'))
+    
+    # Signatures
+    y -= 180
+    c.setFont(font_name, 11)
+    c.drawRightString(w - 80, y, _rtl('آموزگار پایه پنجم: سید موسی حیدری'))
+    c.drawRightString(w/2 + 40, y, _rtl('مدیریت دبستان شهید مطهری مهران'))
+    c.drawRightString(180, y, _rtl('رویت و امضای اولیای محترم'))
+    
+    c.save()
+    return buf.getvalue()
 
+# ---------------------------------------------------------
+# ReportLab Native PDF Helpers (Direct & Fast Pure Python)
+# ---------------------------------------------------------
+def generate_behavior_report_pdf(student_name, national_id, student_group, b_type, title, desc, log_date):
+    return generate_reportlab_behavior_pdf(student_name, national_id, student_group, b_type, title, desc, log_date)
+
+def generate_portfolio_report_html(student_name, national_id, parent_phone, student_group, eval_count, beh_count, quiz_avg_str):
+    shamsi_today = get_current_shamsi_date()
+    return f"""
+    <div style="background: #ffffff; color: #0f172a; padding: 22px; border-radius: 12px; border: 2px solid #1e3a8a; direction: rtl; text-align: right; font-family: Tahoma, sans-serif; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <div style="text-align: center; border-bottom: 2px double #1e3a8a; padding-bottom: 12px; margin-bottom: 15px;">
+            <h3 style="color: #1e3a8a; margin: 0; font-size: 1.2rem;">جمهوری اسلامی ایران - وزارت آموزش و پرورش</h3>
+            <h4 style="color: #0f172a; margin: 4px 0; font-size: 1rem;">دبستان پسرانه هیئت امنایی شهید مطهری مهران - پایه پنجم ابتدایی</h4>
+            <h4 style="color: #2563eb; margin: 0; font-size: 1.1rem;">کارنامه جامع تحصیلی و پوشه کار دیجیتال (سال تحصیلی ۱۴۰۴-۱۴۰۵)</h4>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 0.95rem; background: #f8fafc; border-radius: 8px; overflow: hidden;">
+            <tr style="border: 1px solid #cbd5e1;">
+                <td style="padding: 8px 12px;"><b>نام دانش‌آموز:</b> {student_name}</td>
+                <td style="padding: 8px 12px;"><b>کد ملی:</b> {national_id}</td>
+                <td style="padding: 8px 12px;"><b>گروه کلاسی:</b> {student_group}</td>
+                <td style="padding: 8px 12px;"><b>تاریخ صدور:</b> {shamsi_today}</td>
+            </tr>
+        </table>
+        <div style="background: #eff6ff; border: 1px solid #3b82f6; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+            <span style="color: #1e40af; font-weight: bold;">📊 خلاصه کارنامه:</span> 
+            تعداد ارزشیابی‌های درسی: <b>{eval_count}</b> | موارد رفتاری ثبت‌شده: <b>{beh_count}</b> | میانگین درصد آزمون‌های آنلاین: <b>{quiz_avg_str}</b>
+        </div>
+        <div style="background: #f0f9ff; border-right: 4px solid #0284c7; padding: 10px 14px; border-radius: 6px; font-size: 0.9rem;">
+            <b>💡 تحلیل تربیتی و آموزشی آموزگار (سید موسی حیدری):</b><br>
+            ۱. نقاط قوت: حضور منظم در کلاس، مشارکت فعال در فعالیت‌های گروهی و انجام تکالیف.<br>
+            ۲. توصیه به اولیای محترم: تمرین مستمر کسرها و اعداد اعشاری درس ریاضی و مرور واژگان نگارش در منزل.
+        </div>
+    </div>
+    """
+
+def build_portfolio_pdf_reportlab(student_name, national_id, parent_phone, student_group, shamsi_date, evals_list, behs_list, quizzes_list):
+    _register_persian_font()
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pagesize=A4)
+    w, h = A4
+    fn = 'PersianFont' if _PERSIAN_FONT_REGISTERED else 'Helvetica'
+
+    # Header Top Box
+    c.setFillColor(HexColor('#1e3a8a'))
+    c.rect(0, h-85, w, 85, fill=1, stroke=0)
+
+    c.setFillColor(HexColor('#ffffff'))
+    c.setFont(fn, 13)
+    c.drawCentredString(w/2, h-28, _rtl('جمهوری اسلامی ایران - وزارت آموزش و پرورش'))
+    c.setFont(fn, 11)
+    c.drawCentredString(w/2, h-48, _rtl('دبستان پسرانه هیئت امنایی شهید مطهری مهران - پایه پنجم ابتدایی'))
+    c.setFont(fn, 12)
+    c.drawCentredString(w/2, h-68, _rtl('گزارش جامع عملکرد تحصیلی و پوشه کار دیجیتال (۱۴۰۴-۱۴۰۵)'))
+
+    # Student Meta Box
+    y = h - 120
+    c.setFillColor(HexColor('#f8fafc'))
+    c.setStrokeColor(HexColor('#cbd5e1'))
+    c.rect(30, y-45, w-60, 45, fill=1, stroke=1)
+
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(fn, 10)
+    c.drawRightString(w - 45, y - 22, _rtl(f'نام دانش‌آموز: {student_name}'))
+    c.drawRightString(w - 210, y - 22, _rtl(f'کد ملی: {national_id}'))
+    c.drawRightString(w - 350, y - 22, _rtl(f'گروه کلاسی: {student_group}'))
+    c.drawRightString(w - 45, y - 38, _rtl(f'شماره اولیا: {parent_phone}'))
+    c.drawRightString(w - 210, y - 38, _rtl(f'آموزگار: سید موسی حیدری'))
+    c.drawRightString(w - 350, y - 38, _rtl(f'تاریخ صدور: {shamsi_date}'))
+
+    # Summary Stats Box
+    y -= 65
+    c.setFillColor(HexColor('#eff6ff'))
+    c.setStrokeColor(HexColor('#3b82f6'))
+    c.rect(30, y-35, w-60, 35, fill=1, stroke=1)
+
+    eval_count = len(evals_list)
+    beh_count = len(behs_list)
+    quiz_avg_str = f"{sum([q.get('pct',0) for q in quizzes_list])/len(quizzes_list):.1f}٪" if quizzes_list else "بدون آزمون"
+
+    c.setFillColor(HexColor('#1e40af'))
+    c.setFont(fn, 10)
+    c.drawRightString(w - 50, y - 22, _rtl(f'تعداد ارزشیابی‌ها: {eval_count}'))
+    c.drawRightString(w - 220, y - 22, _rtl(f'سوابق رفتاری: {beh_count}'))
+    c.drawRightString(w - 390, y - 22, _rtl(f'میانگین درصد آزمون‌ها: {quiz_avg_str}'))
+
+    # Section 1: Evaluations
+    y -= 55
+    c.setFillColor(HexColor('#1e3a8a'))
+    c.setFont(fn, 11)
+    c.drawRightString(w - 35, y, _rtl('📝 ۱. سوابق ارزشیابی کیفی-توصیفی دروس:'))
+
+    y -= 15
+    c.setFillColor(HexColor('#1e3a8a'))
+    c.rect(30, y-18, w-60, 18, fill=1, stroke=0)
+    c.setFillColor(HexColor('#ffffff'))
+    c.setFont(fn, 9)
+    c.drawRightString(w - 50, y - 13, _rtl('عنوان درس'))
+    c.drawRightString(w - 180, y - 13, _rtl('سطح توصیفی'))
+    c.drawRightString(w - 300, y - 13, _rtl('توضیحات و بازخورد آموزگار'))
+    c.drawRightString(w - 500, y - 13, _rtl('تاریخ'))
+
+    y -= 18
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(fn, 8.5)
+    if evals_list:
+        for ev in evals_list[:6]:
+            c.setStrokeColor(HexColor('#e2e8f0'))
+            c.rect(30, y-16, w-60, 16, fill=0, stroke=1)
+            c.drawRightString(w - 50, y - 12, _rtl(str(ev.get('subject',''))[:20]))
+            c.drawRightString(w - 180, y - 12, _rtl(str(ev.get('level',''))[:20]))
+            c.drawRightString(w - 300, y - 12, _rtl(str(ev.get('feedback',''))[:35]))
+            c.drawRightString(w - 500, y - 12, _rtl(str(ev.get('date',''))[:10]))
+            y -= 16
+    else:
+        c.setStrokeColor(HexColor('#e2e8f0'))
+        c.rect(30, y-16, w-60, 16, fill=0, stroke=1)
+        c.drawRightString(w - 250, y - 12, _rtl('ارزشیابی توصیفی ثبت نشده است.'))
+        y -= 16
+
+    # Section 2: Behaviors
+    y -= 20
+    c.setFillColor(HexColor('#1e3a8a'))
+    c.setFont(fn, 11)
+    c.drawRightString(w - 35, y, _rtl('🌟 ۲. سوابق رفتاری و مشاهدات انضباطی:'))
+
+    y -= 15
+    c.setFillColor(HexColor('#1e3a8a'))
+    c.rect(30, y-18, w-60, 18, fill=1, stroke=0)
+    c.setFillColor(HexColor('#ffffff'))
+    c.setFont(fn, 9)
+    c.drawRightString(w - 50, y - 13, _rtl('نوع رفتار'))
+    c.drawRightString(w - 160, y - 13, _rtl('عنوان مشاهده'))
+    c.drawRightString(w - 300, y - 13, _rtl('شرح و توضیحات تکمیلی'))
+    c.drawRightString(w - 500, y - 13, _rtl('تاریخ'))
+
+    y -= 18
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(fn, 8.5)
+    if behs_list:
+        for bh in behs_list[:4]:
+            c.setStrokeColor(HexColor('#e2e8f0'))
+            c.rect(30, y-16, w-60, 16, fill=0, stroke=1)
+            c.drawRightString(w - 50, y - 12, _rtl(str(bh.get('type',''))[:18]))
+            c.drawRightString(w - 160, y - 12, _rtl(str(bh.get('title',''))[:20]))
+            c.drawRightString(w - 300, y - 12, _rtl(str(bh.get('desc',''))[:35]))
+            c.drawRightString(w - 500, y - 12, _rtl(str(bh.get('date',''))[:10]))
+            y -= 16
+    else:
+        c.setStrokeColor(HexColor('#e2e8f0'))
+        c.rect(30, y-16, w-60, 16, fill=0, stroke=1)
+        c.drawRightString(w - 250, y - 12, _rtl('مورد رفتاری ثبت نشده است.'))
+        y -= 16
+
+    # Section 3: Quizzes
+    y -= 20
+    c.setFillColor(HexColor('#1e3a8a'))
+    c.setFont(fn, 11)
+    c.drawRightString(w - 35, y, _rtl('✏️ ۳. کارنامه و نتایج آزمون‌های آنلاین:'))
+
+    y -= 15
+    c.setFillColor(HexColor('#1e3a8a'))
+    c.rect(30, y-18, w-60, 18, fill=1, stroke=0)
+    c.setFillColor(HexColor('#ffffff'))
+    c.setFont(fn, 9)
+    c.drawRightString(w - 50, y - 13, _rtl('عنوان آزمون'))
+    c.drawRightString(w - 200, y - 13, _rtl('عنوان درس'))
+    c.drawRightString(w - 320, y - 13, _rtl('نمره / درصد ٪'))
+    c.drawRightString(w - 500, y - 13, _rtl('تاریخ ثبت'))
+
+    y -= 18
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(fn, 8.5)
+    if quizzes_list:
+        for qz in quizzes_list[:4]:
+            c.setStrokeColor(HexColor('#e2e8f0'))
+            c.rect(30, y-16, w-60, 16, fill=0, stroke=1)
+            c.drawRightString(w - 50, y - 12, _rtl(str(qz.get('title',''))[:22]))
+            c.drawRightString(w - 200, y - 12, _rtl(str(qz.get('subject',''))[:18]))
+            c.drawRightString(w - 320, y - 12, _rtl(f"{qz.get('score',0)} از {qz.get('total',0)} ({qz.get('pct',0):.0f}٪)"))
+            c.drawRightString(w - 500, y - 12, _rtl(str(qz.get('date',''))[:10]))
+            y -= 16
+    else:
+        c.setStrokeColor(HexColor('#e2e8f0'))
+        c.rect(30, y-16, w-60, 16, fill=0, stroke=1)
+        c.drawRightString(w - 250, y - 12, _rtl('آزمون آنلاینی ثبت نشده است.'))
+        y -= 16
+
+    # Analysis & Advice
+    y -= 25
+    c.setFillColor(HexColor('#f0f9ff'))
+    c.setStrokeColor(HexColor('#0284c7'))
+    c.rect(30, y-55, w-60, 55, fill=1, stroke=1)
+
+    c.setFillColor(HexColor('#0369a1'))
+    c.setFont(fn, 10)
+    c.drawRightString(w - 45, y - 18, _rtl('💡 تحلیل جامع تربیتی و آموزشی آموزگار (سید موسی حیدری):'))
+    c.setFillColor(HexColor('#0f172a'))
+    c.setFont(fn, 8.5)
+    c.drawRightString(w - 45, y - 34, _rtl('۱. نقاط قوت: حضور منظم و فعال در کلاس، رعایت انضباط کلاسی و مشارکت در گروه‌ها.'))
+    c.drawRightString(w - 45, y - 48, _rtl('۲. توصیه به اولیا: مرور مستمر مفاهیم کسر و اعشار ریاضی و تمرین روان‌خوانی در منزل.'))
+
+    # Signatures
+    y -= 80
+    c.setFont(fn, 9.5)
+    c.drawRightString(w - 60, y, _rtl('آموزگار پایه پنجم: سید موسی حیدری'))
+    c.drawRightString(w/2 + 20, y, _rtl('مدیریت دبستان شهید مطهری مهران'))
+    c.drawRightString(160, y, _rtl('رویت و امضای اولیای محترم'))
+
+    c.save()
+    return buf.getvalue()
+
+def generate_comprehensive_portfolio_pdf(student_id):
     with get_connection() as conn:
         st_row = conn.execute("SELECT * FROM students WHERE id = ?", (student_id,)).fetchone()
         if not st_row:
-            return b""
+            return generate_reportlab_portfolio_pdf("دانش‌آموز", "ثبت نشده", "ثبت نشده", "بدون گروه", 0, 0, "بدون آزمون")
         student_name = f"{st_row['first_name']} {st_row['last_name']}"
         national_id = st_row['national_id'] or "ثبت نشده"
         parent_phone = st_row['parent_phone'] or "ثبت نشده"
         student_group = st_row['student_group'] or "بدون گروه"
         
-        df_evals = safe_read_sql("SELECT subject AS 'درس', level AS 'سطح توصیفی', feedback AS 'توصیف معلم', eval_date AS 'تاریخ' FROM evaluations WHERE student_id = ? ORDER BY id DESC", conn, params=(student_id,))
-        df_beh = safe_read_sql("SELECT behavior_type AS 'نوع', title AS 'عنوان رفتار', description AS 'توضیحات', log_date AS 'تاریخ' FROM behaviors WHERE student_id = ? ORDER BY id DESC", conn, params=(student_id,))
-        df_quizzes = safe_read_sql("SELECT q.title AS 'عنوان آزمون', q.subject AS 'درس', r.score AS 'نمره', r.total_questions AS 'کل سوالات', r.percentage AS 'درصد ٪', r.submitted_at AS 'تاریخ ثبت' FROM quiz_results r JOIN quizzes q ON r.quiz_id = q.id WHERE r.student_id = ? ORDER BY r.id DESC", conn, params=(student_id,))
+        df_evals = safe_read_sql("SELECT subject AS 'subject', level AS 'level', feedback AS 'feedback', eval_date AS 'date' FROM evaluations WHERE student_id = ? ORDER BY id DESC", conn, params=(student_id,))
+        df_beh = safe_read_sql("SELECT behavior_type AS 'type', title AS 'title', description AS 'desc', log_date AS 'date' FROM behaviors WHERE student_id = ? ORDER BY id DESC", conn, params=(student_id,))
+        df_quizzes = safe_read_sql("SELECT q.title AS 'title', q.subject AS 'subject', r.score AS 'score', r.total_questions AS 'total', r.percentage AS 'pct', r.submitted_at AS 'date' FROM quiz_results r JOIN quizzes q ON r.quiz_id = q.id WHERE r.student_id = ? ORDER BY r.id DESC", conn, params=(student_id,))
 
-    eval_count = len(df_evals) if not df_evals.empty else 0
-    beh_count = len(df_beh) if not df_beh.empty else 0
-    quiz_pcts = df_quizzes['درصد ٪'].tolist() if not df_quizzes.empty else []
-    quiz_avg = sum(quiz_pcts)/len(quiz_pcts) if quiz_pcts else None
-    quiz_avg_str = f"{quiz_avg:.1f}٪" if quiz_avg else "بدون آزمون"
+    evals_list = df_evals.to_dict('records') if not df_evals.empty else []
+    behs_list = df_beh.to_dict('records') if not df_beh.empty else []
+    quizzes_list = df_quizzes.to_dict('records') if not df_quizzes.empty else []
+    shamsi_today = get_current_shamsi_date()
 
-    buf = io.BytesIO()
-    c = canvas.Canvas(buf, pagesize=A4)
-    w, h = A4
-    
-    # Page Header
-    c.setFillColor(HexColor('#0f172a'))
-    c.rect(0, h-90, w, 90, fill=1, stroke=0)
-    
-    c.setFillColor(HexColor('#ffffff'))
-    c.setFont(font_name, 13)
-    c.drawCentredString(w/2, h-30, _rtl('جمهوری اسلامی ایران - وزارت آموزش و پرورش'))
-    c.setFont(font_name, 10)
-    c.drawCentredString(w/2, h-50, _rtl('دبستان پسرانه هیئت امنایی شهید مطهری مهران - پایه پنجم ابتدایی'))
-    c.setFont(font_name, 12)
-    c.drawCentredString(w/2, h-72, _rtl('کارنامه جامع تحصیلی و پوشه کار دیجیتال (سال تحصیلی ۱۴۰۴-۱۴۰۵)'))
-    
-    # Student Info Box
-    y = h - 110
-    c.setFillColor(HexColor('#f8fafc'))
-    c.rect(30, y-35, w-60, 35, fill=1, stroke=1)
-    
-    c.setFillColor(HexColor('#0f172a'))
-    c.setFont(font_name, 10)
-    c.drawRightString(w - 45, y - 22, _rtl(f'نام دانش‌آموز: {student_name}'))
-    c.drawRightString(w - 200, y - 22, _rtl(f'کد ملی: {national_id}'))
-    c.drawRightString(w - 330, y - 22, _rtl(f'گروه: {student_group}'))
-    c.drawRightString(w - 460, y - 22, _rtl(f'همراه اولیا: {parent_phone}'))
-    
-    # Summary Box
-    y -= 50
-    c.setFillColor(HexColor('#eff6ff'))
-    c.rect(30, y-30, w-60, 30, fill=1, stroke=1)
-    
-    c.setFillColor(HexColor('#1e40af'))
-    c.setFont(font_name, 10)
-    c.drawRightString(w - 45, y - 20, _rtl(f'تعداد ارزشیابی‌ها: {eval_count}'))
-    c.drawRightString(w - 220, y - 20, _rtl(f'موارد رفتاری: {beh_count}'))
-    c.drawRightString(w - 380, y - 20, _rtl(f'میانگین آزمون‌ها: {quiz_avg_str}'))
-    
-    # Section 1: Evaluations
-    y -= 50
-    c.setFillColor(HexColor('#1e3a8a'))
-    c.setFont(font_name, 11)
-    c.drawRightString(w - 35, y, _rtl('📝 خلاصه‌ی سوابق ارزشیابی کیفی-توصیفی درسی:'))
-    
-    y -= 20
-    c.setFont(font_name, 9)
-    c.setFillColor(HexColor('#0f172a'))
-    if not df_evals.empty:
-        for _, row in df_evals.head(6).iterrows():
-            c.drawRightString(w - 45, y, _rtl(f"• {row['درس']}: {row['سطح توصیفی']} — {row['توصیف معلم']}"))
-            y -= 16
-    else:
-        c.drawRightString(w - 45, y, _rtl('ارزشیابی درسی ثبت نشده است.'))
-        y -= 16
-        
-    # Section 2: Behaviors
-    y -= 15
-    c.setFillColor(HexColor('#1e3a8a'))
-    c.setFont(font_name, 11)
-    c.drawRightString(w - 35, y, _rtl('🌟 سوابق رفتاری و مشاهدات انضباطی:'))
-    
-    y -= 20
-    c.setFont(font_name, 9)
-    c.setFillColor(HexColor('#0f172a'))
-    if not df_beh.empty:
-        for _, row in df_beh.head(4).iterrows():
-            c.drawRightString(w - 45, y, _rtl(f"• {row['نوع']}: {row['عنوان رفتار']} ({row['تاریخ']})"))
-            y -= 16
-    else:
-        c.drawRightString(w - 45, y, _rtl('مورد رفتاری ثبت نشده است.'))
-        y -= 16
-        
-    # Section 3: Quizzes
-    y -= 15
-    c.setFillColor(HexColor('#1e3a8a'))
-    c.setFont(font_name, 11)
-    c.drawRightString(w - 35, y, _rtl('📊 نتایج آزمون‌های آنلاین:'))
-    
-    y -= 20
-    c.setFont(font_name, 9)
-    c.setFillColor(HexColor('#0f172a'))
-    if not df_quizzes.empty:
-        for _, row in df_quizzes.head(4).iterrows():
-            c.drawRightString(w - 45, y, _rtl(f"• {row['عنوان آزمون']} ({row['درس']}): درصد {row['درصد ٪']}٪ — نمره {row['نمره']} از {row['کل سوالات']}"))
-            y -= 16
-    else:
-        c.drawRightString(w - 45, y, _rtl('آزمون آنلاینی ثبت نشده است.'))
-        y -= 16
-        
-    # Teacher Analysis Box
-    y -= 15
-    c.setFillColor(HexColor('#f0f9ff'))
-    c.rect(30, y-60, w-60, 60, fill=1, stroke=1)
-    
-    c.setFillColor(HexColor('#0369a1'))
-    c.setFont(font_name, 10)
-    c.drawRightString(w - 45, y - 18, _rtl('💡 تحلیل جامع آموزشی و توصیه‌های تربیتی آموزگار (سید موسی حیدری):'))
-    c.setFillColor(HexColor('#0f172a'))
-    c.setFont(font_name, 9)
-    c.drawRightString(w - 45, y - 36, _rtl('۱. نقاط قوت: حضور منظم، مشارکت فعال در فعالیت‌های گروهی و تلاش شایسته در درک مفاهیم.'))
-    c.drawRightString(w - 45, y - 50, _rtl('۲. توصیه به اولیا: تمرین و مرور مستمر مفاهیم ریاضی و علوم تجربی در منزل جهت تثبیت یادگیری.'))
-    
-    # Signatures
-    y -= 110
-    c.setFont(font_name, 10)
-    c.drawRightString(w - 60, y, _rtl('آموزگار پایه پنجم: سید موسی حیدری'))
-    c.drawRightString(w/2 + 30, y, _rtl('مدیریت دبستان شهید مطهری مهران'))
-    c.drawRightString(160, y, _rtl('رویت و امضای اولیای محترم'))
-    
-    c.save()
-    return buf.getvalue()
-
+    return build_portfolio_pdf_reportlab(
+        student_name, national_id, parent_phone, student_group, shamsi_today,
+        evals_list, behs_list, quizzes_list
+    )
 
 # Helper Functions & Constants
 # ---------------------------------------------------------
@@ -1056,34 +1226,26 @@ elif menu_choice.startswith("2"):
 
     with tab3:
         st.subheader("🗑️ حذف تکی و دسته‌جمعی پرونده دانش‌آموزان")
-        
-        if 'del_msg' in st.session_state and st.session_state['del_msg']:
-            st.success(st.session_state['del_msg'])
-            st.session_state['del_msg'] = None
-
         students_df = load_students()
         if not students_df.empty:
             st.markdown("##### 📌 ۱. حذف تکی یک دانش‌آموز")
-            student_options = [f"{row['id']} - {row['full_name']} (کد ملی: {row['national_id'] or 'ندارد'})" for _, row in students_df.iterrows()]
-            sel_st_str = st.selectbox("دانش‌آموز مورد نظر جهت حذف را انتخاب کنید:", student_options, key="tab_del_sel")
-            s_id_del = int(sel_st_str.split(" - ")[0])
-            st_name_del = sel_st_str.split(" - ")[1].split(" (")[0]
+            sel_st_del = st.selectbox("دانش‌آموز مورد نظر جهت حذف را انتخاب کنید:", students_df['full_name'].tolist(), key="tab_del_sel")
+            s_id_del = int(students_df[students_df['full_name'] == sel_st_del]['id'].values[0])
 
-            st.warning(f"⚠️ **هشدار:** آیا از حذف کامل پرونده **{st_name_del}** اطمینان دارید؟ تمام سوابق تحصیلی، ارزشیابی‌ها، موارد رفتاری و نمرات آزمون‌های این دانش‌آموز نیز به طور کامل پاک خواهند شد.")
+            st.warning(f"⚠️ **هشدار:** آیا از حذف کامل پرونده **{sel_st_del}** اطمینان دارید؟ تمام سوابق تحصیلی، ارزشیابی‌ها، موارد رفتاری و نمرات آزمون‌های این دانش‌آموز نیز حذف خواهند شد.")
 
-            if st.button("🗑️ حذف قطعی پرونده این دانش‌آموز", key="btn_single_del"):
+            if st.button("🗑️ حذف قطعی پرونده این دانش‌آموز"):
                 with get_connection() as conn:
                     conn.execute("DELETE FROM evaluations WHERE student_id = ?", (s_id_del,))
                     conn.execute("DELETE FROM behaviors WHERE student_id = ?", (s_id_del,))
                     conn.execute("DELETE FROM quiz_results WHERE student_id = ?", (s_id_del,))
                     conn.execute("DELETE FROM students WHERE id = ?", (s_id_del,))
                     conn.commit()
-                
-                st.session_state['del_msg'] = f"🎉 پرونده دانش‌آموز '{st_name_del}' با موفقیت به طور کامل حذف گردید."
+                st.success(f"پرونده دانش‌آموز {sel_st_del} با موفقیت حذف گردید.")
                 st.rerun()
 
             st.markdown("---")
-            st.markdown("##### 🔥 ۲. حذف دسته‌جمعی / پاکسازی کامل دیتابیس تمامی دانش‌آموزان")
+            st.markdown("##### 🔥 ۲. حذف دسته‌جمعی / کلی تمامی دانش‌آموزان")
             st.error("⚠️ **هشدار بسیار مهم:** این عملیات غیرقابل بازگشت است و تمام دانش‌آموزان ثبت‌شده همراه با کلیه نمرات، ارزشیابی‌ها و سوابق رفتاری به صورت یکجا پاکسازی خواهند شد.")
             confirm_bulk = st.checkbox("تایید می‌کنم که قصد پاکسازی کامل کلیه اسامی و سوابق دانش‌آموزان را دارم.", key="chk_bulk_del")
             if st.button("🔥 حذف کلی و پاکسازی کامل لیست دانش‌آموزان", key="btn_bulk_del", disabled=not confirm_bulk):
@@ -1093,27 +1255,14 @@ elif menu_choice.startswith("2"):
                     conn.execute("DELETE FROM quiz_results")
                     conn.execute("DELETE FROM students")
                     conn.commit()
-                
-                st.session_state['del_msg'] = "🎉 لیست تمامی دانش‌آموزان و کلیه سوابق آن‌ها با موفقیت به طور کامل پاکسازی گردید."
+                st.success("🎉 لیست تمامی دانش‌آموزان و کلیه سوابق آن‌ها با موفقیت به طور کامل پاکسازی گردید.")
                 st.rerun()
         else:
-            st.info("دانش‌آموزی جهت حذف در دیتابیس وجود ندارد.")
+            st.info("دانش‌آموزی جهت حذف وجود ندارد.")
 
     with tab4:
         st.subheader("📊 بارگذاری دسته‌جمعی ۲۹ دانش‌آموز از فایل اکسل (در ۱ ثانیه)")
         st.info("فایل اکسل باید شامل ستون‌های 'نام'، 'نام خانوادگی'، 'کد ملی'، 'شماره همراه اولیا' و 'گروه کلاسی' باشد.")
-
-        with st.expander("🗑️ ابزار پاکسازی سریع اسامی قبلی پیش از آپلود فایل جدید", expanded=False):
-            st.warning("اگر قصد دارید تمام اسامی قبلی را پاک کرده و فایل جدید جایگزین کنید، از دکمه زیر استفاده نمایید:")
-            if st.button("💥 پاکسازی فوری دیتابیس و حذف اسامی قبلی", key="btn_quick_reset_excel"):
-                with get_connection() as conn:
-                    conn.execute("DELETE FROM evaluations")
-                    conn.execute("DELETE FROM behaviors")
-                    conn.execute("DELETE FROM quiz_results")
-                    conn.execute("DELETE FROM students")
-                    conn.commit()
-                st.success("🎉 تمامی اسامی و سوابق قبلی با موفقیت پاک شدند. اکنون می‌توانید فایل جدید اکسل را بارگذاری نمایید.")
-                st.rerun()
 
         sample_df = pd.DataFrame([
             {"نام": "امیرعلی", "نام خانوادگی": "احمدی", "کد ملی": "1001112233", "رمز اختصاصی": "1234", "شماره همراه اولیا": "09181111111", "گروه کلاسی": "گروه ارمغان 🚀"},
@@ -1138,17 +1287,8 @@ elif menu_choice.startswith("2"):
                 st.success(f"فایل با موفقیت خوانده شد. تعداد {len(df_up)} دانش‌آموز پیدا شد.")
                 st.dataframe(df_up, use_container_width=True)
 
-                auto_clear = st.checkbox("☑️ پاکسازی و حذف کامل اسامی قبلی پیش از ذخیره اسامی اکسل جدید", value=True, key="auto_clear_before_excel")
-
                 if st.button("⚡ بارگذاری و ذخیره تمام اسامی در دیتابیس"):
                     with get_connection() as conn:
-                        if auto_clear:
-                            conn.execute("DELETE FROM evaluations")
-                            conn.execute("DELETE FROM behaviors")
-                            conn.execute("DELETE FROM quiz_results")
-                            conn.execute("DELETE FROM students")
-                            conn.commit()
-
                         added_count = 0
                         shamsi_today = get_current_shamsi_date()
                         for _, row in df_up.iterrows():
@@ -1204,7 +1344,6 @@ elif menu_choice.startswith("2"):
                         st.error("کد ملی تکراری است.")
                 else:
                     st.warning("لطفاً نام و نام خانوادگی را وارد کنید.")
-
 # ---------------------------------------------------------
 # 3. QUALITATIVE EVALUATION (TEACHER ONLY)
 # ---------------------------------------------------------
