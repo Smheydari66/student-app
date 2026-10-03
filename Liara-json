@@ -1,0 +1,5 @@
+{
+  "platform": "python",
+  "port": 8501,
+  "python": { "version": "3.12" }
+}
