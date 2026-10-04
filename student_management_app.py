@@ -136,12 +136,28 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# Database Initialization & Unified Migration Manager
+# Database Initialization & Auto Schema Migration (Liara Compatible)
 # ---------------------------------------------------------
-DB_FILE = "class_management.db"
+DB_NAME = "class_management.db"
+_app_dir = os.path.dirname(os.path.abspath(__file__))
+_local_db = os.path.join(_app_dir, DB_NAME)
+
+try:
+    _test_file = os.path.join(_app_dir, ".perm_test")
+    with open(_test_file, "w") as _f:
+        _f.write("1")
+    os.remove(_test_file)
+    DB_FILE = _local_db
+except Exception:
+    DB_FILE = os.path.join(tempfile.gettempdir(), DB_NAME)
 
 def get_connection():
-    conn = sqlite3.connect(DB_FILE)
+    _dir = os.path.dirname(DB_FILE)
+    if _dir and not os.path.exists(_dir):
+        os.makedirs(_dir, exist_ok=True)
+    conn = sqlite3.connect(DB_FILE, timeout=30)
+    conn.row_factory = sqlite3.Row
+    return conn
     conn.row_factory = sqlite3.Row
     return conn
 
