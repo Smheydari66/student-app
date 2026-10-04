@@ -1,5 +1,18 @@
 {
   "platform": "python",
   "port": 8501,
-  "python": { "version": "3.12" }
+  "python": {
+    "version": "3.12"
+  },
+  "app": {
+    "args": [
+      "streamlit",
+      "run",
+      "student_management_app.py",
+      "--server.port",
+      "8501",
+      "--server.address",
+      "0.0.0.0"
+    ]
+  }
 }
