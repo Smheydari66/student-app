@@ -1580,22 +1580,25 @@ elif menu_choice.startswith("7"):
                     SELECT q.title AS 'عنوان آزمون', q.subject AS 'درس', r.score AS 'نمره تستی', r.total_questions AS 'کل سوالات تستی', r.percentage AS 'درصد ٪', r.submitted_at AS 'زمان ثبت (شمسی)', r.photo_data
                     FROM quiz_results r JOIN quizzes q ON r.quiz_id = q.id WHERE r.student_id = ? ORDER BY r.id DESC
                 """, conn, params=(s_id,))
-            if not df_q.empty:
+            
+            if df_q.empty:
+                st.info("نتیجه آزمونی برای این دانش‌آموز ثبت نشده است.")
+            else:
                 show_df = df_q.drop(columns=['photo_data'], errors='ignore')
                 st.dataframe(show_df, use_container_width=True, hide_index=True)
-                
+
                 st.markdown("##### 📸 تصاویر ثبت‌شده چهره در زمان تحویل آزمون‌ها:")
                 for _, r_row in df_q.iterrows():
                     if r_row['photo_data']:
                         st.image(r_row['photo_data'], caption=f"آزمون: {r_row['عنوان آزمون']} | درصد: {r_row['درصد ٪']:.1f}٪ | زمان: {r_row['زمان ثبت (شمسی)']}", width=180)
-                
+
                 st.markdown("##### 📈 نمودار رشد نمرات آزمون‌ها:")
-                df_chart = safe_read_sql("""
-                    SELECT q.title AS 'آزمون', r.percentage AS 'درصد'
-                    FROM quiz_results r JOIN quizzes q ON r.quiz_id = q.id 
-                    WHERE r.student_id = ? ORDER BY r.id ASC
-                """, conn, params=(s_id,))
+                with get_connection() as conn:
+                    df_chart = safe_read_sql("""
+                        SELECT q.title AS 'آزمون', r.percentage AS 'درصد'
+                        FROM quiz_results r JOIN quizzes q ON r.quiz_id = q.id
+                        WHERE r.student_id = ? ORDER BY r.id ASC
+                    """, conn, params=(s_id,))
                 if not df_chart.empty:
                     st.line_chart(df_chart.set_index('آزمون'))
-            else:
-   st.info("نتیجه آزمونی برای این دانش‌آموز ثبت نشده است .")
+
