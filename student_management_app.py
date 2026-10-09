@@ -215,10 +215,29 @@ st.markdown("""
 # ---------------------------------------------------------
 # Database Initialization & Auto Schema Migration
 # ---------------------------------------------------------
-DB_FILE = "class_management.db"
+DB_NAME = "class_management.db"
+
+def resolve_db_filepath():
+    try:
+        app_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
+        test_file = os.path.join(app_dir, ".perm_test")
+        with open(test_file, "w") as f:
+            f.write("1")
+        os.remove(test_file)
+        return os.path.join(app_dir, DB_NAME)
+    except Exception:
+        return os.path.join(tempfile.gettempdir(), DB_NAME)
+
+DB_FILE = resolve_db_filepath()
 
 def get_connection():
-    conn = sqlite3.connect(DB_FILE)
+    db_dir = os.path.dirname(DB_FILE)
+    if db_dir and not os.path.exists(db_dir):
+        try:
+            os.makedirs(db_dir, exist_ok=True)
+        except Exception:
+            pass
+    conn = sqlite3.connect(DB_FILE, timeout=30)
     conn.row_factory = sqlite3.Row
     return conn
 
