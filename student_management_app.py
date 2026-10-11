@@ -57,11 +57,8 @@ st.markdown("""
     /* Global Typography - Targeted to prevent breaking Streamlit Icon Fonts */
     html, body, .stApp, .stMarkdown, p, h1, h2, h3, h4, h5, h6, input, select, textarea, button, label {
         font-family: 'Vazirmatn', Tahoma, sans-serif !important;
-        direction: rtl !important;
-        text-align: right !important;
-        word-break: keep-all !important;
-        word-wrap: normal !important;
-        writing-mode: horizontal-tb !important;
+        direction: rtl;
+        text-align: right;
     }
 
     .stApp {
@@ -94,7 +91,7 @@ st.markdown("""
         word-break: keep-all !important;
     }
 
-    /* Card Boxes */
+    /* Card Boxes (v58 Style) */
     .card-box {
         background: rgba(30, 41, 59, 0.9);
         border: 1px solid rgba(255, 255, 255, 0.15);
@@ -116,37 +113,70 @@ st.markdown("""
         box-shadow: 0 6px 16px rgba(0,0,0,0.25);
     }
 
-    /* Targeted Sidebar Styling & Fix for Pin/Menu Mangling */
+    /* Sidebar Navigation (v58 Fast & Stylish) */
     section[data-testid="stSidebar"] {
         background-color: #0f172a !important;
         border-left: 2px solid #1e293b !important;
     }
 
-    section[data-testid="stSidebar"] * {
-        word-break: keep-all !important;
-        word-wrap: normal !important;
-        writing-mode: horizontal-tb !important;
+    section[data-testid="stSidebar"] div[role="radiogroup"] {
+        gap: 8px !important;
     }
 
-    section[data-testid="stSidebar"] h1,
-    section[data-testid="stSidebar"] h2,
-    section[data-testid="stSidebar"] h3,
-    section[data-testid="stSidebar"] h4,
-    section[data-testid="stSidebar"] p,
-    section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] span {
-        direction: rtl !important;
-        text-align: right !important;
+    section[data-testid="stSidebar"] div[role="radiogroup"] label {
+        background-color: rgba(30, 41, 59, 0.85) !important;
+        color: #ffffff !important;
+        padding: 12px 16px !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+        background-color: #2563eb !important;
+        border-color: #60a5fa !important;
+        transform: translateX(-3px);
+    }
+
+    section[data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+        border: 2px solid #60a5fa !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+    }
+
+    section[data-testid="stSidebar"] div[role="radiogroup"] label p {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 1.02rem !important;
         white-space: nowrap !important;
         word-break: keep-all !important;
-        writing-mode: horizontal-tb !important;
-        display: block !important;
-        width: 100% !important;
+        margin: 0 !important;
     }
 
-    section[data-testid="stSidebar"] a.header-anchor,
-    section[data-testid="stSidebar"] .anchor-link {
-        display: none !important;
+    /* Buttons */
+    .stButton > button {
+        width: 100% !important;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+        color: #ffffff !important;
+        border-radius: 10px !important;
+        padding: 10px 18px !important;
+        font-weight: bold !important;
+        border: none !important;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3) !important;
+        transition: all 0.3s ease !important;
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+    }
+
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4) !important;
     }
 
     /* Input Controls */
@@ -176,6 +206,14 @@ st.markdown("""
     li[role="option"]:hover {
         background-color: #0284c7 !important;
         color: #ffffff !important;
+    }
+
+    div[data-testid="stRadio"] div[role="radiogroup"] label p {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -1265,8 +1303,9 @@ def on_sidebar_menu_change():
 
 # Main Area Menu Card (100% Responsive for Mobile & Desktop)
 st.markdown("""
-<div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 16px; border-radius: 12px; border: 2px solid #3b82f6; margin-bottom: 20px;">
-    <div style="background: rgba(30, 41, 59, 0.95); padding: 10px 14px; border-radius: 10px; border: 1px solid #3b82f6; text-align: right; direction: rtl; margin-bottom: 10px; white-space: nowrap; overflow: hidden;"><span style="font-size: 1.1rem; font-weight: bold; color: #60a5fa;">📌 منوی دسترسی و انتقال بین بخش‌های سامانه</span></div>
+<div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 14px 18px; border-radius: 12px; border: 2px solid #3b82f6; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+    <span style="font-size: 1.25rem;">📌</span>
+    <span style="font-size: 1.08rem; font-weight: bold; color: #60a5fa; white-space: nowrap;">منوی دسترسی و انتقال بین بخش‌های سامانه:</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1280,11 +1319,13 @@ st.selectbox(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.markdown('''
-<div style="background: rgba(30, 41, 59, 0.95); padding: 10px 14px; border-radius: 10px; border: 1px solid #3b82f6; text-align: right; direction: rtl; margin-bottom: 10px; white-space: nowrap; overflow: hidden;">
-    <span style="font-size: 1.05rem; font-weight: bold; color: #fbbf24;">📌 منوی مدیریت سامانه</span>
+st.sidebar.markdown("""
+<div style="background: rgba(30, 41, 59, 0.95); padding: 12px 16px; border-radius: 10px; border: 1px solid #3b82f6; text-align: right; direction: rtl; margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
+    <span style="font-size: 1.2rem;">📌</span>
+    <span style="font-size: 1.05rem; font-weight: bold; color: #fbbf24; white-space: nowrap;">منوی مدیریت سامانه</span>
 </div>
-''', unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
 st.sidebar.selectbox(
     "انتخاب بخش از نوار کنار:",
     MENU_OPTIONS,
@@ -1573,26 +1614,28 @@ elif menu_choice.startswith("2"):
                         st.error(f"خطا در بازیابی: {e}")
 
 # ---------------------------------------------------------
+# ---------------------------------------------------------
 # 3. QUALITATIVE EVALUATION (TEACHER ONLY)
 # ---------------------------------------------------------
 elif menu_choice.startswith("3"):
     check_teacher_auth()
-    st.header("📝 ثبت و گزارش‌گیری ارزشیابی کیفی-توصیفی ۷ درس")
+    st.header("📝 ثبت و مدیریت ارزشیابی کیفی-توصیفی ۷ درس پایه پنجم")
     
     students_df = load_students()
     if students_df.empty:
         st.warning("لطفاً ابتدا اسامی دانش‌آموزان را ثبت کنید.")
     else:
-        tab_ev1, tab_ev2, tab_ev3 = st.tabs([
+        tab_ev1, tab_ev2, tab_ev3, tab_ev4 = st.tabs([
             "➕ ثبت ارزشیابی فردی (تکی)",
             "⚡ ثبت سریع و یکجای ارزشیابی کل کلاس (۲۹ نفر)",
-            "📊 گزارش جامع کلاسی و آنالیز ارزشیابی‌ها"
+            "📊 گزارش جامع کلاسی و آنالیز ارزشیابی‌ها",
+            "🛠️ پاکسازی تکراری‌ها و مدیریت حذف ارزشیابی‌ها"
         ])
         
-        # TAB 1: INDIVIDUAL EVALUATION FORM
+        # TAB 1: INDIVIDUAL EVALUATION FORM (With clear_on_submit)
         with tab_ev1:
             st.subheader("➕ ثبت ارزشیابی توصیفی برای یک دانش‌آموز")
-            with st.form("single_student_eval_form"):
+            with st.form("single_student_eval_form", clear_on_submit=True):
                 col1, col2 = st.columns(2)
                 with col1:
                     selected_student = st.selectbox("انتخاب دانش‌آموز:*", students_df['full_name'].tolist(), key="ev_st_sel")
@@ -1612,7 +1655,7 @@ elif menu_choice.startswith("3"):
                             (s_id, selected_subject, selected_level, feedback_text.strip(), eval_date.strip())
                         )
                         conn.commit()
-                    st.success(f"🎉 ارزشیابی درس '{selected_subject}' برای '{selected_student}' با موفقیت در دیتابیس ثبت شد.")
+                    st.success(f"🎉 ارزشیابی درس '{selected_subject}' برای '{selected_student}' با موفقیت در دیتابیس ثبت شد. (اکنون می‌توانید دانش‌آموز بعدی را انتخاب کنید)")
                     st.rerun()
 
             st.markdown("---")
@@ -1620,18 +1663,18 @@ elif menu_choice.startswith("3"):
             s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
             with get_connection() as conn:
                 eval_h = safe_read_sql("""
-                    SELECT subject AS 'عنوان درس', level AS 'سطح توصیفی', feedback AS 'توصیف عملکرد معلم', eval_date AS 'تاریخ'
+                    SELECT id, subject AS 'عنوان درس', level AS 'سطح توصیفی', feedback AS 'توصیف عملکرد معلم', eval_date AS 'تاریخ'
                     FROM evaluations WHERE student_id = ? ORDER BY id DESC
                 """, conn, params=(s_id,))
             if not eval_h.empty:
-                st.dataframe(eval_h, use_container_width=True, hide_index=True)
+                st.dataframe(eval_h.drop(columns=['id']), use_container_width=True, hide_index=True)
             else:
                 st.info("سابقه‌ای برای این دانش‌آموز یافت نشد.")
 
-        # TAB 2: BATCH CLASSROOM EVALUATION (ALL 29 STUDENTS AT ONCE)
+        # TAB 2: BATCH CLASSROOM EVALUATION (AUTOMATIC OVERWRITE OF DUPLICATES)
         with tab_ev2:
             st.subheader("⚡ ثبت سریع و یکجای ارزشیابی برای تمام دانش‌آموزان کلاس")
-            st.info("💡 در این بخش می‌توانید نتیجه یک امتحان یا ارزشیابی کلاسی (مثلاً امتحان ریاضی دیروز) را برای تمام ۲۹ دانش‌آموز در ۱ ثانیه یکجا ثبت نمایید.")
+            st.info("💡 در این بخش می‌توانید نتیجه یک امتحان یا ارزشیابی کلاسی را برای تمام ۲۹ دانش‌آموز در ۱ ثانیه یکجا ثبت نمایید. (ارزشیابی‌های قبلی این درس و تاریخ به صورت اتوماتیک به‌روزرسانی می‌شوند تا تکراری ایجاد نشود)")
             
             col_b1, col_b2 = st.columns(2)
             with col_b1:
@@ -1661,6 +1704,9 @@ elif menu_choice.startswith("3"):
                 if submit_batch:
                     saved_count = 0
                     with get_connection() as conn:
+                        # Delete previous evaluations for this exact subject & date to prevent duplicate multiplication
+                        conn.execute("DELETE FROM evaluations WHERE subject = ? AND eval_date = ?", (batch_subject, batch_date.strip()))
+                        
                         for st_id, (st_name, lvl, fb) in batch_inputs.items():
                             conn.execute(
                                 "INSERT INTO evaluations (student_id, subject, level, feedback, eval_date) VALUES (?, ?, ?, ?, ?)",
@@ -1684,9 +1730,9 @@ elif menu_choice.startswith("3"):
 
             col_rep1, col_rep2 = st.columns(2)
             with col_rep1:
-                rep_subject = st.selectbox("فیلتر درس جهت گزارش کلاسی:", ["همه دروس"] + FIFTH_GRADE_SUBJECTS, key="rep_subj_sel_v98")
+                rep_subject = st.selectbox("فیلتر درس جهت گزارش کلاسی:", ["همه دروس"] + FIFTH_GRADE_SUBJECTS, key="rep_subj_sel_v99")
             with col_rep2:
-                rep_date_sel = st.selectbox("فیلتر تاریخ ارزشیابی:", date_options, key="rep_date_sel_v98")
+                rep_date_sel = st.selectbox("فیلتر تاریخ ارزشیابی:", date_options, key="rep_date_sel_v99")
 
             with get_connection() as conn:
                 query = """
@@ -1747,6 +1793,83 @@ elif menu_choice.startswith("3"):
             else:
                 st.info("هیچ ارزشیابی‌ای با فیلترهای انتخابی یافت نشد.")
 
+        # TAB 4: CLEANUP & DELETE DUPES / MANAGE EVALUATIONS
+        with tab_ev4:
+            st.subheader("🛠️ ابزارهای پاکسازی ارزشیابی‌های تکراری و حذف داده‌های اضافی")
+            
+            # Tool 1: Deduplicate Clean Up Button
+            st.markdown("""
+            <div style="background: rgba(30, 58, 138, 0.4); border: 1px solid #3b82f6; border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+                <h4 style="color: #60a5fa; margin-top: 0;">🧹 ۱. پاکسازی هوشمند و یکجای موارد تکراری (Deduplicate)</h4>
+                <p style="font-size: 0.95rem; color: #f8fafc;">اگر هنگام ثبت کلیک‌های چندباره زده‌اید و برای هر دانش‌آموز چند ارزشیابی تکراری ثبت شده است، دکمه زیر تمام موارد تکراری را شناسایی و پاک می‌کند و از هر دانش‌آموز فقط ۱ ارزشیابی نهایی را نگه می‌دارد:</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            if st.button("🧹 پاکسازی هوشمند و حذف تمام ارزشیابی‌های تکراری", key="btn_dedup_evals"):
+                with get_connection() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        DELETE FROM evaluations 
+                        WHERE id NOT IN (
+                            SELECT MAX(id) 
+                            FROM evaluations 
+                            GROUP BY student_id, subject, eval_date
+                        )
+                    """)
+                    deleted_cnt = cursor.rowcount
+                    conn.commit()
+                st.balloons()
+                st.success(f"🎉 پاکسازی انجام شد! تعداد {deleted_cnt} مورد ارزشیابی تکراری با موفقیت حذف گردید و فقط ۱ ارزشیابی نهایی باقی ماند.")
+                st.rerun()
+
+            st.markdown("---")
+            
+            # Tool 2: Bulk Delete Evaluations by Date & Subject
+            st.markdown("##### 🗑️ ۲. حذف دسته‌جمعی تمام ارزشیابی‌های یک تاریخ و درس خاص:")
+            col_del1, col_del2 = st.columns(2)
+            with col_del1:
+                del_subj = st.selectbox("انتخاب درس جهت حذف کامل:", FIFTH_GRADE_SUBJECTS, key="del_subj_sel")
+            with col_del2:
+                del_date = st.text_input("تاریخ ارزشیابی جهت حذف (شمسی):", value=get_current_shamsi_date(), key="del_date_inp")
+
+            with get_connection() as conn:
+                count_to_del = conn.execute("SELECT COUNT(*) FROM evaluations WHERE subject = ? AND eval_date = ?", (del_subj, del_date.strip())).fetchone()[0]
+
+            st.warning(f"تعداد {count_to_del} ارزشیابی برای درس '{del_subj}' در تاریخ '{del_date}' پیدا شد.")
+            if st.button(f"🗑️ حذف یکجای تمام {count_to_del} ارزشیابی درس '{del_subj}' در تاریخ '{del_date}'", key="btn_del_batch_evals", disabled=(count_to_del == 0)):
+                with get_connection() as conn:
+                    conn.execute("DELETE FROM evaluations WHERE subject = ? AND eval_date = ?", (del_subj, del_date.strip()))
+                    conn.commit()
+                st.success(f"🎉 تمام ارزشیابی‌های درس '{del_subj}' در تاریخ '{del_date}' با موفقیت پاکسازی شدند.")
+                st.rerun()
+
+            st.markdown("---")
+            
+            # Tool 3: Individual Delete Row
+            st.markdown("##### ❌ ۳. حذف تکی یک ارزشیابی از دیتابیس:")
+            with get_connection() as conn:
+                df_all_ev = safe_read_sql("""
+                    SELECT e.id, s.first_name || ' ' || s.last_name AS full_name, e.subject, e.level, e.eval_date
+                    FROM evaluations e
+                    JOIN students s ON e.student_id = s.id
+                    ORDER BY e.id DESC LIMIT 50
+                """, conn)
+            
+            if not df_all_ev.empty:
+                ev_options = [f"{row['id']} - {row['full_name']} ({row['subject']} - {row['level']} - {row['eval_date']})" for _, row in df_all_ev.iterrows()]
+                sel_single_del = st.selectbox("انتخاب ارزشیابی جهت حذف تکی:", ev_options, key="sel_single_ev_del")
+                single_ev_id = int(sel_single_del.split(" - ")[0])
+                
+                if st.button("❌ حذف این ارزشیابی تکی", key="btn_single_ev_del_exec"):
+                    with get_connection() as conn:
+                        conn.execute("DELETE FROM evaluations WHERE id = ?", (single_ev_id,))
+                        conn.commit()
+                    st.success("ارزشیابی مورد نظر با موفقیت حذف شد.")
+                    st.rerun()
+
+# ---------------------------------------------------------
+# 4. BEHAVIOR & DISCIPLINE (TEACHER ONLY)
+# ---------------------------------------------------------
 elif menu_choice.startswith("4"):
     check_teacher_auth()
     st.header("🌟 مدیریت رفتار و مشاهدات انضباطی")
