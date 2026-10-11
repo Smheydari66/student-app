@@ -224,6 +224,11 @@ st.markdown("""
 DB_NAME = "class_management.db"
 
 def resolve_db_filepath():
+    # 1. Check Liara Persistent Disk mount (/data)
+    if os.path.exists("/data") and os.access("/data", os.W_OK):
+        return "/data/class_management.db"
+    
+    # 2. Check if current app directory is writable
     try:
         app_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
         test_file = os.path.join(app_dir, ".perm_test")
@@ -232,7 +237,10 @@ def resolve_db_filepath():
         os.remove(test_file)
         return os.path.join(app_dir, DB_NAME)
     except Exception:
-        return os.path.join(tempfile.gettempdir(), DB_NAME)
+        pass
+
+    # 3. Fallback to temp directory
+    return os.path.join(tempfile.gettempdir(), DB_NAME)
 
 DB_FILE = resolve_db_filepath()
 
@@ -1178,23 +1186,39 @@ if st.session_state['show_welcome_page']:
     st.stop()
 
 # ---------------------------------------------------------
-# TOP APP HEADER & AUTH BAR
+# TOP APP HEADER & AUTH BAR (Clean Mobile & Desktop Layout)
 # ---------------------------------------------------------
 curr_shamsi = get_current_shamsi_date()
+
 st.markdown(f"""
 <div class="main-header">
-    <h2>🎓 سامانه هوشمند مدیریت کلاس و آزمون آنلاین — پایه پنجم ابتدایی</h2>
-    <p>دبستان شهید مطهری مهران | آموزگار: سید موسی حیدری | تاریخ امروز: {curr_shamsi}</p>
+    <h2 style="font-size: 1.35rem; margin-bottom: 6px;">🎓 سامانه هوشمند مدیریت کلاس و آزمون آنلاین — پایه پنجم ابتدایی</h2>
+    <p style="font-size: 1.05rem;">دبستان شهید مطهری مهران | آموزگار: <b>سید موسی حیدری</b> | 📅 امروز: <b>{curr_shamsi}</b></p>
 </div>
 """, unsafe_allow_html=True)
 
-# Navigation & Login Header Bar
-col_h1, col_h2, col_h3 = st.columns([2, 2, 1])
+# Clean, Responsive Login Container
+st.markdown("""
+<style>
+    .auth-card-box {
+        background: rgba(30, 41, 59, 0.95);
+        border: 2px solid #3b82f6;
+        border-radius: 14px;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+</style>
+""", unsafe_allow_html=True)
 
-with col_h1:
+st.markdown('<div class="auth-card-box">', unsafe_allow_html=True)
+
+col_a1, col_a2 = st.columns([3, 1])
+
+with col_a1:
     role_choice = st.radio(
-        "👤 نقش کاربری جهت ورود:",
-        ["دانش‌آموز (ورود عمومی)", "معلم / آموزگار (مدیریت)"],
+        "👤 انتخاب نقش کاربری جهت ورود به سامانه:",
+        ["دانش‌آموز و اولیا (ورود عمومی 👨‍🎓)", "آموزگار پایه پنجم (پنل مدیریت 👨‍🏫)"],
         horizontal=True,
         key="role_radio"
     )
@@ -1204,37 +1228,37 @@ with col_h1:
     else:
         st.session_state['user_role'] = 'معلم'
 
-with col_h2:
-    if st.session_state['user_role'] == 'معلم':
-        if not st.session_state['is_teacher_logged_in']:
-            st.markdown("<div style='margin-bottom: 4px; font-weight: bold;'>🔑 رمز عبور آموزگار را وارد کنید:</div>", unsafe_allow_html=True)
-            pass_input = st.text_input("رمز:", type="password", key="top_pass_input", label_visibility="collapsed")
-            if pass_input:
+with col_a2:
+    if st.button("🏠 صفحه خوش‌آمدگویی", key="btn_welcome_nav"):
+        st.session_state['show_welcome_page'] = True
+        st.rerun()
+
+# Password input box when Teacher Role is selected
+if st.session_state['user_role'] == 'معلم':
+    st.markdown("<hr style='border-color: rgba(255,255,255,0.1); margin: 12px 0;'>", unsafe_allow_html=True)
+    if not st.session_state['is_teacher_logged_in']:
+        col_p1, col_p2 = st.columns([3, 1])
+        with col_p1:
+            pass_input = st.text_input("🔑 رمز عبور آموزگار را وارد کنید:", type="password", key="top_pass_input", placeholder="رمز عبور پیش‌فرض: 1234")
+        with col_p2:
+            st.write("&nbsp;")
+            if st.button("ورود به پنل معلم 🔓", key="btn_login_submit"):
                 if check_teacher_password(pass_input):
                     st.session_state['is_teacher_logged_in'] = True
                     st.success("🔓 ورود موفقیت‌آمیز آموزگار!")
                     st.rerun()
                 else:
                     st.error("❌ رمز عبور اشتباه است.")
-        else:
-            st.success("🟢 آموزگار وارد شده است")
-            with st.popover("🔐 تغییر رمز عبور آموزگار"):
-                old_p = st.text_input("رمز فعلی:", type="password", key="old_p")
-                new_p = st.text_input("رمز جدید:", type="password", key="new_p")
-                if st.button("ذخیره رمز جدید"):
-                    if check_teacher_password(old_p):
-                        if new_p:
-                            update_teacher_password(new_p)
-                            st.success("رمز عبور با موفقیت تغییر یافت.")
-                        else:
-                            st.warning("رمز جدید نمی‌تواند خالی باشد.")
-                    else:
-                        st.error("رمز فعلی نادرست است.")
+    else:
+        col_l1, col_l2 = st.columns([3, 1])
+        with col_l1:
+            st.success("🟢 پنل مدیریت آموزگار فعال است (سید موسی حیدری)")
+        with col_l2:
+            if st.button("خروج از پنل معلم 🔒", key="btn_logout"):
+                st.session_state['is_teacher_logged_in'] = False
+                st.rerun()
 
-with col_h3:
-    if st.button("🏠 صفحه خوش‌آمدگویی"):
-        st.session_state['show_welcome_page'] = True
-        st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -1342,12 +1366,13 @@ elif menu_choice.startswith("2"):
     check_teacher_auth()
     st.header("👨‍🎓 مدیریت پرونده دانش‌آموزان و گروه‌بندی (۲۹ نفر)")
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab_backup = st.tabs([
         "📋 لیست دانش‌آموزان و گروه‌ها",
         "✏️ ویرایش کامل اطلاعات دانش‌آموز",
         "🗑️ حذف پرونده دانش‌آموز",
         "📊 ثبت دسته‌جمعی از اکسل",
-        "➕ ثبت دانش‌آموز جدید (تکی)"
+        "➕ ثبت دانش‌آموز جدید (تکی)",
+        "💾 پشتیبان‌گیری و بازیابی دیتابیس"
     ])
 
     with tab1:
@@ -1541,46 +1566,149 @@ elif menu_choice.startswith("2"):
                 else:
                     st.warning("لطفاً نام و نام خانوادگی را وارد کنید.")
 # ---------------------------------------------------------
+
+    with tab_backup:
+        st.subheader("💾 پشتیبان‌گیری و بازیابی دیتابیس (Backup & Restore)")
+        st.info("💡 جهت جلوگیری از پاک شدن اطلاعات هنگام آپدیت یا ری‌استارت سرور، می‌توانید در هر زمان از کلیه اطلاعات کلاستان یک نسخه پشتیبان دانلود کنید.")
+        
+        col_bk1, col_bk2 = st.columns(2)
+        
+        with col_bk1:
+            st.markdown("##### 📥 دریافت نسخه پشتیبان دیتابیس")
+            if os.path.exists(DB_FILE):
+                with open(DB_FILE, "rb") as f:
+                    db_bytes = f.read()
+                st.download_button(
+                    "📥 دانلود فایل کامل دیتابیس (class_management.db)",
+                    data=db_bytes,
+                    file_name=f"class_management_backup_{get_current_shamsi_date().replace('/', '_')}.db",
+                    mime="application/x-sqlite3"
+                )
+            else:
+                st.warning("فایل دیتابیس هنوز ساخته نشده است.")
+                
+        with col_bk2:
+            st.markdown("##### 📤 بازیابی و آپلود نسخه پشتیبان")
+            uploaded_backup = st.file_uploader("فایل پشتیبان (.db) قبلی را انتخاب کنید:", type=["db"], key="backup_db_uploader")
+            if uploaded_backup is not None:
+                if st.button("⚡ بازیابی و جایگزینی دیتابیس", key="btn_restore_db"):
+                    try:
+                        with open(DB_FILE, "wb") as f:
+                            f.write(uploaded_backup.getbuffer())
+                        st.success("🎉 بازیابی اطلاعات با موفقیت انجام شد! تمامی ارزشیابی‌ها، نمرات و اسامی بازگشتند.")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"خطا در بازیابی: {e}")
+
+# ---------------------------------------------------------
 # 3. QUALITATIVE EVALUATION (TEACHER ONLY)
 # ---------------------------------------------------------
 elif menu_choice.startswith("3"):
     check_teacher_auth()
-    st.header("📝 ثبت ارزشیابی کیفی-توصیفی ۷ درس پایه پنجم")
+    st.header("📝 ثبت و گزارش‌گیری ارزشیابی کیفی-توصیفی ۷ درس")
     
     students_df = load_students()
     if students_df.empty:
         st.warning("لطفاً ابتدا اسامی دانش‌آموزان را ثبت کنید.")
     else:
-        col1, col2 = st.columns(2)
-        with col1:
-            selected_student = st.selectbox("انتخاب دانش‌آموز:", students_df['full_name'].tolist())
-            selected_subject = st.selectbox("عنوان درس:", FIFTH_GRADE_SUBJECTS)
-        with col2:
-            selected_level = st.selectbox("سطح عملکرد توصیفی:", EVALUATION_LEVELS)
-            eval_date = st.text_input("تاریخ ارزشیابی (شمسی):", value=get_current_shamsi_date())
-            
-        feedback_text = st.text_area("بازخورد توصیفی و توصیه‌های آموزگار:", placeholder="مثلاً: در محاسبات کسرها عملکرد عالی دارد، نیاز به تمرین در ضرب اعشاری دارد.")
+        tab_ev1, tab_ev2 = st.tabs([
+            "➕ ثبت ارزشیابی توصیفی جدید",
+            "📊 گزارش جامع کلاسی و آنالیز آزمون/ارزشیابی (کل ۲۹ نفر)"
+        ])
         
-        if st.button("ثبت ارزشیابی توصیفی"):
+        with tab_ev1:
+            col1, col2 = st.columns(2)
+            with col1:
+                selected_student = st.selectbox("انتخاب دانش‌آموز:", students_df['full_name'].tolist(), key="ev_st_sel")
+                selected_subject = st.selectbox("عنوان درس:", FIFTH_GRADE_SUBJECTS, key="ev_subj_sel")
+            with col2:
+                selected_level = st.selectbox("سطح عملکرد توصیفی:", EVALUATION_LEVELS, key="ev_lvl_sel")
+                eval_date = st.text_input("تاریخ ارزشیابی (شمسی):", value=get_current_shamsi_date(), key="ev_date_inp")
+                
+            feedback_text = st.text_area("بازخورد توصیفی و توصیه‌های آموزگار:", placeholder="مثلاً: در محاسبات کسرها عملکرد عالی دارد، نیاز به تمرین در ضرب اعشاری دارد.", key="ev_fb_inp")
+            
+            if st.button("💾 ثبت ارزشیابی توصیفی", key="btn_save_eval"):
+                s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
+                with get_connection() as conn:
+                    conn.execute(
+                        "INSERT INTO evaluations (student_id, subject, level, feedback, eval_date) VALUES (?, ?, ?, ?, ?)",
+                        (s_id, selected_subject, selected_level, feedback_text.strip(), eval_date.strip())
+                    )
+                    conn.commit()
+                st.success(f"ارزشیابی {selected_subject} برای {selected_student} با موفقیت ثبت شد.")
+                st.rerun()
+
+            st.markdown("---")
+            st.subheader(f"📋 سوابق ارزشیابی: {selected_student}")
             s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
             with get_connection() as conn:
-                conn.execute(
-                    "INSERT INTO evaluations (student_id, subject, level, feedback, eval_date) VALUES (?, ?, ?, ?, ?)",
-                    (s_id, selected_subject, selected_level, feedback_text.strip(), eval_date.strip())
-                )
-                conn.commit()
-            st.success(f"ارزشیابی {selected_subject} برای {selected_student} با موفقیت ثبت شد.")
+                eval_h = safe_read_sql("""
+                    SELECT subject AS 'عنوان درس', level AS 'سطح توصیفی', feedback AS 'توصیف عملکرد معلم', eval_date AS 'تاریخ'
+                    FROM evaluations WHERE student_id = ? ORDER BY id DESC
+                """, conn, params=(s_id,))
+            if not eval_h.empty:
+                st.dataframe(eval_h, use_container_width=True, hide_index=True)
 
-        st.markdown("---")
-        st.subheader(f"📋 سوابق ارزشیابی: {selected_student}")
-        s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
-        with get_connection() as conn:
-            eval_h = safe_read_sql("""
-                SELECT subject AS 'عنوان درس', level AS 'سطح توصیفی', feedback AS 'توصیف عملکرد معلم', eval_date AS 'تاریخ'
-                FROM evaluations WHERE student_id = ? ORDER BY id DESC
-            """, conn, params=(s_id,))
-        if not eval_h.empty:
-            st.dataframe(eval_h, use_container_width=True, hide_index=True)
+        with tab_ev2:
+            st.subheader("📊 گزارش کلاسی ارزشیابی‌های ثبت‌شده (آنالیز جامع کلاسی)")
+            col_rep1, col_rep2 = st.columns(2)
+            with col_rep1:
+                rep_subject = st.selectbox("فیلتر درس جهت گزارش کلاسی:", ["همه دروس"] + FIFTH_GRADE_SUBJECTS, key="rep_subj_sel")
+            with col_rep2:
+                rep_date = st.text_input("تاریخ ارزشیابی (شمسی):", value=get_current_shamsi_date(), key="rep_date_inp")
+
+            with get_connection() as conn:
+                if rep_subject == "همه دروس":
+                    df_class_eval = safe_read_sql("""
+                        SELECT e.id, s.first_name || ' ' || s.last_name AS full_name, s.student_group, e.subject, e.level, e.feedback, e.eval_date
+                        FROM evaluations e
+                        JOIN students s ON e.student_id = s.id
+                        WHERE e.eval_date = ?
+                        ORDER BY e.id DESC
+                    """, conn, params=(rep_date.strip(),))
+                else:
+                    df_class_eval = safe_read_sql("""
+                        SELECT e.id, s.first_name || ' ' || s.last_name AS full_name, s.student_group, e.subject, e.level, e.feedback, e.eval_date
+                        FROM evaluations e
+                        JOIN students s ON e.student_id = s.id
+                        WHERE e.subject = ? AND e.eval_date = ?
+                        ORDER BY e.id DESC
+                    """, conn, params=(rep_subject, rep_date.strip()))
+
+            if not df_class_eval.empty:
+                total_cnt = len(df_class_eval)
+                vgood_cnt = len(df_class_eval[df_class_eval['level'].str.contains('خیلی خوب')])
+                good_cnt = len(df_class_eval[df_class_eval['level'].str.contains('خوب') & ~df_class_eval['level'].str.contains('خیلی خوب')])
+                accept_cnt = len(df_class_eval[df_class_eval['level'].str.contains('قابل قبول')])
+                need_cnt = len(df_class_eval[df_class_eval['level'].str.contains('نیاز به تلاش')])
+
+                m1, m2, m3, m4, m5 = st.columns(5)
+                m1.metric("کل ارزیابی‌شده:", f"{total_cnt} نفر")
+                m2.metric("خیلی خوب 🌟:", f"{vgood_cnt} نفر")
+                m3.metric("خوب 🟢:", f"{good_cnt} نفر")
+                m4.metric("قابل قبول 🟡:", f"{accept_cnt} نفر")
+                m5.metric("نیاز به تلاش 🔴:", f"{need_cnt} نفر")
+
+                st.markdown("##### 📄 جدول کامل ارزشیابی‌های کلاسی ثبت‌شده:")
+                st.dataframe(df_class_eval.rename(columns={
+                    'full_name': 'نام و نام خانوادگی',
+                    'student_group': 'گروه کلاسی',
+                    'subject': 'درس',
+                    'level': 'سطح کیفی',
+                    'feedback': 'توصیف عملکرد معلم',
+                    'eval_date': 'تاریخ'
+                }), use_container_width=True, hide_index=True)
+
+                col_exp1, col_exp2 = st.columns(2)
+                with col_exp1:
+                    stats_dict = {'total': total_cnt, 'vgood': vgood_cnt, 'good': good_cnt, 'accept': accept_cnt, 'need_work': need_cnt}
+                    records_list = df_class_eval.to_dict('records')
+                    class_pdf = generate_reportlab_class_eval_pdf(rep_subject, rep_date, records_list, stats_dict)
+                    st.download_button("📥 دانلود PDF رسمی گزارش کلاسی (قابل پرینت)", data=class_pdf, file_name=f"class_eval_report_{rep_subject}_{rep_date.replace('/','_')}.pdf", mime="application/pdf")
+                with col_exp2:
+                    st.download_button("📊 دانلود اکسل (CSV) گزارش کلاسی", data=df_class_eval.to_csv(index=False).encode('utf-8-sig'), file_name=f"class_eval_{rep_subject}.csv", mime="text/csv")
+            else:
+                st.info(f"برای درس '{rep_subject}' در تاریخ '{rep_date}' ارزشیابی‌ای یافت نشد.")
 
 # ---------------------------------------------------------
 # 4. BEHAVIOR & DISCIPLINE (TEACHER ONLY)
@@ -2112,5 +2240,3 @@ elif menu_choice.startswith("7"):
                         st.image(r_row['photo_data'], caption=f"آزمون: {r_row['عنوان آزمون']} | درصد: {r_row['درصد ٪']:.1f}٪ | زمان: {r_row['زمان ثبت (شمسی)']}", width=180)
             else:
                 st.info("نتیجه آزمونی ثبت نشده است.")
-
-
