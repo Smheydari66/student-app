@@ -57,8 +57,33 @@ st.markdown("""
     /* Global Typography - Targeted to prevent breaking Streamlit Icon Fonts */
     html, body, .stApp, .stMarkdown, p, h1, h2, h3, h4, h5, h6, input, select, textarea, button, label {
         font-family: 'Vazirmatn', Tahoma, sans-serif !important;
-        direction: rtl;
-        text-align: right;
+        direction: rtl !important;
+        text-align: right !important;
+        word-break: keep-all !important;
+        word-wrap: normal !important;
+        writing-mode: horizontal-tb !important;
+    }
+
+    /* 100% Elimination of Unwanted Column Dividers, Vertical Lines & Sidebar Resizers */
+    div[data-testid="column"], 
+    div[data-testid="stColumn"], 
+    div[data-testid="stHorizontalBlock"],
+    [data-testid="stSidebarResizer"] {
+        border: none !important;
+        border-right: none !important;
+        border-left: none !important;
+        box-shadow: none !important;
+    }
+
+    hr, .stMarkdown hr {
+        border: none !important;
+        height: 1px !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        margin: 8px 0 !important;
+    }
+
+    a.header-anchor, .anchor-link, [data-testid="stHeaderActionElements"] {
+        display: none !important;
     }
 
     .stApp {
@@ -1213,25 +1238,20 @@ st.markdown("""
 
 st.markdown('<div class="auth-card-box">', unsafe_allow_html=True)
 
-col_role, col_welcome = st.columns([3, 1])
+role_choice = st.selectbox(
+    "👤 انتخاب نقش کاربری جهت استفاده از سامانه:",
+    ["👨‍🎓 ورود عمومی دانش‌آموزان و اولیا (مشاهده کارنامه و شرکت در آزمون)", "👨‍🏫 پنل مدیریت آموزگار (ثبت نمرات و مدیریت کلاس)"],
+    key="role_select_box"
+)
+if "دانش‌آموزان" in role_choice:
+    st.session_state['user_role'] = 'دانش‌آموز'
+    st.session_state['is_teacher_logged_in'] = False
+else:
+    st.session_state['user_role'] = 'معلم'
 
-with col_role:
-    role_choice = st.selectbox(
-        "👤 انتخاب نقش کاربری جهت استفاده از سامانه:",
-        ["👨‍🎓 ورود عمومی دانش‌آموزان و اولیا (مشاهده کارنامه و شرکت در آزمون)", "👨‍🏫 پنل مدیریت آموزگار (ثبت نمرات و مدیریت کلاس)"],
-        key="role_select_box"
-    )
-    if "دانش‌آموزان" in role_choice:
-        st.session_state['user_role'] = 'دانش‌آموز'
-        st.session_state['is_teacher_logged_in'] = False
-    else:
-        st.session_state['user_role'] = 'معلم'
-
-with col_welcome:
-    st.write("&nbsp;")
-    if st.button("🏠 خوش‌آمدگویی", key="btn_welcome_nav", use_container_width=True):
-        st.session_state['show_welcome_page'] = True
-        st.rerun()
+if st.button("🏠 بازگشت به صفحه خوش‌آمدگویی", key="btn_welcome_nav", use_container_width=True):
+    st.session_state['show_welcome_page'] = True
+    st.rerun()
 
 # Password input box when Teacher Role is selected
 if st.session_state['user_role'] == 'معلم':
@@ -1615,7 +1635,7 @@ elif menu_choice.startswith("2"):
 
 # ---------------------------------------------------------
 # ---------------------------------------------------------
-# 3. QUALITATIVE EVALUATION (TEACHER ONLY)
+# 3. # QUALITATIVE EVALUATION (TEACHER ONLY)
 # ---------------------------------------------------------
 elif menu_choice.startswith("3"):
     check_teacher_auth()
@@ -1632,7 +1652,7 @@ elif menu_choice.startswith("3"):
             "🛠️ پاکسازی تکراری‌ها و مدیریت حذف ارزشیابی‌ها"
         ])
         
-        # TAB 1: INDIVIDUAL EVALUATION FORM (With clear_on_submit)
+        # TAB 1: INDIVIDUAL EVALUATION FORM
         with tab_ev1:
             st.subheader("➕ ثبت ارزشیابی توصیفی برای یک دانش‌آموز")
             with st.form("single_student_eval_form", clear_on_submit=True):
@@ -1663,60 +1683,78 @@ elif menu_choice.startswith("3"):
             s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
             with get_connection() as conn:
                 eval_h = safe_read_sql("""
-                    SELECT id, subject AS 'عنوان درس', level AS 'سطح توصیفی', feedback AS 'توصیف عملکرد معلم', eval_date AS 'تاریخ'
+                    SELECT subject AS 'عنوان درس', level AS 'سطح توصیفی', feedback AS 'توصیف عملکرد معلم', eval_date AS 'تاریخ'
                     FROM evaluations WHERE student_id = ? ORDER BY id DESC
                 """, conn, params=(s_id,))
             if not eval_h.empty:
-                st.dataframe(eval_h.drop(columns=['id']), use_container_width=True, hide_index=True)
+                st.dataframe(eval_h, use_container_width=True, hide_index=True)
             else:
                 st.info("سابقه‌ای برای این دانش‌آموز یافت نشد.")
 
-        # TAB 2: BATCH CLASSROOM EVALUATION (AUTOMATIC OVERWRITE OF DUPLICATES)
+        # TAB 2: BATCH CLASSROOM EVALUATION (ULTRA-FAST INTERACTIVE DATA EDITOR)
         with tab_ev2:
             st.subheader("⚡ ثبت سریع و یکجای ارزشیابی برای تمام دانش‌آموزان کلاس")
-            st.info("💡 در این بخش می‌توانید نتیجه یک امتحان یا ارزشیابی کلاسی را برای تمام ۲۹ دانش‌آموز در ۱ ثانیه یکجا ثبت نمایید. (ارزشیابی‌های قبلی این درس و تاریخ به صورت اتوماتیک به‌روزرسانی می‌شوند تا تکراری ایجاد نشود)")
+            st.info("💡 در این بخش می‌توانید نتیجه یک امتحان یا ارزشیابی کلاسی (مثلاً امتحان ریاضی دیروز) را برای تمام ۲۹ دانش‌آموز در ۱ ثانیه یکجا ثبت یا به‌روزرسانی نمایید.")
             
-            col_b1, col_b2 = st.columns(2)
+            col_b1, col_b2, col_b3 = st.columns(3)
             with col_b1:
-                batch_subject = st.selectbox("عنوان درس جهت ثبت کلاسی:*", FIFTH_GRADE_SUBJECTS, key="batch_subj_sel")
+                batch_subject = st.selectbox("عنوان درس جهت ثبت کلاسی:*", FIFTH_GRADE_SUBJECTS, key="batch_subj_sel_v100")
             with col_b2:
-                batch_date = st.text_input("تاریخ ارزشیابی کلاسی (شمسی):*", value=get_current_shamsi_date(), key="batch_date_inp")
+                batch_date = st.text_input("تاریخ ارزشیابی کلاسی (شمسی):*", value=get_current_shamsi_date(), key="batch_date_inp_v100")
+            with col_b3:
+                default_lvl = st.selectbox("سطح پیش‌فرض اولیه برای کل کلاس:", EVALUATION_LEVELS, index=0, key="batch_default_lvl_v100")
 
-            st.markdown("##### 📝 لیست ۲۹ دانش‌آموز جهت تعیین سطح و بازخورد:")
-            
-            with st.form("batch_class_eval_form"):
-                batch_inputs = {}
-                for idx, row in students_df.iterrows():
-                    st_id = int(row['id'])
-                    st_name = row['full_name']
-                    st_grp = row['student_group']
+            st.markdown("##### 📝 جدول ۲۹ دانش‌آموز جهت تعیین سطح و بازخورد:")
+            st.caption("💡 می‌توانید سطح کیفی یا بازخورد هر دانش‌آموز را مستقیم در جدول زیر ویرایش کرده و سپس دکمه ثبت یکجا را بزنید:")
+
+            # Prepare Data for DataEditor
+            batch_data = []
+            for idx, row in students_df.iterrows():
+                batch_data.append({
+                    "id": int(row['id']),
+                    "نام و نام خانوادگی": row['full_name'],
+                    "گروه کلاسی": row['student_group'],
+                    "سطح عملکرد کیفی": default_lvl,
+                    "توصیف عملکرد / بازخورد معلم": "عملکرد خوب و منظم در کلاس"
+                })
+
+            df_batch_prep = pd.DataFrame(batch_data)
+
+            edited_df = st.data_editor(
+                df_batch_prep,
+                column_config={
+                    "id": None,
+                    "نام و نام خانوادگی": st.column_config.TextColumn("نام و نام خانوادگی", disabled=True),
+                    "گروه کلاسی": st.column_config.TextColumn("گروه کلاسی", disabled=True),
+                    "سطح عملکرد کیفی": st.column_config.SelectboxColumn("سطح عملکرد کیفی", options=EVALUATION_LEVELS, required=True),
+                    "توصیف عملکرد / بازخورد معلم": st.column_config.TextColumn("توصیف عملکرد / بازخورد معلم")
+                },
+                hide_index=True,
+                use_container_width=True,
+                num_rows="fixed",
+                key="batch_data_editor_v100"
+            )
+
+            if st.button("🚀 💾 ثبت یکجای ارزشیابی تمامی ۲۹ دانش‌آموز کلاس", type="primary", key="btn_save_batch_editor_v100"):
+                with get_connection() as conn:
+                    # Clean previous entries for this exact subject and date to prevent duplicate multiplication
+                    conn.execute("DELETE FROM evaluations WHERE subject = ? AND eval_date = ?", (batch_subject, batch_date.strip()))
                     
-                    st.markdown(f"**{idx+1}. {st_name}** <span style='color:#94a3b8; font-size:0.85rem;'>({st_grp})</span>", unsafe_allow_html=True)
-                    col_st1, col_st2 = st.columns([1, 2])
-                    with col_st1:
-                        lvl = st.selectbox("سطح کیفی:", EVALUATION_LEVELS, index=0, key=f"batch_lvl_{st_id}")
-                    with col_st2:
-                        fb = st.text_input("توصیف/بازخورد معلم (اختیاری):", placeholder="مثلاً: عملکرد عالی، بدون غلط", key=f"batch_fb_{st_id}")
-                    batch_inputs[st_id] = (st_name, lvl, fb)
-                    st.markdown("<hr style='border-color:rgba(255,255,255,0.08); margin: 6px 0;'>", unsafe_allow_html=True)
-
-                submit_batch = st.form_submit_button("🚀 💾 ثبت یکجای ارزشیابی تمام ۲۹ دانش‌آموز کلاس")
-                if submit_batch:
-                    saved_count = 0
-                    with get_connection() as conn:
-                        # Delete previous evaluations for this exact subject & date to prevent duplicate multiplication
-                        conn.execute("DELETE FROM evaluations WHERE subject = ? AND eval_date = ?", (batch_subject, batch_date.strip()))
+                    saved_cnt = 0
+                    for _, row_item in edited_df.iterrows():
+                        st_id_item = int(row_item["id"])
+                        lvl_item = str(row_item["سطح عملکرد کیفی"]).strip()
+                        fb_item = str(row_item["توصیف عملکرد / بازخورد معلم"]).strip() if pd.notna(row_item["توصیف عملکرد / بازخورد معلم"]) else ""
                         
-                        for st_id, (st_name, lvl, fb) in batch_inputs.items():
-                            conn.execute(
-                                "INSERT INTO evaluations (student_id, subject, level, feedback, eval_date) VALUES (?, ?, ?, ?, ?)",
-                                (st_id, batch_subject, lvl, fb.strip(), batch_date.strip())
-                            )
-                            saved_count += 1
-                        conn.commit()
-                    st.balloons()
-                    st.success(f"🎉 ارزشیابی درس '{batch_subject}' در تاریخ '{batch_date}' برای تمامی {saved_count} دانش‌آموز کلاس با موفقیت یکجا ذخیره شد!")
-                    st.rerun()
+                        conn.execute(
+                            "INSERT INTO evaluations (student_id, subject, level, feedback, eval_date) VALUES (?, ?, ?, ?, ?)",
+                            (st_id_item, batch_subject, lvl_item, fb_item, batch_date.strip())
+                        )
+                        saved_cnt += 1
+                    conn.commit()
+
+                st.balloons()
+                st.success(f"🎉 ارزشیابی درس '{batch_subject}' در تاریخ '{batch_date}' برای تمامی {saved_cnt} دانش‌آموز کلاس با موفقیت یکجا ذخیره گردید!")
 
         # TAB 3: COMPREHENSIVE CLASS REPORT & EXPORT
         with tab_ev3:
@@ -1730,9 +1768,9 @@ elif menu_choice.startswith("3"):
 
             col_rep1, col_rep2 = st.columns(2)
             with col_rep1:
-                rep_subject = st.selectbox("فیلتر درس جهت گزارش کلاسی:", ["همه دروس"] + FIFTH_GRADE_SUBJECTS, key="rep_subj_sel_v99")
+                rep_subject = st.selectbox("فیلتر درس جهت گزارش کلاسی:", ["همه دروس"] + FIFTH_GRADE_SUBJECTS, key="rep_subj_sel_v100")
             with col_rep2:
-                rep_date_sel = st.selectbox("فیلتر تاریخ ارزشیابی:", date_options, key="rep_date_sel_v99")
+                rep_date_sel = st.selectbox("فیلتر تاریخ ارزشیابی:", date_options, key="rep_date_sel_v100")
 
             with get_connection() as conn:
                 query = """
@@ -1793,82 +1831,44 @@ elif menu_choice.startswith("3"):
             else:
                 st.info("هیچ ارزشیابی‌ای با فیلترهای انتخابی یافت نشد.")
 
-        # TAB 4: CLEANUP & DELETE DUPES / MANAGE EVALUATIONS
+        # TAB 4: SMART DUPLICATE CLEANUP & RESET
         with tab_ev4:
-            st.subheader("🛠️ ابزارهای پاکسازی ارزشیابی‌های تکراری و حذف داده‌های اضافی")
-            
-            # Tool 1: Deduplicate Clean Up Button
-            st.markdown("""
-            <div style="background: rgba(30, 58, 138, 0.4); border: 1px solid #3b82f6; border-radius: 12px; padding: 18px; margin-bottom: 20px;">
-                <h4 style="color: #60a5fa; margin-top: 0;">🧹 ۱. پاکسازی هوشمند و یکجای موارد تکراری (Deduplicate)</h4>
-                <p style="font-size: 0.95rem; color: #f8fafc;">اگر هنگام ثبت کلیک‌های چندباره زده‌اید و برای هر دانش‌آموز چند ارزشیابی تکراری ثبت شده است، دکمه زیر تمام موارد تکراری را شناسایی و پاک می‌کند و از هر دانش‌آموز فقط ۱ ارزشیابی نهایی را نگه می‌دارد:</p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            if st.button("🧹 پاکسازی هوشمند و حذف تمام ارزشیابی‌های تکراری", key="btn_dedup_evals"):
-                with get_connection() as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("""
-                        DELETE FROM evaluations 
-                        WHERE id NOT IN (
-                            SELECT MAX(id) 
-                            FROM evaluations 
-                            GROUP BY student_id, subject, eval_date
-                        )
-                    """)
-                    deleted_cnt = cursor.rowcount
-                    conn.commit()
-                st.balloons()
-                st.success(f"🎉 پاکسازی انجام شد! تعداد {deleted_cnt} مورد ارزشیابی تکراری با موفقیت حذف گردید و فقط ۱ ارزشیابی نهایی باقی ماند.")
-                st.rerun()
+            st.subheader("🛠️ مدیریت حذف و پاکسازی هوشمند ارزشیابی‌ها")
+            st.info("💡 اگر به دلیل کلیک چندباره، نمرات یا ارزشیابی‌های تکراری در دیتابیس ذخیره شده است، از دکمه زیر برای پاکسازی اتوماتیک استفاده کنید.")
 
-            st.markdown("---")
-            
-            # Tool 2: Bulk Delete Evaluations by Date & Subject
-            st.markdown("##### 🗑️ ۲. حذف دسته‌جمعی تمام ارزشیابی‌های یک تاریخ و درس خاص:")
-            col_del1, col_del2 = st.columns(2)
-            with col_del1:
-                del_subj = st.selectbox("انتخاب درس جهت حذف کامل:", FIFTH_GRADE_SUBJECTS, key="del_subj_sel")
-            with col_del2:
-                del_date = st.text_input("تاریخ ارزشیابی جهت حذف (شمسی):", value=get_current_shamsi_date(), key="del_date_inp")
-
-            with get_connection() as conn:
-                count_to_del = conn.execute("SELECT COUNT(*) FROM evaluations WHERE subject = ? AND eval_date = ?", (del_subj, del_date.strip())).fetchone()[0]
-
-            st.warning(f"تعداد {count_to_del} ارزشیابی برای درس '{del_subj}' در تاریخ '{del_date}' پیدا شد.")
-            if st.button(f"🗑️ حذف یکجای تمام {count_to_del} ارزشیابی درس '{del_subj}' در تاریخ '{del_date}'", key="btn_del_batch_evals", disabled=(count_to_del == 0)):
-                with get_connection() as conn:
-                    conn.execute("DELETE FROM evaluations WHERE subject = ? AND eval_date = ?", (del_subj, del_date.strip()))
-                    conn.commit()
-                st.success(f"🎉 تمام ارزشیابی‌های درس '{del_subj}' در تاریخ '{del_date}' با موفقیت پاکسازی شدند.")
-                st.rerun()
-
-            st.markdown("---")
-            
-            # Tool 3: Individual Delete Row
-            st.markdown("##### ❌ ۳. حذف تکی یک ارزشیابی از دیتابیس:")
-            with get_connection() as conn:
-                df_all_ev = safe_read_sql("""
-                    SELECT e.id, s.first_name || ' ' || s.last_name AS full_name, e.subject, e.level, e.eval_date
-                    FROM evaluations e
-                    JOIN students s ON e.student_id = s.id
-                    ORDER BY e.id DESC LIMIT 50
-                """, conn)
-            
-            if not df_all_ev.empty:
-                ev_options = [f"{row['id']} - {row['full_name']} ({row['subject']} - {row['level']} - {row['eval_date']})" for _, row in df_all_ev.iterrows()]
-                sel_single_del = st.selectbox("انتخاب ارزشیابی جهت حذف تکی:", ev_options, key="sel_single_ev_del")
-                single_ev_id = int(sel_single_del.split(" - ")[0])
-                
-                if st.button("❌ حذف این ارزشیابی تکی", key="btn_single_ev_del_exec"):
+            col_cl1, col_cl2 = st.columns(2)
+            with col_cl1:
+                st.markdown("##### 🧹 ۱. پاکسازی هوشمند تکراری‌ها (حفظ آخرین نمره هر دانش‌آموز)")
+                if st.button("🧹 پاکسازی هوشمند و حذف تمامی ارزشیابی‌های تکراری", type="primary", key="btn_smart_dedup_v100"):
                     with get_connection() as conn:
-                        conn.execute("DELETE FROM evaluations WHERE id = ?", (single_ev_id,))
+                        cursor = conn.cursor()
+                        b_cnt = cursor.execute("SELECT COUNT(*) FROM evaluations").fetchone()[0]
+                        cursor.execute("""
+                            DELETE FROM evaluations 
+                            WHERE id NOT IN (
+                                SELECT MAX(id) 
+                                FROM evaluations 
+                                GROUP BY student_id, subject, eval_date
+                            )
+                        """)
                         conn.commit()
-                    st.success("ارزشیابی مورد نظر با موفقیت حذف شد.")
+                        a_cnt = cursor.execute("SELECT COUNT(*) FROM evaluations").fetchone()[0]
+                    diff = b_cnt - a_cnt
+                    st.success(f"🎉 پاکسازی هوشمند با موفقیت انجام شد! تعداد {diff} مورد ارزشیابی تکراری حذف گردید.")
                     st.rerun()
 
-# ---------------------------------------------------------
-# 4. BEHAVIOR & DISCIPLINE (TEACHER ONLY)
+            with col_cl2:
+                st.markdown("##### 🔥 ۲. حذف کلی تمام ارزشیابی‌های ثبت‌شده")
+                st.error("⚠️ این دکمه کل ارزشیابی‌های درسی ثبت‌شده را کلاً پاک می‌کند.")
+                chk_del_all = st.checkbox("تایید می‌کنم که قصد حذف کامل تمام ارزشیابی‌های کلاسی را دارم.", key="chk_del_all_evals_v100")
+                if st.button("🔥 پاکسازی کامل تمام ارزشیابی‌های درسی", key="btn_del_all_evals_v100", disabled=not chk_del_all):
+                    with get_connection() as conn:
+                        conn.execute("DELETE FROM evaluations")
+                        conn.commit()
+                    st.success("🎉 تمام ارزشیابی‌های درسی کلاً پاکسازی شدند.")
+                    st.rerun()
+
+# BEHAVIOR & DISCIPLINE (TEACHER ONLY)
 # ---------------------------------------------------------
 elif menu_choice.startswith("4"):
     check_teacher_auth()
