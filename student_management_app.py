@@ -1186,7 +1186,7 @@ if st.session_state['show_welcome_page']:
     st.stop()
 
 # ---------------------------------------------------------
-# TOP APP HEADER & AUTH BAR (Clean Mobile & Desktop Layout)
+# TOP APP HEADER & AUTH BAR (100% Responsive Mobile & Desktop)
 # ---------------------------------------------------------
 curr_shamsi = get_current_shamsi_date()
 
@@ -1197,11 +1197,11 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Clean, Responsive Login Container
+# Clean, Responsive Mobile & Desktop Login Container
 st.markdown("""
 <style>
     .auth-card-box {
-        background: rgba(30, 41, 59, 0.95);
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         border: 2px solid #3b82f6;
         border-radius: 14px;
         padding: 16px 20px;
@@ -1213,37 +1213,45 @@ st.markdown("""
 
 st.markdown('<div class="auth-card-box">', unsafe_allow_html=True)
 
-col_a1, col_a2 = st.columns([3, 1])
+col_role, col_welcome = st.columns([3, 1])
 
-with col_a1:
-    role_choice = st.radio(
-        "👤 انتخاب نقش کاربری جهت ورود به سامانه:",
-        ["دانش‌آموز و اولیا (ورود عمومی 👨‍🎓)", "آموزگار پایه پنجم (پنل مدیریت 👨‍🏫)"],
-        horizontal=True,
-        key="role_radio"
+with col_role:
+    role_choice = st.selectbox(
+        "👤 انتخاب نقش کاربری جهت استفاده از سامانه:",
+        ["👨‍🎓 ورود عمومی دانش‌آموزان و اولیا (مشاهده کارنامه و شرکت در آزمون)", "👨‍🏫 پنل مدیریت آموزگار (ثبت نمرات و مدیریت کلاس)"],
+        key="role_select_box"
     )
-    if role_choice.startswith("دانش‌آموز"):
+    if "دانش‌آموزان" in role_choice:
         st.session_state['user_role'] = 'دانش‌آموز'
         st.session_state['is_teacher_logged_in'] = False
     else:
         st.session_state['user_role'] = 'معلم'
 
-with col_a2:
-    if st.button("🏠 صفحه خوش‌آمدگویی", key="btn_welcome_nav"):
+with col_welcome:
+    st.write("&nbsp;")
+    if st.button("🏠 خوش‌آمدگویی", key="btn_welcome_nav", use_container_width=True):
         st.session_state['show_welcome_page'] = True
         st.rerun()
 
 # Password input box when Teacher Role is selected
 if st.session_state['user_role'] == 'معلم':
-    st.markdown("<hr style='border-color: rgba(255,255,255,0.1); margin: 12px 0;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='border-color: rgba(255,255,255,0.15); margin: 12px 0;'>", unsafe_allow_html=True)
     if not st.session_state['is_teacher_logged_in']:
         col_p1, col_p2 = st.columns([3, 1])
         with col_p1:
             pass_input = st.text_input("🔑 رمز عبور آموزگار را وارد کنید:", type="password", key="top_pass_input", placeholder="رمز عبور پیش‌فرض: 1234")
+            if pass_input:
+                if check_teacher_password(pass_input):
+                    st.session_state['is_teacher_logged_in'] = True
+                    st.success("🔓 ورود موفقیت‌آمیز آموزگار!")
+                    st.rerun()
+                else:
+                    st.error("❌ رمز عبور اشتباه است.")
         with col_p2:
             st.write("&nbsp;")
-            if st.button("ورود به پنل معلم 🔓", key="btn_login_submit"):
-                if check_teacher_password(pass_input):
+            if st.button("ورود به پنل معلم 🔓", key="btn_login_submit", use_container_width=True):
+                pass_val = pass_input if 'pass_input' in locals() else ''
+                if check_teacher_password(pass_val):
                     st.session_state['is_teacher_logged_in'] = True
                     st.success("🔓 ورود موفقیت‌آمیز آموزگار!")
                     st.rerun()
@@ -1254,15 +1262,13 @@ if st.session_state['user_role'] == 'معلم':
         with col_l1:
             st.success("🟢 پنل مدیریت آموزگار فعال است (سید موسی حیدری)")
         with col_l2:
-            if st.button("خروج از پنل معلم 🔒", key="btn_logout"):
+            if st.button("خروج از پنل معلم 🔒", key="btn_logout", use_container_width=True):
                 st.session_state['is_teacher_logged_in'] = False
                 st.rerun()
 
 st.markdown('</div>', unsafe_allow_html=True)
-
 st.markdown("---")
 
-# ---------------------------------------------------------
 # NAVIGATION MENU (RESPONSIVE & MOBILE-FRIENDLY SELECTBOX / SIDEBAR)
 # ---------------------------------------------------------
 if st.session_state['is_teacher_logged_in']:
@@ -1650,30 +1656,41 @@ elif menu_choice.startswith("3"):
                 st.dataframe(eval_h, use_container_width=True, hide_index=True)
 
         with tab_ev2:
-            st.subheader("📊 گزارش کلاسی ارزشیابی‌های ثبت‌شده (آنالیز جامع کلاسی)")
+            st.subheader("📊 گزارش کلاسی و آنالیز جامع ارزشیابی‌ها")
+            
+            # Fetch available distinct dates from DB
+            with get_connection() as conn:
+                df_dates = safe_read_sql("SELECT DISTINCT eval_date FROM evaluations ORDER BY id DESC", conn)
+            
+            db_dates = df_dates['eval_date'].tolist() if not df_dates.empty else []
+            date_options = ["📅 همه تواریخ (مشاهده کل ارزشیابی‌ها)"] + db_dates
+            
             col_rep1, col_rep2 = st.columns(2)
             with col_rep1:
-                rep_subject = st.selectbox("فیلتر درس جهت گزارش کلاسی:", ["همه دروس"] + FIFTH_GRADE_SUBJECTS, key="rep_subj_sel")
+                rep_subject = st.selectbox("فیلتر بر اساس درس:", ["همه دروس"] + FIFTH_GRADE_SUBJECTS, key="rep_subj_sel")
             with col_rep2:
-                rep_date = st.text_input("تاریخ ارزشیابی (شمسی):", value=get_current_shamsi_date(), key="rep_date_inp")
+                rep_date = st.selectbox("فیلتر بر اساس تاریخ ارزشیابی:", date_options, key="rep_date_sel")
 
+            query = """
+                SELECT e.id, s.first_name || ' ' || s.last_name AS full_name, s.student_group, e.subject, e.level, e.feedback, e.eval_date
+                FROM evaluations e
+                JOIN students s ON e.student_id = s.id
+                WHERE 1=1
+            """
+            params = []
+            
+            if rep_subject != "همه دروس":
+                query += " AND e.subject = ?"
+                params.append(rep_subject)
+                
+            if not rep_date.startswith("📅 همه"):
+                query += " AND e.eval_date = ?"
+                params.append(rep_date)
+                
+            query += " ORDER BY e.id DESC"
+            
             with get_connection() as conn:
-                if rep_subject == "همه دروس":
-                    df_class_eval = safe_read_sql("""
-                        SELECT e.id, s.first_name || ' ' || s.last_name AS full_name, s.student_group, e.subject, e.level, e.feedback, e.eval_date
-                        FROM evaluations e
-                        JOIN students s ON e.student_id = s.id
-                        WHERE e.eval_date = ?
-                        ORDER BY e.id DESC
-                    """, conn, params=(rep_date.strip(),))
-                else:
-                    df_class_eval = safe_read_sql("""
-                        SELECT e.id, s.first_name || ' ' || s.last_name AS full_name, s.student_group, e.subject, e.level, e.feedback, e.eval_date
-                        FROM evaluations e
-                        JOIN students s ON e.student_id = s.id
-                        WHERE e.subject = ? AND e.eval_date = ?
-                        ORDER BY e.id DESC
-                    """, conn, params=(rep_subject, rep_date.strip()))
+                df_class_eval = safe_read_sql(query, conn, params=params if params else None)
 
             if not df_class_eval.empty:
                 total_cnt = len(df_class_eval)
@@ -1699,16 +1716,30 @@ elif menu_choice.startswith("3"):
                     'eval_date': 'تاریخ'
                 }), use_container_width=True, hide_index=True)
 
+                st.markdown("##### 📥 دانلود و دریافت خروجی گزارش کلاسی (اکسل و PDF):")
                 col_exp1, col_exp2 = st.columns(2)
                 with col_exp1:
                     stats_dict = {'total': total_cnt, 'vgood': vgood_cnt, 'good': good_cnt, 'accept': accept_cnt, 'need_work': need_cnt}
                     records_list = df_class_eval.to_dict('records')
-                    class_pdf = generate_reportlab_class_eval_pdf(rep_subject, rep_date, records_list, stats_dict)
-                    st.download_button("📥 دانلود PDF رسمی گزارش کلاسی (قابل پرینت)", data=class_pdf, file_name=f"class_eval_report_{rep_subject}_{rep_date.replace('/','_')}.pdf", mime="application/pdf")
+                    date_title = "کل تواریخ" if rep_date.startswith("📅 همه") else rep_date
+                    class_pdf = generate_reportlab_class_eval_pdf(rep_subject, date_title, records_list, stats_dict)
+                    st.download_button(
+                        "📄 دانلود فایل PDF رسمی گزارش کلاسی (قابل پرینت)",
+                        data=class_pdf,
+                        file_name=f"class_eval_report_{rep_subject}_{date_title.replace('/', '-')}.pdf",
+                        mime="application/pdf",
+                        key="btn_dl_class_eval_pdf"
+                    )
                 with col_exp2:
-                    st.download_button("📊 دانلود اکسل (CSV) گزارش کلاسی", data=df_class_eval.to_csv(index=False).encode('utf-8-sig'), file_name=f"class_eval_{rep_subject}.csv", mime="text/csv")
+                    st.download_button(
+                        "📊 دانلود فایل اکسل (CSV) گزارش کلاسی",
+                        data=df_class_eval.to_csv(index=False).encode('utf-8-sig'),
+                        file_name=f"class_eval_{rep_subject}_{date_title.replace('/', '-')}.csv",
+                        mime="text/csv",
+                        key="btn_dl_class_eval_csv"
+                    )
             else:
-                st.info(f"برای درس '{rep_subject}' در تاریخ '{rep_date}' ارزشیابی‌ای یافت نشد.")
+                st.info(f"💡 هیچ ارزشیابی‌ای برای فیلتر انتخابی ({rep_subject} / {rep_date}) یافت نشد. اگر فیلتر تاریخ را روی '📅 همه تواریخ' قرار دهید، تمام ارزشیابی‌های قبلی نمایش داده می‌شوند.")
 
 # ---------------------------------------------------------
 # 4. BEHAVIOR & DISCIPLINE (TEACHER ONLY)
