@@ -57,8 +57,11 @@ st.markdown("""
     /* Global Typography - Targeted to prevent breaking Streamlit Icon Fonts */
     html, body, .stApp, .stMarkdown, p, h1, h2, h3, h4, h5, h6, input, select, textarea, button, label {
         font-family: 'Vazirmatn', Tahoma, sans-serif !important;
-        direction: rtl;
-        text-align: right;
+        direction: rtl !important;
+        text-align: right !important;
+        word-break: keep-all !important;
+        word-wrap: normal !important;
+        writing-mode: horizontal-tb !important;
     }
 
     .stApp {
@@ -91,7 +94,7 @@ st.markdown("""
         word-break: keep-all !important;
     }
 
-    /* Card Boxes (v58 Style) */
+    /* Card Boxes */
     .card-box {
         background: rgba(30, 41, 59, 0.9);
         border: 1px solid rgba(255, 255, 255, 0.15);
@@ -113,70 +116,37 @@ st.markdown("""
         box-shadow: 0 6px 16px rgba(0,0,0,0.25);
     }
 
-    /* Sidebar Navigation (v58 Fast & Stylish) */
+    /* Targeted Sidebar Styling & Fix for Pin/Menu Mangling */
     section[data-testid="stSidebar"] {
         background-color: #0f172a !important;
         border-left: 2px solid #1e293b !important;
     }
 
-    section[data-testid="stSidebar"] div[role="radiogroup"] {
-        gap: 8px !important;
+    section[data-testid="stSidebar"] * {
+        word-break: keep-all !important;
+        word-wrap: normal !important;
+        writing-mode: horizontal-tb !important;
     }
 
-    section[data-testid="stSidebar"] div[role="radiogroup"] label {
-        background-color: rgba(30, 41, 59, 0.85) !important;
-        color: #ffffff !important;
-        padding: 12px 16px !important;
-        border-radius: 10px !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        transition: all 0.2s ease !important;
-        cursor: pointer !important;
-        display: flex !important;
-        align-items: center !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-        background-color: #2563eb !important;
-        border-color: #60a5fa !important;
-        transform: translateX(-3px);
-    }
-
-    section[data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-        border: 2px solid #60a5fa !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
-    }
-
-    section[data-testid="stSidebar"] div[role="radiogroup"] label p {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        font-size: 1.02rem !important;
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] h4,
+    section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] span {
+        direction: rtl !important;
+        text-align: right !important;
         white-space: nowrap !important;
         word-break: keep-all !important;
-        margin: 0 !important;
-    }
-
-    /* Buttons */
-    .stButton > button {
+        writing-mode: horizontal-tb !important;
+        display: block !important;
         width: 100% !important;
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-        color: #ffffff !important;
-        border-radius: 10px !important;
-        padding: 10px 18px !important;
-        font-weight: bold !important;
-        border: none !important;
-        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3) !important;
-        transition: all 0.3s ease !important;
-        white-space: nowrap !important;
-        word-break: keep-all !important;
     }
 
-    .stButton > button:hover {
-        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4) !important;
+    section[data-testid="stSidebar"] a.header-anchor,
+    section[data-testid="stSidebar"] .anchor-link {
+        display: none !important;
     }
 
     /* Input Controls */
@@ -206,14 +176,6 @@ st.markdown("""
     li[role="option"]:hover {
         background-color: #0284c7 !important;
         color: #ffffff !important;
-    }
-
-    div[data-testid="stRadio"] div[role="radiogroup"] label p {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-        white-space: normal !important;
-        word-break: keep-all !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -1304,7 +1266,7 @@ def on_sidebar_menu_change():
 # Main Area Menu Card (100% Responsive for Mobile & Desktop)
 st.markdown("""
 <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 16px; border-radius: 12px; border: 2px solid #3b82f6; margin-bottom: 20px;">
-    <h3 style="color: #60a5fa !important; margin-bottom: 8px; font-size: 1.15rem;">📌 منوی دسترسی و انتقال بین بخش‌های سامانه:</h3>
+    <div style="background: rgba(30, 41, 59, 0.95); padding: 10px 14px; border-radius: 10px; border: 1px solid #3b82f6; text-align: right; direction: rtl; margin-bottom: 10px; white-space: nowrap; overflow: hidden;"><span style="font-size: 1.1rem; font-weight: bold; color: #60a5fa;">📌 منوی دسترسی و انتقال بین بخش‌های سامانه</span></div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1318,7 +1280,11 @@ st.selectbox(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 📌 منوی سامانه:")
+st.sidebar.markdown('''
+<div style="background: rgba(30, 41, 59, 0.95); padding: 10px 14px; border-radius: 10px; border: 1px solid #3b82f6; text-align: right; direction: rtl; margin-bottom: 10px; white-space: nowrap; overflow: hidden;">
+    <span style="font-size: 1.05rem; font-weight: bold; color: #fbbf24;">📌 منوی مدیریت سامانه</span>
+</div>
+''', unsafe_allow_html=True)
 st.sidebar.selectbox(
     "انتخاب بخش از نوار کنار:",
     MENU_OPTIONS,
@@ -1617,35 +1583,40 @@ elif menu_choice.startswith("3"):
     if students_df.empty:
         st.warning("لطفاً ابتدا اسامی دانش‌آموزان را ثبت کنید.")
     else:
-        tab_ev1, tab_ev2 = st.tabs([
-            "➕ ثبت ارزشیابی توصیفی جدید",
-            "📊 گزارش جامع کلاسی و آنالیز آزمون/ارزشیابی (کل ۲۹ نفر)"
+        tab_ev1, tab_ev2, tab_ev3 = st.tabs([
+            "➕ ثبت ارزشیابی فردی (تکی)",
+            "⚡ ثبت سریع و یکجای ارزشیابی کل کلاس (۲۹ نفر)",
+            "📊 گزارش جامع کلاسی و آنالیز ارزشیابی‌ها"
         ])
         
+        # TAB 1: INDIVIDUAL EVALUATION FORM
         with tab_ev1:
-            col1, col2 = st.columns(2)
-            with col1:
-                selected_student = st.selectbox("انتخاب دانش‌آموز:", students_df['full_name'].tolist(), key="ev_st_sel")
-                selected_subject = st.selectbox("عنوان درس:", FIFTH_GRADE_SUBJECTS, key="ev_subj_sel")
-            with col2:
-                selected_level = st.selectbox("سطح عملکرد توصیفی:", EVALUATION_LEVELS, key="ev_lvl_sel")
-                eval_date = st.text_input("تاریخ ارزشیابی (شمسی):", value=get_current_shamsi_date(), key="ev_date_inp")
+            st.subheader("➕ ثبت ارزشیابی توصیفی برای یک دانش‌آموز")
+            with st.form("single_student_eval_form"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    selected_student = st.selectbox("انتخاب دانش‌آموز:*", students_df['full_name'].tolist(), key="ev_st_sel")
+                    selected_subject = st.selectbox("عنوان درس:*", FIFTH_GRADE_SUBJECTS, key="ev_subj_sel")
+                with col2:
+                    selected_level = st.selectbox("سطح عملکرد توصیفی:*", EVALUATION_LEVELS, key="ev_lvl_sel")
+                    eval_date = st.text_input("تاریخ ارزشیابی (شمسی):*", value=get_current_shamsi_date(), key="ev_date_inp")
+                    
+                feedback_text = st.text_area("توصیف عملکرد معلم و توصیه‌های آموزشی:", placeholder="مثلاً: در محاسبات کسرها عملکرد عالی دارد، نیاز به تمرین در ضرب اعشاری دارد.", key="ev_fb_inp")
                 
-            feedback_text = st.text_area("بازخورد توصیفی و توصیه‌های آموزگار:", placeholder="مثلاً: در محاسبات کسرها عملکرد عالی دارد، نیاز به تمرین در ضرب اعشاری دارد.", key="ev_fb_inp")
-            
-            if st.button("💾 ثبت ارزشیابی توصیفی", key="btn_save_eval"):
-                s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
-                with get_connection() as conn:
-                    conn.execute(
-                        "INSERT INTO evaluations (student_id, subject, level, feedback, eval_date) VALUES (?, ?, ?, ?, ?)",
-                        (s_id, selected_subject, selected_level, feedback_text.strip(), eval_date.strip())
-                    )
-                    conn.commit()
-                st.success(f"ارزشیابی {selected_subject} برای {selected_student} با موفقیت ثبت شد.")
-                st.rerun()
+                submitted_single = st.form_submit_button("💾 ثبت ارزشیابی توصیفی دانش‌آموز")
+                if submitted_single:
+                    s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
+                    with get_connection() as conn:
+                        conn.execute(
+                            "INSERT INTO evaluations (student_id, subject, level, feedback, eval_date) VALUES (?, ?, ?, ?, ?)",
+                            (s_id, selected_subject, selected_level, feedback_text.strip(), eval_date.strip())
+                        )
+                        conn.commit()
+                    st.success(f"🎉 ارزشیابی درس '{selected_subject}' برای '{selected_student}' با موفقیت در دیتابیس ثبت شد.")
+                    st.rerun()
 
             st.markdown("---")
-            st.subheader(f"📋 سوابق ارزشیابی: {selected_student}")
+            st.subheader(f"📋 سوابق ارزشیابی ثبت‌شده: {selected_student}")
             s_id = int(students_df[students_df['full_name'] == selected_student]['id'].values[0])
             with get_connection() as conn:
                 eval_h = safe_read_sql("""
@@ -1654,43 +1625,92 @@ elif menu_choice.startswith("3"):
                 """, conn, params=(s_id,))
             if not eval_h.empty:
                 st.dataframe(eval_h, use_container_width=True, hide_index=True)
+            else:
+                st.info("سابقه‌ای برای این دانش‌آموز یافت نشد.")
 
+        # TAB 2: BATCH CLASSROOM EVALUATION (ALL 29 STUDENTS AT ONCE)
         with tab_ev2:
+            st.subheader("⚡ ثبت سریع و یکجای ارزشیابی برای تمام دانش‌آموزان کلاس")
+            st.info("💡 در این بخش می‌توانید نتیجه یک امتحان یا ارزشیابی کلاسی (مثلاً امتحان ریاضی دیروز) را برای تمام ۲۹ دانش‌آموز در ۱ ثانیه یکجا ثبت نمایید.")
+            
+            col_b1, col_b2 = st.columns(2)
+            with col_b1:
+                batch_subject = st.selectbox("عنوان درس جهت ثبت کلاسی:*", FIFTH_GRADE_SUBJECTS, key="batch_subj_sel")
+            with col_b2:
+                batch_date = st.text_input("تاریخ ارزشیابی کلاسی (شمسی):*", value=get_current_shamsi_date(), key="batch_date_inp")
+
+            st.markdown("##### 📝 لیست ۲۹ دانش‌آموز جهت تعیین سطح و بازخورد:")
+            
+            with st.form("batch_class_eval_form"):
+                batch_inputs = {}
+                for idx, row in students_df.iterrows():
+                    st_id = int(row['id'])
+                    st_name = row['full_name']
+                    st_grp = row['student_group']
+                    
+                    st.markdown(f"**{idx+1}. {st_name}** <span style='color:#94a3b8; font-size:0.85rem;'>({st_grp})</span>", unsafe_allow_html=True)
+                    col_st1, col_st2 = st.columns([1, 2])
+                    with col_st1:
+                        lvl = st.selectbox("سطح کیفی:", EVALUATION_LEVELS, index=0, key=f"batch_lvl_{st_id}")
+                    with col_st2:
+                        fb = st.text_input("توصیف/بازخورد معلم (اختیاری):", placeholder="مثلاً: عملکرد عالی، بدون غلط", key=f"batch_fb_{st_id}")
+                    batch_inputs[st_id] = (st_name, lvl, fb)
+                    st.markdown("<hr style='border-color:rgba(255,255,255,0.08); margin: 6px 0;'>", unsafe_allow_html=True)
+
+                submit_batch = st.form_submit_button("🚀 💾 ثبت یکجای ارزشیابی تمام ۲۹ دانش‌آموز کلاس")
+                if submit_batch:
+                    saved_count = 0
+                    with get_connection() as conn:
+                        for st_id, (st_name, lvl, fb) in batch_inputs.items():
+                            conn.execute(
+                                "INSERT INTO evaluations (student_id, subject, level, feedback, eval_date) VALUES (?, ?, ?, ?, ?)",
+                                (st_id, batch_subject, lvl, fb.strip(), batch_date.strip())
+                            )
+                            saved_count += 1
+                        conn.commit()
+                    st.balloons()
+                    st.success(f"🎉 ارزشیابی درس '{batch_subject}' در تاریخ '{batch_date}' برای تمامی {saved_count} دانش‌آموز کلاس با موفقیت یکجا ذخیره شد!")
+                    st.rerun()
+
+        # TAB 3: COMPREHENSIVE CLASS REPORT & EXPORT
+        with tab_ev3:
             st.subheader("📊 گزارش کلاسی و آنالیز جامع ارزشیابی‌ها")
             
-            # Fetch available distinct dates from DB
             with get_connection() as conn:
                 df_dates = safe_read_sql("SELECT DISTINCT eval_date FROM evaluations ORDER BY id DESC", conn)
             
             db_dates = df_dates['eval_date'].tolist() if not df_dates.empty else []
             date_options = ["📅 همه تواریخ (مشاهده کل ارزشیابی‌ها)"] + db_dates
-            
+
             col_rep1, col_rep2 = st.columns(2)
             with col_rep1:
-                rep_subject = st.selectbox("فیلتر بر اساس درس:", ["همه دروس"] + FIFTH_GRADE_SUBJECTS, key="rep_subj_sel")
+                rep_subject = st.selectbox("فیلتر درس جهت گزارش کلاسی:", ["همه دروس"] + FIFTH_GRADE_SUBJECTS, key="rep_subj_sel_v98")
             with col_rep2:
-                rep_date = st.selectbox("فیلتر بر اساس تاریخ ارزشیابی:", date_options, key="rep_date_sel")
+                rep_date_sel = st.selectbox("فیلتر تاریخ ارزشیابی:", date_options, key="rep_date_sel_v98")
 
-            query = """
-                SELECT e.id, s.first_name || ' ' || s.last_name AS full_name, s.student_group, e.subject, e.level, e.feedback, e.eval_date
-                FROM evaluations e
-                JOIN students s ON e.student_id = s.id
-                WHERE 1=1
-            """
-            params = []
-            
-            if rep_subject != "همه دروس":
-                query += " AND e.subject = ?"
-                params.append(rep_subject)
-                
-            if not rep_date.startswith("📅 همه"):
-                query += " AND e.eval_date = ?"
-                params.append(rep_date)
-                
-            query += " ORDER BY e.id DESC"
-            
             with get_connection() as conn:
-                df_class_eval = safe_read_sql(query, conn, params=params if params else None)
+                query = """
+                    SELECT e.id, s.first_name || ' ' || s.last_name AS full_name, s.student_group, e.subject, e.level, e.feedback, e.eval_date
+                    FROM evaluations e
+                    JOIN students s ON e.student_id = s.id
+                """
+                params = []
+                where_clauses = []
+                
+                if rep_subject != "همه دروس":
+                    where_clauses.append("e.subject = ?")
+                    params.append(rep_subject)
+                
+                if not rep_date_sel.startswith("📅"):
+                    where_clauses.append("e.eval_date = ?")
+                    params.append(rep_date_sel.strip())
+                    
+                if where_clauses:
+                    query += " WHERE " + " AND ".join(where_clauses)
+                
+                query += " ORDER BY e.id DESC"
+                
+                df_class_eval = safe_read_sql(query, conn, params=tuple(params) if params else None)
 
             if not df_class_eval.empty:
                 total_cnt = len(df_class_eval)
@@ -1700,7 +1720,7 @@ elif menu_choice.startswith("3"):
                 need_cnt = len(df_class_eval[df_class_eval['level'].str.contains('نیاز به تلاش')])
 
                 m1, m2, m3, m4, m5 = st.columns(5)
-                m1.metric("کل ارزیابی‌شده:", f"{total_cnt} نفر")
+                m1.metric("کل ارزیابی‌شده:", f"{total_cnt} مورد")
                 m2.metric("خیلی خوب 🌟:", f"{vgood_cnt} نفر")
                 m3.metric("خوب 🟢:", f"{good_cnt} نفر")
                 m4.metric("قابل قبول 🟡:", f"{accept_cnt} نفر")
@@ -1716,34 +1736,17 @@ elif menu_choice.startswith("3"):
                     'eval_date': 'تاریخ'
                 }), use_container_width=True, hide_index=True)
 
-                st.markdown("##### 📥 دانلود و دریافت خروجی گزارش کلاسی (اکسل و PDF):")
                 col_exp1, col_exp2 = st.columns(2)
                 with col_exp1:
                     stats_dict = {'total': total_cnt, 'vgood': vgood_cnt, 'good': good_cnt, 'accept': accept_cnt, 'need_work': need_cnt}
                     records_list = df_class_eval.to_dict('records')
-                    date_title = "کل تواریخ" if rep_date.startswith("📅 همه") else rep_date
-                    class_pdf = generate_reportlab_class_eval_pdf(rep_subject, date_title, records_list, stats_dict)
-                    st.download_button(
-                        "📄 دانلود فایل PDF رسمی گزارش کلاسی (قابل پرینت)",
-                        data=class_pdf,
-                        file_name=f"class_eval_report_{rep_subject}_{date_title.replace('/', '-')}.pdf",
-                        mime="application/pdf",
-                        key="btn_dl_class_eval_pdf"
-                    )
+                    class_pdf = generate_reportlab_class_eval_pdf(rep_subject, rep_date_sel if not rep_date_sel.startswith('📅') else get_current_shamsi_date(), records_list, stats_dict)
+                    st.download_button("📄 دانلود فایل پی دی اف (PDF) رسمی گزارش کلاسی", data=class_pdf, file_name=f"class_eval_report_{rep_subject}.pdf", mime="application/pdf")
                 with col_exp2:
-                    st.download_button(
-                        "📊 دانلود فایل اکسل (CSV) گزارش کلاسی",
-                        data=df_class_eval.to_csv(index=False).encode('utf-8-sig'),
-                        file_name=f"class_eval_{rep_subject}_{date_title.replace('/', '-')}.csv",
-                        mime="text/csv",
-                        key="btn_dl_class_eval_csv"
-                    )
+                    st.download_button("📊 دانلود فایل اکسل (CSV) گزارش کلاسی", data=df_class_eval.to_csv(index=False).encode('utf-8-sig'), file_name=f"class_eval_{rep_subject}.csv", mime="text/csv")
             else:
-                st.info(f"💡 هیچ ارزشیابی‌ای برای فیلتر انتخابی ({rep_subject} / {rep_date}) یافت نشد. اگر فیلتر تاریخ را روی '📅 همه تواریخ' قرار دهید، تمام ارزشیابی‌های قبلی نمایش داده می‌شوند.")
+                st.info("هیچ ارزشیابی‌ای با فیلترهای انتخابی یافت نشد.")
 
-# ---------------------------------------------------------
-# 4. BEHAVIOR & DISCIPLINE (TEACHER ONLY)
-# ---------------------------------------------------------
 elif menu_choice.startswith("4"):
     check_teacher_auth()
     st.header("🌟 مدیریت رفتار و مشاهدات انضباطی")
